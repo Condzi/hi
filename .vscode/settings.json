@@ -1,0 +1,4 @@
+{
+  "cmake.buildTask": true,
+  "task.autoDetect": "off"
+}

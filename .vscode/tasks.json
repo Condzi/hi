@@ -1,0 +1,52 @@
+{
+  "version": "2.0.0",
+  "windows": {
+    "options": {
+      "shell": {
+        "executable": "cmd.exe",
+        "args": [
+          "/d",
+          "/c",
+          "D:\\Programs\\vs-community-22\\VC\\Auxiliary\\Build\\vcvars64.bat",
+          "&"
+        ]
+      }
+    }
+  },
+  "tasks": [
+    {
+      "label": "Game [debug]",
+      "type": "shell",
+      "command": ".\\build.bat game debug",
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "Game [release]",
+      "type": "shell",
+      "command": ".\\build.bat game release",
+      "group": {
+        "kind": "build"
+      },
+      "problemMatcher": [
+        "$gcc"
+      ]
+    },
+    {
+      "label": "Game [debug] [asan]",
+      "type": "shell",
+      "command": ".\\build.bat game debug asan",
+      "group": {
+        "kind": "build"
+      },
+      "problemMatcher": [
+        "$gcc"
+      ]
+    },
+  ]
+}
