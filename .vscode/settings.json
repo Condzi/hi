@@ -3,5 +3,8 @@
   "task.autoDetect": "off",
   "cSpell.words": [
     "toggable"
-  ]
+  ],
+  "files.associations": {
+    "cstdint": "cpp"
+  }
 }
