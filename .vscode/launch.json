@@ -18,7 +18,7 @@
       "request": "launch",
       "program": "${workspaceRoot}/build/game.exe",
       "cwd": "${workspaceRoot}/run_tree/",
-      "preLaunchTask": "Game [debug] [asan]"
+      "preLaunchTask": "",
     },
     {
       "name": "Release",

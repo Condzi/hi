@@ -40,7 +40,7 @@ if "%~1"==""        echo [default mode, assuming `game` build] && set game=1
 
 :: --- Unpack Command Line Build Arguments ------------------------------------
 set auto_compile_flags=
-if "%asan%"=="1"      set auto_compile_flags=%auto_compile_flags% -fsanitize=address && echo [asan enabled]
+if "%asan%"=="1"      set auto_compile_flags=%auto_compile_flags% -fsanitize=address && echo [asan enabled -- EXECUTEBLE MUST BE RAN FROM VS NATIVE TOOL COMMAND PROMPT]
 
 :: --- Custom stuff -----------------------------------------------------------
 :: # 1. Set Windows Defines (no unicode!)

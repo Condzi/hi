@@ -1,6 +1,6 @@
 {
   "version": "2.0.0",
-  "windows": {
+"windows": {
     "options": {
       "shell": {
         "executable": "cmd.exe",
@@ -17,19 +17,27 @@
     {
       "label": "Game [debug]",
       "type": "shell",
-      "command": ".\\build.bat game debug",
+      "command": "build",
+      "args": [
+        "game",
+        "debug"
+      ],
       "problemMatcher": [
         "$gcc"
       ],
       "group": {
-        "kind": "test",
+        "kind": "build",
         "isDefault": true
       }
     },
     {
       "label": "Game [release]",
       "type": "shell",
-      "command": ".\\build.bat game release",
+      "command": "build",
+      "args": [
+        "game",
+        "release"
+      ],
       "group": {
         "kind": "build"
       },
@@ -40,13 +48,16 @@
     {
       "label": "Game [debug] [asan]",
       "type": "shell",
-      "command": ".\\build.bat game debug asan",
-      "group": {
-        "kind": "build"
-      },
+      "command": "build",
+      "args": [
+        "game",
+        "debug",
+        "asan"
+      ],
+      "group": "build",
       "problemMatcher": [
         "$gcc"
       ]
-    },
+    }
   ]
 }

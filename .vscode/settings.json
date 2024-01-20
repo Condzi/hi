@@ -2,9 +2,13 @@
   "cmake.buildTask": true,
   "task.autoDetect": "off",
   "cSpell.words": [
+    "debugbreak",
     "toggable"
   ],
   "files.associations": {
-    "cstdint": "cpp"
-  }
+    "cstdint": "cpp",
+    "algorithm": "cpp",
+    "cmath": "cpp"
+  },
+  "C_Cpp.errorSquiggles": "disabled"
 }
