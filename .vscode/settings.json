@@ -1,4 +1,7 @@
 {
   "cmake.buildTask": true,
-  "task.autoDetect": "off"
+  "task.autoDetect": "off",
+  "cSpell.words": [
+    "toggable"
+  ]
 }
