@@ -8,13 +8,13 @@
     List of textures and audio files...
 
   ## Base
-    [ ] Basic Types
-    [ ] Language Layer
-    [ ] Math (rand..)
-    [ ] Strings (immutable!)
-    [ ] Allocators
+    [X] Basic Types
+    [X] Language Layer
+    [1] Allocators
+    [2] Strings (immutable!)
+    [3] Unicode support
     [ ] CMD Parsing
-    [ ] Unicode support
+    [ ] Math (rand..)
 
   ## Debug Tools
     [ ] Frame Time Graph
@@ -40,7 +40,7 @@
     Checks input events and updates the binding status accordingly.
 
   ## OS Core
-    [ ] Debugger output
+    [4] Debugger output
     [ ] Filesystem
     [ ] Threads
     [ ] Mutexes

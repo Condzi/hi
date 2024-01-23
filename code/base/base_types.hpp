@@ -14,6 +14,7 @@
 #define global static
 #define internal static
 #define read_only constexpr
+#define must_use [[nodiscard]]
 
 // Language layer -- memory operations
 //
@@ -46,6 +47,8 @@
 #define InvalidPath Assert(!"Invalid code path taken!")
 
 // Language layer -- misc helper macros
+//
+
 #define C_LINKAGE_BEGIN extern "C" {
 #define C_LINKAGE_END }
 #define C_LINKAGE extern "C"
@@ -71,6 +74,20 @@
 #define AlignPadPow2(x, b) ((0 - (x)) & ((b)-1))
 #define IsPow2(x) ((x) != 0 && ((x) & ((x)-1)) == 0)
 #define IsPow2OrZero(x) ((((x)-1) & (x)) == 0)
+
+#define KB(n) (((u64)(n)) << 10)
+#define MB(n) (((u64)(n)) << 20)
+#define GB(n) (((u64)(n)) << 30)
+#define TB(n) (((u64)(n)) << 40)
+
+#define Thousand(n) ((n) * 1000)
+#define Million(n) ((n) * 1000000)
+#define Billion(n) ((n) * 1000000000)
+
+// Conversion macros
+//
+#define PtrToU64(p) (u64)((p))
+#define U64ToPtr(u) (void *)(u)
 
 // ASAN
 //
