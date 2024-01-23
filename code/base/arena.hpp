@@ -10,7 +10,7 @@ struct Arena {
 
   u64 base_pos;
   u64 curr_pos;
-  u64 res;
+  u64 reserved;
 };
 
 must_use global Arena*

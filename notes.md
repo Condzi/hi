@@ -10,9 +10,9 @@
   ## Base
     [X] Basic Types
     [X] Language Layer
-    [1] Allocators
-    [2] Strings (immutable!)
-    [3] Unicode support
+    [ ] Allocators
+    [1] Strings (immutable!)
+    [ ] Unicode support
     [ ] CMD Parsing
     [ ] Math (rand..)
 
@@ -40,14 +40,14 @@
     Checks input events and updates the binding status accordingly.
 
   ## OS Core
-    [4] Debugger output
+    [2] Debugger output
     [ ] Filesystem
     [ ] Threads
     [ ] Mutexes
-    [ ] Memory allocation
+    [X] Memory allocation
     [ ] library loading
     [ ] OS Information, SIMD detection, CPU and memory info
-    [ ] Time
+    [X] Time
 
   ## OS Wnd
     [ ] Monitor enumeration
