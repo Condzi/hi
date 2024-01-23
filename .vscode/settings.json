@@ -8,7 +8,12 @@
   "files.associations": {
     "cstdint": "cpp",
     "algorithm": "cpp",
-    "cmath": "cpp"
+    "cmath": "cpp",
+    "iterator": "cpp",
+    "initializer_list": "cpp",
+    "utility": "cpp",
+    "xutility": "cpp"
   },
-  "C_Cpp.errorSquiggles": "disabled"
+  "C_Cpp.errorSquiggles": "disabled",
+  "cSpell.enabled": false
 }
