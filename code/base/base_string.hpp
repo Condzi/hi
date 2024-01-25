@@ -16,7 +16,7 @@ struct Str16 {
 
 // String Constructors
 //
-#define str8_lit(S) str8((u8*)S, sizeof(S)-1);
+#define str8_lit(S) str8((u8 *)S, sizeof(S) - 1)
 
 must_use Str8
 str8(u8 *v, u64 sz);
@@ -34,6 +34,7 @@ must_use Str16
 str16_range(u16 *beg, u16 *end);
 
 // Unicode String Conversions
+// For legacy reasons, results are NULL-terminated.
 //
 
 global Str8

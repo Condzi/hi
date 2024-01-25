@@ -26,3 +26,9 @@ os_now_us();
 
 must_use global u64
 os_page_size();
+
+// Misc
+//
+
+void
+os_debug_message(Str8 msg);

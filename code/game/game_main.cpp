@@ -33,6 +33,9 @@ main(int argc, char const *argv[]) {
 
   u64 now = os_now_us();
   Unused(now);
+
+  tcx.frame_arena = make_arena();
+  os_debug_message(str8_lit("Cześć, Świecie!"));
   
   return 0;
 }

@@ -66,3 +66,14 @@ os_page_size() {
 
   return info.dwPageSize;
 }
+
+// Misc
+//
+
+void
+os_debug_message(Str8 msg) {
+  if (IsDebuggerPresent()) {
+    Str16 out = str16_from_8(tcx.frame_arena, msg);
+    OutputDebugStringW((LPCWSTR)out.v);
+  }
+}
