@@ -26,3 +26,15 @@ unmake_arena(Arena &arena);
 
 must_use global void *
 arena_alloc(Arena *arena, u64 size, u64 alignment);
+
+template <typename T>
+must_use global T *
+arena_alloc(Arena *arena) {
+  return (T *)arena_alloc(arena, sizeof(T), alignof(T));
+}
+
+template <typename T>
+must_use global T *
+arena_alloc_array(Arena *arena, u64 count) {
+  return (T *)arena_alloc(arena, sizeof(T) * count, alignof(T));
+}

@@ -12,7 +12,11 @@
     "iterator": "cpp",
     "initializer_list": "cpp",
     "utility": "cpp",
-    "xutility": "cpp"
+    "xutility": "cpp",
+    "memory": "cpp",
+    "limits": "cpp",
+    "cstddef": "cpp",
+    "xmemory": "cpp"
   },
   "C_Cpp.errorSquiggles": "disabled",
   "cSpell.enabled": false

@@ -35,16 +35,9 @@ str16_range(u16 *beg, u16 *end);
 
 // Unicode String Conversions
 //
-/*
+
 global Str8
 str8_from_16(Arena *arena, Str16 in);
 
 global Str16
 str16_from_8(Arena *arena, Str8 in);
-
-global Str8
-str8_from_32(Arena *arena, Str32 in);
-
-global Str32
-str32_from_8(Arena *arena, Str8 in);
-*/
