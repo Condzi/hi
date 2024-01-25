@@ -55,3 +55,14 @@ os_now_us() {
   }
   return res;
 }
+
+// System Information
+//
+
+must_use global u64
+os_page_size() {
+  SYSTEM_INFO info;
+  GetSystemInfo(&info);
+
+  return info.dwPageSize;
+}

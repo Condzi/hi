@@ -20,3 +20,9 @@ os_free(void *ptr, u64 sz);
 
 must_use global u64
 os_now_us();
+
+// System Information
+//
+
+must_use global u64
+os_page_size();

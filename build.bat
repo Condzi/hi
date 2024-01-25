@@ -50,6 +50,7 @@ if "%asan%"=="1"      set auto_compile_flags=%auto_compile_flags% -fsanitize=add
 :: #    (which are specified by angle brackets <> in include directives)
 :: # 5. Check for buffer oveflow (/GS) and additional security checks
 :: # 6. Disable warnings: 
+:: #    - unused functions,
 :: #    - spectre, 
 :: #    - noexcept, 
 :: #    - additional padding, 
@@ -59,12 +60,12 @@ if "%asan%"=="1"      set auto_compile_flags=%auto_compile_flags% -fsanitize=add
 :: #    - function not inlined
 :: #    - enumerator not explicitely handled in a switch label
 set msvc_defines=/DWIN32 /D_WINDOWS /D_HAS_EXCEPTIONS=0 /D_CRT_SECURE_NO_WARNINGS
-set msvc_disabled_warnings=/wd5045 /wd4577 /wd4820 /wd4201 /wd5246 /wd4710 /wd4711 /wd4061
+set msvc_disabled_warnings=/wd4505 /wd5045 /wd4577 /wd4820 /wd4201 /wd5246 /wd4710 /wd4711 /wd4061
 set msvc_misc=/GR- /Wall /WX /external:anglebrackets /external:W0 /GS /sdl /utf-8
 set auto_compile_flags=%auto_compile_flags% %msvc_defines% %msvc_disabled_warnings% %msvc_misc%
 
 :: --- Compile/Link Line Definitions ------------------------------------------
-set cl_common=     /I..\code\ /nologo /FC /Z7
+set cl_common=     /I..\code\ /nologo /FC /Z7 /std:c++20
 set cl_debug=      call cl /Od %cl_common% %auto_compile_flags%
 set cl_release=    call cl /O2 /DNDEBUG %cl_common% %auto_compile_flags%
 set cl_link=       /link /MANIFEST:EMBED /INCREMENTAL:NO
@@ -83,6 +84,7 @@ if not exist build mkdir build
 
 :: --- Build Everything (@build_targets) --------------------------------------
 pushd build
+del game.exe
 if "%game%"=="1"   %compile%  ..\code\game\game_main.cpp  %compile_link% %out%game.exe
 popd
 
