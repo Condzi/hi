@@ -30,6 +30,10 @@
     Just app initialization.
 
   ## GFX
+  This should be splitted into backend / frontend and game land?
+  In game land we would have actual usable pipelines, front end
+  would be just the skeleton for the pipelines and materials?
+  
     [ ] GPU info
     [ ] State interpolation??
     [ ] Materials support
@@ -54,7 +58,7 @@
     [ ] Message boxes (custom ones!) https://learn.microsoft.com/en-us/windows/win32/api/commctrl/nf-commctrl-taskdialogindirect
     [ ] Monitor enumeration
     [ ] Event loop and forwarding the OS events to our abstracted ones
-    [ ] Window
+    [X] Window
 
   ## Physics 
     [ ] SAH

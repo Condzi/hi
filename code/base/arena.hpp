@@ -16,10 +16,11 @@ struct Arena {
   u64 base_pos;
   u64 curr_pos;
   u64 reserved;
+  bool grow;
 };
 
 must_use global Arena *
-make_arena();
+make_arena(bool grow);
 
 global void
 unmake_arena(Arena &arena);
@@ -38,3 +39,20 @@ must_use global T *
 arena_alloc_array(Arena *arena, u64 count) {
   return (T *)arena_alloc(arena, sizeof(T) * count, alignof(T));
 }
+
+global void
+arena_rewind(Arena *arena, u64 where);
+
+global void
+arena_clear(Arena* arena);
+
+struct Scratch_Buffer {
+  Arena *arena;
+  u64    mark;
+};
+
+must_use global Scratch_Buffer
+scratch_begin(Arena* arena);
+
+global void 
+scratch_end(Scratch_Buffer* buff);

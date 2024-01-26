@@ -52,7 +52,7 @@ os_gfx_open_window(Window_Options opts) {
   ShowWindow(w32_hwnd, SW_SHOW);
   UpdateWindow(w32_hwnd);
 
-  w32_mode = WindowMode_Open;
+  w32_mode = OS_WindowMode_Open;
 
   if (opts.fullscreen) {
     os_gfx_set_fullscreen(true);
@@ -72,7 +72,7 @@ os_gfx_window_mode() {
 global void
 os_gfx_set_fullscreen(bool fullscreen) {
   DWORD window_style          = (DWORD)GetWindowLong(w32_hwnd, GWL_STYLE);
-  bool  is_fullscreen_already = (w32_mode == WindowMode_FullScreen);
+  bool  is_fullscreen_already = (w32_mode == OS_WindowMode_FullScreen);
   if (fullscreen) {
     if (!is_fullscreen_already) {
       GetWindowPlacement(w32_hwnd, &w32_window_placement);
@@ -90,6 +90,7 @@ os_gfx_set_fullscreen(bool fullscreen) {
                    SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
     }
   } else {
+    w32_mode = OS_WindowMode_Open;
     SetWindowLong(w32_hwnd, GWL_STYLE, (LONG)(window_style | WS_OVERLAPPEDWINDOW));
     SetWindowPlacement(w32_hwnd, &w32_window_placement);
     SetWindowPos(w32_hwnd,
@@ -135,9 +136,10 @@ os_gfx_event_pump(Arena *arena) {
   while (PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
     TranslateMessage(&msg);
     DispatchMessage(&msg);
-    if (msg.message == WM_QUIT) {
-      win32_push_event(OS_EventType_WindowClosed);
-    }
+  }
+  if (msg.message == WM_QUIT) {
+    win32_push_event(OS_EventType_WindowClosed);
+    os_debug_message(str8_lit("WM_QUIT\n"));
   }
 
   return w32_event_list;
@@ -145,7 +147,63 @@ os_gfx_event_pump(Arena *arena) {
 
 internal LRESULT
 win32_window_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
-  return DefWindowProcW(hwnd, uMsg, wParam, lParam);
+  // We're not ready for receiving events.
+  //
+  if (w32_event_arena == 0) {
+    return DefWindowProcW(hwnd, uMsg, wParam, lParam);
+  }
+
+  LRESULT result = 0;
+  switch (uMsg) {
+    default: {
+      result = DefWindowProcW(hwnd, uMsg, wParam, lParam);
+    } break;
+
+    case WM_SYSCOMMAND: {
+      switch (wParam) {
+        case SC_MINIMIZE: {
+          w32_mode = OS_WindowMode_Minimized;
+        } break;
+        case SC_MAXIMIZE: // fallthrough
+        case SC_RESTORE: {
+          w32_mode = OS_WindowMode_Open;
+        } break;
+      }
+      os_debug_message(str8_lit("WM_SYSCOMMAND\n"));
+      result = DefWindowProcW(hwnd, uMsg, wParam, lParam);
+    } break;
+
+    case WM_SIZE: {
+      win32_push_event(OS_EventType_WindowResized);
+      os_debug_message(str8_lit("WM_SIZE\n"));
+    } break;
+
+    case WM_KILLFOCUS: {
+      win32_push_event(OS_EventType_WindowLostFocus);
+      os_debug_message(str8_lit("WM_KILLFOCUS\n"));
+    } break;
+
+    case WM_SETFOCUS: {
+      win32_push_event(OS_EventType_WindowGainedFocus);
+      os_debug_message(str8_lit("WM_SETFOCUS\n"));
+    } break;
+
+    case WM_KEYDOWN: {
+      if (wParam == VK_ESCAPE) {
+        DestroyWindow(hwnd);
+        win32_push_event(OS_EventType_WindowClosed);
+        w32_mode = OS_WindowMode_Closed;
+      }
+    } break;
+
+    case WM_CLOSE: {
+      win32_push_event(OS_EventType_WindowClosed);
+      w32_mode = OS_WindowMode_Closed;
+      DestroyWindow(w32_hwnd);
+      os_debug_message(str8_lit("WM_CLOSE\n"));
+    } break;
+  }
+  return result;
 }
 
 internal OS_Window_Event *

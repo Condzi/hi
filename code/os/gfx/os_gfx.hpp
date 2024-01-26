@@ -17,10 +17,10 @@ global void
 os_gfx_close_window();
 
 enum Window_Mode {
-  WindowMode_Closed,
-  WindowMode_Open,
-  WindowMode_Minimized,
-  WindowMode_FullScreen
+  OS_WindowMode_Closed,
+  OS_WindowMode_Open,
+  OS_WindowMode_Minimized,
+  OS_WindowMode_FullScreen
 };
 
 must_use global Window_Mode
@@ -47,8 +47,6 @@ enum OS_Event_Type {
   OS_EventType_WindowLostFocus,
   OS_EventType_WindowGainedFocus,
   OS_EventType_WindowResized,
-  OS_EventType_EnableFullScreen,
-  OS_EventType_DisableFullScreen,
 
   // Button Events (Mouse + Keyboard)
   //

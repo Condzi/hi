@@ -10,13 +10,13 @@
 
 int
 main(int argc, char const *argv[]) {
-  gContext.frame_arena = make_arena();
-  gContext.misc_arena = make_arena();
+  gContext.frame_arena = make_arena(false);
+  gContext.misc_arena  = make_arena(true);
 
   os_init(argc, argv);
   os_gfx_init();
 
-  Arena *a = make_arena();
+  Arena *a = make_arena(true);
 
   u64 *u = (u64 *)arena_alloc(a, 80, 8);
   Unused(u);
@@ -33,7 +33,7 @@ main(int argc, char const *argv[]) {
   // This should be in the old one
   //
   u    = (u64 *)arena_alloc(a, 8, 8);
-  u[1] = 123;
+  // u[1] = 123;
 
   u64 now = os_now_us();
   Unused(now);
@@ -47,13 +47,11 @@ main(int argc, char const *argv[]) {
       .fullscreen = false,
   });
 
-  while (true) {
+  while (os_gfx_window_mode() != OS_WindowMode_Closed) {
     OS_Window_Event *events = os_gfx_event_pump(gContext.frame_arena);
     Unused(events);
 
-    MemorySet(
-        U64ToPtr(gContext.frame_arena->base_pos), 0, gContext.frame_arena->curr_pos);
-    gContext.frame_arena->curr_pos = 0;
+    arena_clear(gContext.frame_arena);
   }
 
   return 0;
