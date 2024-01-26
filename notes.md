@@ -52,6 +52,7 @@
     Just app initialization.
 
   ## GFX
+  Do not get side tracked with multithreaded rendering!
   This should be splitted into backend / frontend and game land?
   In game land we would have actual usable pipelines, front end
   would be just the skeleton for the pipelines and materials?
@@ -114,6 +115,9 @@
     [ ] Text box
     [ ] Button
     [ ] Window
+
+  ## Misc
+    Add Open Source licenses (RAD, stb...)
 
 # Layers Dependencies
 
