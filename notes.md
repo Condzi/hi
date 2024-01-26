@@ -10,9 +10,9 @@
   ## Base
     [X] Basic Types
     [X] Language Layer
-    [ ] Allocators
-    [1] Strings (immutable!)
-    [ ] Unicode support
+    [X] Allocators
+    [X] Strings (immutable!)
+    [X] Unicode support
     [ ] CMD Parsing
     [ ] Math (rand..)
 
@@ -23,6 +23,7 @@
 
 
   ## Entities & Systems
+    [ ] Error context, Check(cnd, "Context")
     [ ] List of systems to update. Maybe sort by priority?
 
   ## Game
@@ -40,7 +41,7 @@
     Checks input events and updates the binding status accordingly.
 
   ## OS Core
-    [2] Debugger output
+    [X] Debugger output
     [ ] Filesystem
     [ ] Threads
     [ ] Mutexes

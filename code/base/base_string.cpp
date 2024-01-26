@@ -52,6 +52,33 @@ str16_range(u16 *beg, u16 *end) {
   return {.v = beg, .sz = PtrToU64(end) - PtrToU64(beg)};
 }
 
+// String Operations
+//
+
+must_use bool
+str8_compare(Str8 a, Str8 b) {
+  if (a.sz != b.sz) {
+    return false;
+  }
+
+  if (a.v == b.v) {
+    return true;
+  }
+
+  return MemoryCompare(a.v, b.v, a.sz) == 0;
+}
+
+must_use bool
+str8_has_prefix(Str8 str, Str8 prefix) {
+  AssertAlways(prefix.sz > 0);
+
+  if (str.sz < prefix.sz) {
+    return false;
+  }
+
+  return MemoryCompare(str.v, prefix.v, prefix.sz) == 0;
+}
+
 // Unicode String Conversions
 //
 

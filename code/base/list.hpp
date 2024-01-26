@@ -41,3 +41,18 @@ DLL_remove(T *&root, T *&node) {
 
   node->next = node->prev = 0;
 }
+
+template <typename T>
+void
+SLL_insert(T *&root, T *&node) {
+  if (!root) {
+    root = node;
+  } else {
+    T *it = root;
+    while (it->next) {
+      it = it->next;
+    }
+
+    it->next = node;
+  }
+}

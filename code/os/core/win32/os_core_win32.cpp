@@ -14,10 +14,15 @@ os_init(int argc, char const *argv[]) {
   AssertAlways(QueryPerformanceFrequency(&large_int_resolution));
   w32_us_res = (u64)large_int_resolution.QuadPart;
 
-  // @ToDo: parse CMD
+  // Parse launch options, if any.
   //
-  Unused(argc);
-  Unused(argv);
+  if (argc > 1) {
+    Str8 *opts_raw = arena_alloc_array<Str8>(tcx.frame_arena, (u64)(argc - 1));
+    for (int i = 1; i < argc; i++) {
+      opts_raw[i - 1] = str8_cstr(argv[i]);
+    }
+    parse_launch_opts(opts_raw, (u64)(argc - 1));
+  }
 }
 
 // Memory Allocation
