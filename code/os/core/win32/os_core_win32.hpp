@@ -16,7 +16,6 @@
 #define NOSERVICE        // All Service Controller routines, SERVICE_ equates, etc.
 #define NOTEXTMETRIC     // typedef TEXTMETRIC and associated routines
 #define NOWH             // SetWindowsHook and WH_*
-#define NOWINOFFSETS     // GWL_*, GCL_*, associated routines
 #define NOCOMM           // COMM driver routines
 #define NOKANJI          // Kanji support stuff.
 #define NOHELP           // Help engine interface.

@@ -106,8 +106,9 @@ str16_from_8(Arena *arena, Str8 in) {
   u8            *opl  = ptr + in.sz;
   u64            size = 0;
   Unicode_Decode consume;
-  for (; ptr < opl; ptr += (u8)consume.inc) {
-    consume = utf8_decode(ptr, (u64)(opl - ptr));
+
+  for (; ptr < opl; ptr += consume.inc) {
+    consume = utf8_decode(ptr, PtrToU64(opl) - PtrToU64(ptr));
     size += utf16_encode(str + size, consume.codepoint);
   }
 
@@ -131,7 +132,7 @@ utf8_decode(u8 *str, u64 max) {
       result.codepoint = byte;
     } break;
     case 2: {
-      if (2 < max) {
+      if (1 < max) {
         u8 cont_byte = str[1];
         if (utf8_class[cont_byte >> 3] == 0) {
           result.codepoint = (u32)((byte & 0x0000001f) << 6);

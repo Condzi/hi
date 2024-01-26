@@ -13,7 +13,7 @@
     [X] Allocators
     [X] Strings (immutable!)
     [X] Unicode support
-    [ ] CMD Parsing
+    [X] CMD Parsing
     [ ] Math (rand..)
 
   ## Debug Tools
@@ -50,10 +50,10 @@
     [ ] OS Information, SIMD detection, CPU and memory info
     [X] Time
 
-  ## OS Wnd
+  ## OS Gfx
+    [ ] Message boxes (custom ones!) https://learn.microsoft.com/en-us/windows/win32/api/commctrl/nf-commctrl-taskdialogindirect
     [ ] Monitor enumeration
     [ ] Event loop and forwarding the OS events to our abstracted ones
-    [ ] Message boxes (custom ones!) https://learn.microsoft.com/en-us/windows/win32/api/commctrl/nf-commctrl-taskdialogindirect
     [ ] Window
 
   ## Physics 

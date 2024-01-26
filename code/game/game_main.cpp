@@ -14,6 +14,7 @@ main(int argc, char const *argv[]) {
   gContext.misc_arena = make_arena();
 
   os_init(argc, argv);
+  os_gfx_init();
 
   Arena *a = make_arena();
 
@@ -37,7 +38,23 @@ main(int argc, char const *argv[]) {
   u64 now = os_now_us();
   Unused(now);
 
-  os_debug_message(str8_lit("Cześć, Świecie!\n"));
-  
+  os_debug_message(str8_lit("Cześć, Świecie! ąćźłóę ĄĆŹŁÓĘ\n"));
+
+  os_gfx_open_window({
+      .title      = str8_lit("Mój tytuł"),
+      .width      = 1280,
+      .height     = 720,
+      .fullscreen = false,
+  });
+
+  while (true) {
+    OS_Window_Event *events = os_gfx_event_pump(gContext.frame_arena);
+    Unused(events);
+
+    MemorySet(
+        U64ToPtr(gContext.frame_arena->base_pos), 0, gContext.frame_arena->curr_pos);
+    gContext.frame_arena->curr_pos = 0;
+  }
+
   return 0;
 }
