@@ -17,7 +17,7 @@ os_init(int argc, char const *argv[]) {
   // Parse launch options, if any.
   //
   if (argc > 1) {
-    Str8 *opts_raw = arena_alloc_array<Str8>(tcx.frame_arena, (u64)(argc - 1));
+    Str8 *opts_raw = arena_alloc_array<Str8>(gContext.frame_arena, (u64)(argc - 1));
     for (int i = 1; i < argc; i++) {
       opts_raw[i - 1] = str8_cstr(argv[i]);
     }
@@ -78,7 +78,7 @@ os_page_size() {
 void
 os_debug_message(Str8 msg) {
   if (IsDebuggerPresent()) {
-    Str16 out = str16_from_8(tcx.frame_arena, msg);
+    Str16 out = str16_from_8(gContext.frame_arena, msg);
     OutputDebugStringW((LPCWSTR)out.v);
   }
 }

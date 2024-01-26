@@ -10,8 +10,8 @@
 
 int
 main(int argc, char const *argv[]) {
-  tcx.frame_arena = make_arena();
-  tcx.misc_arena = make_arena();
+  gContext.frame_arena = make_arena();
+  gContext.misc_arena = make_arena();
 
   os_init(argc, argv);
 

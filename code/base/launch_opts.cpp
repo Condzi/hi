@@ -59,7 +59,7 @@ get_launch_opt(Str8 name) {
 
 global void
 push_launch_opt(Str8 name, Str8 value) {
-  Launch_Opt *opt = arena_alloc<Launch_Opt>(tcx.misc_arena);
+  Launch_Opt *opt = arena_alloc<Launch_Opt>(gContext.misc_arena);
   opt->name       = name;
   opt->value      = value;
 
