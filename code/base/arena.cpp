@@ -1,3 +1,6 @@
+#pragma once
+#include "all_inc.hpp"
+
 must_use global Arena *
 make_arena(bool grow) {
   u64 mem = PtrToU64(os_alloc(ARENA_RESERVE_SIZE, 0));

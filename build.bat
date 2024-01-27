@@ -65,7 +65,7 @@ set msvc_misc=/GR- /Wall /WX /external:anglebrackets /external:W0 /GS /sdl /utf-
 set auto_compile_flags=%auto_compile_flags% %msvc_defines% %msvc_disabled_warnings% %msvc_misc%
 
 :: --- Compile/Link Line Definitions ------------------------------------------
-set cl_common=     /I..\code\ /nologo /FC /Z7 /std:c++20
+set cl_common=     /I..\code\ /I..\code\3rdparty\ /nologo /FC /Z7 /std:c++20
 set cl_debug=      call cl /Od %cl_common% %auto_compile_flags%
 set cl_release=    call cl /O2 /DNDEBUG %cl_common% %auto_compile_flags%
 set cl_link=       /link /MANIFEST:EMBED /INCREMENTAL:NO
@@ -85,7 +85,7 @@ if not exist build mkdir build
 :: --- Build Everything (@build_targets) --------------------------------------
 pushd build
 del game.exe
-if "%game%"=="1"   %compile%  ..\code\game\game_main.cpp  %compile_link% %out%game.exe
+if "%game%"=="1" %compile%  ..\code\game\game_main.cpp  %compile_link% %out%game.exe
 popd
 
 :: --- Unset ------------------------------------------------------------------

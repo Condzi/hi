@@ -26,5 +26,6 @@
     "charconv": "cpp"
   },
   "C_Cpp.errorSquiggles": "disabled",
-  "cSpell.enabled": false
+  "cSpell.enabled": false,
+  "C_Cpp.intelliSenseEngineFallback": "disabled"
 }

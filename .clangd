@@ -1,0 +1,5 @@
+CompileFlags:
+  Add: [-xc++, "-IW:/hi/code", "-IW:/hi/code/3rdparty", -fno-exceptions, -DWIN32, -D_WINDOWS, -D_HAS_EXCEPTIONS=0, -D_CRT_SECURE_NO_WARNINGS, -Wno-unused-function, -Wno-unknown-pragmas, -Wno-ignored-attributes, -Wno-padding, -Wno-narrowing, -Wno-unused-parameter, -Werror, -Wall, -Wextra, -std=c++20, -fno-rtti, -fvisibility=hidden, -fvisibility-inlines-hidden, -fsanitize=undefined, -fno-sanitize=vptr, -fno-sanitize=integer, -fno-sanitize=nullability, -fno-stack-protector, -fno-stack-check]
+
+Diagnostics:
+  UnusedIncludes: None

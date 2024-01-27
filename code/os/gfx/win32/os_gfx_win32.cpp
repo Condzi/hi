@@ -1,3 +1,7 @@
+#pragma once
+#include "all_inc.hpp"
+
+
 global void
 os_gfx_init() {
   w32_h_instance = GetModuleHandleA(0);
