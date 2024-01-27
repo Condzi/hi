@@ -33,6 +33,9 @@ main(int argc, char const *argv[]) {
 
   os_debug_message(str8_lit("Cześć, Świecie! ąćźłóę ĄĆŹŁÓĘ\n"));
 
+  os_debug_message(
+      str8_sprintf(a, str8_lit("Test: %_$$d. 8 in binary is 0b%b"), MB(128), 8));
+
   os_gfx_open_window({
       .title      = str8_lit("Mój tytuł"),
       .width      = 1280,
