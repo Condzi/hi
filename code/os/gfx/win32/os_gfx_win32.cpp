@@ -24,7 +24,7 @@ os_gfx_init() {
 
   // Grab refresh rate
   //
-  DEVMODEW devmodew = {0};
+  DEVMODEW devmodew;
   if (EnumDisplaySettingsW(0, ENUM_CURRENT_SETTINGS, &devmodew)) {
     w32_refresh_rate = (f32)devmodew.dmDisplayFrequency;
   }
@@ -81,7 +81,7 @@ os_gfx_set_fullscreen(bool fullscreen) {
     if (!is_fullscreen_already) {
       GetWindowPlacement(w32_hwnd, &w32_window_placement);
     }
-    MONITORINFO monitor_info = {sizeof(monitor_info)};
+    MONITORINFO monitor_info = {.cbSize = sizeof(monitor_info)};
     if (GetMonitorInfo(MonitorFromWindow(w32_hwnd, MONITOR_DEFAULTTOPRIMARY),
                        &monitor_info)) {
       SetWindowLong(w32_hwnd, GWL_STYLE, (LONG)(window_style & ~WS_OVERLAPPEDWINDOW));
