@@ -2,11 +2,11 @@
 
 // External dependencies on libc
 //
-#include <cstdio>
-#include <cstring>
-#include <cmath>
-#include <cfloat>
-#include <cstdint>
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
+#include <float.h>
+#include <stdint.h>
 
 // Language layer -- keywords
 //
@@ -84,6 +84,13 @@
 #define Million(n) ((n) * 1000000)
 #define Billion(n) ((n) * 1000000000)
 
+#define Swap(a, b)                                                                   \
+  do {                                                                               \
+    decltype(a) t__ = a;                                                             \
+    a               = b;                                                             \
+    b               = t__;                                                           \
+  } while (0)
+
 // Conversion macros
 //
 #define PtrToU64(p) (u64)((p))
@@ -116,21 +123,99 @@ C_LINKAGE_END
 
 #endif
 
-// Common math types
+// Fixed-width types
 //
 
-using u8  = std::uint8_t;
-using u16 = std::uint16_t;
-using u32 = std::uint32_t;
-using u64 = std::uint64_t;
+using u8  = uint8_t;
+using u16 = uint16_t;
+using u32 = uint32_t;
+using u64 = uint64_t;
 
-using s8  = std::int8_t;
-using s16 = std::int16_t;
-using s32 = std::int32_t;
-using s64 = std::int64_t;
+using s8  = int8_t;
+using s16 = int16_t;
+using s32 = int32_t;
+using s64 = int64_t;
 
 using f32 = float;
 using f64 = double;
+
+// Common math types
+//
+
+// Vector types
+//
+
+union fvec2 {
+  struct {
+    f32 x, y;
+  };
+
+  struct {
+    f32 width, height;
+  };
+
+  struct {
+    f32 min, max; // Extents
+  };
+
+  f32 v[2] = {};
+};
+
+union fvec3 {
+  struct {
+    f32 x, y, z;
+  };
+
+  struct {
+    f32 r, g, b;
+  };
+
+  struct {
+    fvec2 xy;
+    f32   _unused0;
+  };
+
+  f32 v[3] = {};
+};
+
+union fvec4 {
+  struct {
+    f32 x, y, z, w;
+  };
+
+  struct {
+    f32 r, g, b, a;
+  };
+
+  struct {
+    fvec3 xyz;
+    f32   _unused0;
+  };
+
+  struct {
+    fvec2 xy;
+    fvec2 _unused2;
+  };
+
+  struct {
+    fvec2 _unused3;
+    fvec2 zw;
+  };
+
+  struct {
+    fvec2 min;
+    fvec2 max;
+  };
+
+  f32 v[4] = {};
+};
+
+// Matrix types
+//
+
+struct fmat4 {
+  f32 v[4][4];
+};
 
 // Common math constants
 //
@@ -151,3 +236,7 @@ read_only global s16 MIN_S16 = INT16_MIN;
 read_only global s8  MIN_S8  = INT8_MIN;
 
 read_only global f32 EPS_F32 = FLT_EPSILON;
+
+read_only global f32 PI   = 3.141592653589793f;
+read_only global f32 PI_2 = 1.57079632679489661923f; // PI/2
+read_only global f32 PI_6 = 0.52359877559f;          // PI/6

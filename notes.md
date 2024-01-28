@@ -16,8 +16,9 @@
     [X] Strings (immutable!)
     [X] Unicode support
     [X] CMD Parsing
-    [ ] stb_printf integration
-    [ ] Math (rand, vectors, matrices, functions)
+    [X] stb_sprintf integration
+    [X] Math (vectors, matrices, functions)
+    [ ] Rand (perlin noise, random range)
 
   ## Debug Tools
     [ ] Frame Time Graph
@@ -91,6 +92,7 @@
     [ ] SAH
     [ ] BVH
     [ ] Debugging stats?
+    [ ] Static geometry
 
 
   ## [new] Text Rasterizing

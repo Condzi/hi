@@ -7,3 +7,4 @@
 #include "list.hpp"
 #include "program_context.hpp"
 #include "launch_opts.hpp"
+#include "base_math.hpp"
