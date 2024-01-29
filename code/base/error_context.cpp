@@ -9,9 +9,11 @@ error_context_init(Arena *arena) {
 }
 
 global void
-error_context_push(Error_Context *context, Str8 entry) {
+error_context_push(Error_Context *context, Str8 file, Str8 func, Str8 desc) {
   Error_Context_Node *node = arena_alloc<Error_Context_Node>(context->arena);
-  node->info               = entry;
+  node->file               = file;
+  node->function           = func;
+  node->desc               = desc;
 
   if (context->last) {
     node->prev          = context->last;
@@ -22,8 +24,6 @@ error_context_push(Error_Context *context, Str8 entry) {
     //
     context->first = context->last = node;
   }
-
-  os_debug_message(entry);
 }
 
 global void

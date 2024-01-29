@@ -7,7 +7,9 @@
 struct Error_Context_Node {
   Error_Context_Node *next;
   Error_Context_Node* prev;
-  Str8                info;
+  Str8                file;
+  Str8                function;
+  Str8                desc;
 };
 
 struct Error_Context {
@@ -20,7 +22,7 @@ must_use global Error_Context *
 error_context_init(Arena *arena);
 
 global void
-error_context_push(Error_Context *context, Str8 entry);
+error_context_push(Error_Context *context, Str8 file, Str8 func, Str8 desc);
 
 global void
 error_context_pop(Error_Context *context);
@@ -28,9 +30,8 @@ error_context_pop(Error_Context *context);
 #define ErrorContext(fmt, ...)                                                       \
   Defer { error_context_pop(gContext.error_context); };                              \
   do {                                                                               \
-    Str8 entry__ = str8_sprintf(                                                     \
-        gContext.error_context->arena,                                               \
-        __FILE__ ":" Stringify(__LINE__) " -- " __FUNCTION__ " -- " fmt,             \
-        __VA_ARGS__);                                                                \
-    error_context_push(gContext.error_context, entry__);                             \
+    Str8 file__ = __FILE__ ":" Stringify(__LINE__) ""_s8;                            \
+    Str8 func__ = __FUNCTION__ ""_s8;                                                \
+    Str8 desc__ = str8_sprintf(gContext.error_context->arena, fmt, __VA_ARGS__);     \
+    error_context_push(gContext.error_context, file__, func__, desc__);              \
   } while (0)
