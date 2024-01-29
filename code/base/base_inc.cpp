@@ -6,3 +6,4 @@
 #include "program_context.cpp"
 #include "launch_opts.cpp"
 #include "base_math.cpp"
+#include "error_context.cpp"

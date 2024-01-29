@@ -46,6 +46,28 @@
 #define NotImplemented Assert(!"Not implemented!")
 #define InvalidPath Assert(!"Invalid code path taken!")
 
+// Defer Macro
+//
+template <typename T>
+struct Defer_Caller final {
+  T const f;
+  Defer_Caller(T f_) : f(f_) {}
+  ~Defer_Caller() { f(); }
+
+  void
+  operator=(Defer_Caller) = delete;
+};
+
+struct Defer_Maker final {
+  template <typename T>
+  Defer_Caller<T>
+  operator+(T f_) const {
+    return Defer_Caller<T> {f_};
+  }
+};
+
+#define Defer auto const Glue(_defer_caller_, __LINE__) = Defer_Maker {} + [&]
+
 // Language layer -- misc helper macros
 //
 
@@ -341,7 +363,7 @@ read_only global u32 bit28 = (1 << 27);
 read_only global u32 bit29 = (1 << 28);
 read_only global u32 bit30 = (1 << 29);
 read_only global u32 bit31 = (1 << 30);
-read_only global u32 bit32 = (1 << 31);
+read_only global u32 bit32 = (1u << 31);
 
 read_only global u64 bit33 = (1ull << 32);
 read_only global u64 bit34 = (1ull << 33);

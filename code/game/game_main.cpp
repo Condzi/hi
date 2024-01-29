@@ -6,6 +6,11 @@ main(int argc, char const *argv[]) {
   gContext.frame_arena = make_arena(false);
   gContext.misc_arena  = make_arena(true);
 
+  Arena *error_context_arena = make_arena(false);
+  gContext.error_context     = error_context_init(error_context_arena);
+  // Error context is put into scratch buffer, cleared every frame.
+  Scratch_Buffer error_context_scratch = scratch_begin(error_context_arena);
+  ErrorContext("Hello, world! %d"_s8, 123);
   os_init(argc, argv);
   os_gfx_init();
 
@@ -48,6 +53,11 @@ main(int argc, char const *argv[]) {
     Unused(events);
 
     arena_clear(gContext.frame_arena);
+
+    // Reset the error context so we don't leak the memory.
+    //
+    scratch_end(&error_context_scratch);
+    gContext.error_context->first = gContext.error_context->last = 0;
   }
 
   return 0;

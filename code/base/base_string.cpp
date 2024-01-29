@@ -99,9 +99,9 @@ str8_sprintf(Arena *arena, Str8 format, TArgs... args) {
     return "<?>"_s8;
   }
 
-  u64 const sz     = (u64)isz;
+  u64 const sz     = (u64)isz + 1;
   u8       *buffer = arena_alloc_array<u8>(arena, sz);
-  hi_snprintf((char *)buffer, isz, (char const *)format.v, args...);
+  hi_snprintf((char *)buffer, isz + 1, (char const *)format.v, args...);
 
   return {.v = buffer, .sz = sz};
 }

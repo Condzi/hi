@@ -19,6 +19,7 @@
     [X] stb_sprintf integration
     [X] Math (vectors, matrices, functions)
     [ ] Rand (perlin noise, random range)
+    [ ] Error context, Check(cnd, "Context")
 
   ## Debug Tools
     [ ] Frame Time Graph
@@ -27,7 +28,6 @@
 
 
   ## Entities & Systems
-    [ ] Error context, Check(cnd, "Context")
     [ ] List of systems to update. Maybe sort by priority?
 
     Rough system ideas:
@@ -68,6 +68,14 @@
     [ ] Materials support
     Top-left corner is the anchor!!!
 
+    - multiple pass rendering https://learn.microsoft.com/en-us/windows/win32/direct3d11/overviews-direct3d-11-render-multipass
+      - use deferred rendering by gathering rendering commands and executing them:
+      https://learn.microsoft.com/en-us/windows/win32/direct3d11/overviews-direct3d-11-render-multi-thread-command-list
+
+    - flip models https://learn.microsoft.com/en-us/windows/win32/direct3ddxgi/dxgi-flip-model
+    and https://learn.microsoft.com/en-us/windows/win32/direct3ddxgi/for-best-performance--use-dxgi-flip-model
+    - variable refresh rate: https://walbourn.github.io/care-and-feeding-of-modern-swap-chains-3/
+    and https://learn.microsoft.com/en-us/windows/win32/direct3ddxgi/variable-refresh-rate-displays
     - Resize buffers on WM_SIZE (IDXGISwapChain::ResizeBuffers)
     - Fallback to WARP when D3D hardware not available (https://learn.microsoft.com/en-us/windows/win32/direct3darticles/directx-warp)
     - D3D Present will fail on driver crash - handle it accordingly

@@ -1,8 +1,9 @@
 #pragma once
 
 struct Program_Context {
-  Arena* frame_arena;
-  Arena* misc_arena;
+  Arena         *frame_arena;
+  Arena         *misc_arena;
+  Error_Context *error_context;
 };
 
-extern Program_Context gContext;
+global Program_Context gContext;

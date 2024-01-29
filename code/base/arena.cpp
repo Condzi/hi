@@ -81,8 +81,12 @@ arena_alloc(Arena *arena, u64 size, u64 alignment) {
 global void
 arena_rewind(Arena *arena, u64 where) {
   Assert(!arena->next);
-  Assert(where < arena->curr_pos);
+  Assert(where <= arena->curr_pos);
   Assert(where >= sizeof(Arena));
+
+  if (where == arena->curr_pos) {
+    return;
+  }
 
   // Unpoison the entire used region since we have the safety
   // bytes laying there.
