@@ -33,6 +33,11 @@ utf16_encode(u16 *str, u32 codepoint);
 // String Constructors
 //
 
+must_use Str8
+operator""_s8(char const *str, size_t len) {
+  return str8((u8 *)str, len);
+}
+
 must_use global Str8
 str8(u8 *v, u64 sz) {
   return {.v = v, .sz = sz};
@@ -91,7 +96,7 @@ must_use global Str8
 str8_sprintf(Arena *arena, Str8 format, TArgs... args) {
   int const isz = hi_snprintf(0, 0, (char const *)format.v, args...);
   if (isz <= 0) {
-    return str8_lit("<?>");
+    return "<?>"_s8;
   }
 
   u64 const sz     = (u64)isz;

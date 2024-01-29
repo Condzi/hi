@@ -143,7 +143,7 @@ os_gfx_event_pump(Arena *arena) {
   }
   if (msg.message == WM_QUIT) {
     win32_push_event(OS_EventType_WindowClosed);
-    os_debug_message(str8_lit("WM_QUIT\n"));
+    os_debug_message("WM_QUIT\n"_s8);
   }
 
   return w32_event_list;
@@ -173,23 +173,23 @@ win32_window_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
           w32_mode = OS_WindowMode_Open;
         } break;
       }
-      os_debug_message(str8_lit("WM_SYSCOMMAND\n"));
+      os_debug_message("WM_SYSCOMMAND\n"_s8);
       result = DefWindowProcW(hwnd, uMsg, wParam, lParam);
     } break;
 
     case WM_SIZE: {
       win32_push_event(OS_EventType_WindowResized);
-      os_debug_message(str8_lit("WM_SIZE\n"));
+      os_debug_message("WM_SIZE\n"_s8);
     } break;
 
     case WM_KILLFOCUS: {
       win32_push_event(OS_EventType_WindowLostFocus);
-      os_debug_message(str8_lit("WM_KILLFOCUS\n"));
+      os_debug_message("WM_KILLFOCUS\n"_s8);
     } break;
 
     case WM_SETFOCUS: {
       win32_push_event(OS_EventType_WindowGainedFocus);
-      os_debug_message(str8_lit("WM_SETFOCUS\n"));
+      os_debug_message("WM_SETFOCUS\n"_s8);
     } break;
 
     case WM_KEYDOWN: {
@@ -204,7 +204,7 @@ win32_window_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
       win32_push_event(OS_EventType_WindowClosed);
       w32_mode = OS_WindowMode_Closed;
       DestroyWindow(w32_hwnd);
-      os_debug_message(str8_lit("WM_CLOSE\n"));
+      os_debug_message("WM_CLOSE\n"_s8);
     } break;
   }
   return result;

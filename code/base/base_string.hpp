@@ -17,7 +17,8 @@ struct Str16 {
 // String Constructors
 //
 
-#define str8_lit(S) str8((u8 *)(S), sizeof(S) - 1)
+must_use Str8
+operator""_s8(char const* str, size_t len);
 
 must_use global Str8
 str8(u8 *v, u64 sz);

@@ -31,13 +31,13 @@ main(int argc, char const *argv[]) {
   u64 now = os_now_us();
   Unused(now);
 
-  os_debug_message(str8_lit("Cześć, Świecie! ąćźłóę ĄĆŹŁÓĘ\n"));
+  os_debug_message("Cześć, Świecie! ąćźłóę ĄĆŹŁÓĘ\n"_s8);
 
   os_debug_message(
-      str8_sprintf(a, str8_lit("Test: %_$$d. 8 in binary is 0b%b"), MB(128), 8));
+      str8_sprintf(a, "Test: %_$$d. 8 in binary is 0b%b"_s8, MB(128), 8));
 
   os_gfx_open_window({
-      .title      = str8_lit("Mój tytuł"),
+      .title      = "Mój tytuł"_s8,
       .width      = 1280,
       .height     = 720,
       .fullscreen = false,

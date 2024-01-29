@@ -14,7 +14,7 @@ parse_launch_opts(Str8 *opts, u64 count) {
 
   for (u64 i = 0; i < count; i++) {
     Str8 name = opts[i];
-    if (str8_has_prefix(name, str8_lit("--"))) {
+    if (str8_has_prefix(name, "--"_s8)) {
       name = str8_range(name.v + 2, name.v + name.sz);
     }
 
@@ -24,7 +24,7 @@ parse_launch_opts(Str8 *opts, u64 count) {
     Str8 val = {};
     if (i + 1 < count) {
       val = opts[i + 1];
-      if (str8_has_prefix(val, str8_lit("--"))) {
+      if (str8_has_prefix(val, "--"_s8)) {
         val = {};
       } else {
         i++;
@@ -57,7 +57,7 @@ get_launch_opt(Str8 name) {
     it = it->next;
   }
 
-  return str8_lit("none");
+  return "none"_s8;
 }
 
 global void
@@ -69,7 +69,7 @@ push_launch_opt(Str8 name, Str8 value) {
   SLL_insert(gOptions, opt);
 
   os_debug_message(name);
-  os_debug_message(str8_lit(" = "));
+  os_debug_message(" = "_s8);
   os_debug_message(value);
-  os_debug_message(str8_lit("\n"));
+  os_debug_message("\n"_s8);
 }
