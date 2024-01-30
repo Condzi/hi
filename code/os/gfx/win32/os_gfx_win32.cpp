@@ -206,6 +206,10 @@ win32_window_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
       DestroyWindow(w32_hwnd);
       os_debug_message("WM_CLOSE\n"_s8);
     } break;
+
+    case WM_DESTROY: {
+      os_debug_message("WM_DESTROY\n"_s8);
+    } break;
   }
   return result;
 }

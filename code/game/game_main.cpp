@@ -1,6 +1,22 @@
 #pragma once
 #include "all_inc.hpp"
 
+#include "game_main.hpp"
+
+internal HRESULT WINAPI
+win32_dialog_callback(
+    HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam, LONG_PTR data) {
+  Unused(data);
+  Unused(wparam);
+  Unused(hwnd);
+
+  if (msg == TDN_HYPERLINK_CLICKED) {
+    ShellExecuteW(NULL, L"open", (LPWSTR)lparam, NULL, NULL, SW_SHOWNORMAL);
+    OutputDebugStringW((LPWSTR)lparam);
+  }
+  return S_OK;
+}
+
 int
 main(int argc, char const *argv[]) {
   gContext.frame_arena = make_arena(false);
@@ -42,11 +58,24 @@ main(int argc, char const *argv[]) {
       str8_sprintf(a, "Test: %_$$d. 8 in binary is 0b%b"_s8, MB(128), 8));
 
   os_gfx_open_window({
-      .title      = "Mój tytuł"_s8,
+      .title      = GAME_TITLE_LITERAL,
       .width      = 1280,
       .height     = 720,
       .fullscreen = false,
   });
+
+  TASKDIALOGCONFIG dialog = {};
+  dialog.cbSize           = sizeof(dialog);
+  dialog.dwFlags =
+      TDF_SIZE_TO_CONTENT | TDF_ENABLE_HYPERLINKS | TDF_ALLOW_DIALOG_CANCELLATION;
+  dialog.pszMainIcon     = TD_ERROR_ICON;
+  dialog.dwCommonButtons = TDCBF_CLOSE_BUTTON;
+  dialog.pszWindowTitle  = L"Fatal Exception";
+  dialog.hwndParent      = 0;//w32_hwnd;
+
+  dialog.pszContent = L"Test <a href=\"https://google.com\">google</a>!";
+  dialog.pfCallback = &win32_dialog_callback;
+  //TaskDialogIndirect(&dialog, 0, 0, 0);
 
   while (os_gfx_window_mode() != OS_WindowMode_Closed) {
     OS_Window_Event *events = os_gfx_event_pump(gContext.frame_arena);
