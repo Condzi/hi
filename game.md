@@ -30,8 +30,13 @@ Check the ones from vietnam?
 
 # Zombie ideas
 Classic ones? slow, fast, exploding kamikaze, big mutants?
+inspo from plants vs zombies (jumping over fence etc)
 
 # Full version
 - dynamic lighting
 - procedurally generated homes? or maybe few maps to select and to play
   with friends?
+
+- Cartoony style
+- Hotline Miami
+- Plants vs. Zombies

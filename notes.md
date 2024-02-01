@@ -19,7 +19,7 @@
     [X] stb_sprintf integration
     [X] Math (vectors, matrices, functions)
     [ ] Rand (perlin noise, random range)
-    [ ] Error context, Check(cnd, "Context")
+    [X?] Error context, Check(cnd, "Context")
 
   ## Debug Tools
     [ ] Frame Time Graph
@@ -65,9 +65,13 @@
     [ ] Camera / multiple viewports? Maybe set a viewport per render target?
     [ ] GPU info
     [ ] State interpolation??
-    [ ] Materials support
+    [ ] Materials support??
     Top-left corner is the anchor!!!
 
+    - separate resource handling (tex, buffers) from rendering commands somehow?
+      - it would be great if we could manage to handle sprite sheets in a way that we
+        can divide the sprite sheet into smaller textures logically and refer to them
+        not by indecies, but by names, from high level code.
     - multiple pass rendering https://learn.microsoft.com/en-us/windows/win32/direct3d11/overviews-direct3d-11-render-multipass
       - use deferred rendering by gathering rendering commands and executing them:
       https://learn.microsoft.com/en-us/windows/win32/direct3d11/overviews-direct3d-11-render-multi-thread-command-list
@@ -80,14 +84,8 @@
     - Fallback to WARP when D3D hardware not available (https://learn.microsoft.com/en-us/windows/win32/direct3darticles/directx-warp)
     - D3D Present will fail on driver crash - handle it accordingly
     - Render_Target oriented, so we can apply effects to surfaces
-    - Sort sprites by layer:
-      This would be a separate thing from IM. Added just because we can't easily sort
-      immediate mode vertices by layer. It would look kinda like sf::Sprite?
-    - IM pipelines should not be global - we should have Batchers instead. Perhaps they
-      could be set globally, but changed on the fly, so for example GUI can be rendered
-      to one batcher, than the texture could be taken and put on some sprite.
-
     - We can put post-processing pipelines (and other?) to a linked-list of pipelines!
+    - dxgi debug device: https://walbourn.github.io/dxgi-debug-device/
 
   ### Use GPU for particle effects
     - use this particle effect to create trail effect behind space ships
@@ -119,6 +117,16 @@
   - Additional, pipeline-specific uniforms for adjusting the effects
 
   Additionally, batchers pipelines have instancing. How to handle that?
+
+  ### Pipelines Plan
+  - Drawing textured rectangles, then sorting them...?
+
+  PostFX:
+  - This could be applied to any surface, no?
+  - Blur, Bloom etc?
+
+  Final:
+  - Combine all postfx stages?
 
   ## Key Bindings
     Checks input events and updates the binding status accordingly.

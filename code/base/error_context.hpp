@@ -6,7 +6,7 @@
 
 struct Error_Context_Node {
   Error_Context_Node *next;
-  Error_Context_Node* prev;
+  Error_Context_Node *prev;
   Str8                file;
   Str8                function;
   Str8                desc;
@@ -31,7 +31,7 @@ error_context_pop(Error_Context *context);
   Defer { error_context_pop(gContext.error_context); };                              \
   do {                                                                               \
     Str8 file__ = __FILE__ ":" Stringify(__LINE__) ""_s8;                            \
-    Str8 func__ = __FUNCTION__ ""_s8;                                                \
+    Str8 func__ = str8_cstr(__FUNCTION__);                                           \
     Str8 desc__ = str8_sprintf(gContext.error_context->arena, fmt, __VA_ARGS__);     \
     error_context_push(gContext.error_context, file__, func__, desc__);              \
   } while (0)
