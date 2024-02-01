@@ -64,6 +64,8 @@ main(int argc, char const *argv[]) {
       .fullscreen = false,
   });
 
+  gfx_init({.vp_width = 1280, .vp_height = 720});
+
   TASKDIALOGCONFIG dialog = {};
   dialog.cbSize           = sizeof(dialog);
   dialog.dwFlags =
@@ -80,6 +82,8 @@ main(int argc, char const *argv[]) {
   while (os_gfx_window_mode() != OS_WindowMode_Closed) {
     OS_Window_Event *events = os_gfx_event_pump(gContext.frame_arena);
     Unused(events);
+
+    gfx_swap_buffers();
 
     arena_clear(gContext.frame_arena);
 

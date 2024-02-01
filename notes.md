@@ -62,6 +62,10 @@
   In game land we would have actual usable pipelines, front end
   would be just the skeleton for the pipelines and materials?
 
+    [X] Initialization
+    [X] Debug device
+    [ ] Immediate mode-like interface using render queues
+    [ ] Other pipelines...?
     [ ] Camera / multiple viewports? Maybe set a viewport per render target?
     [ ] GPU info
     [ ] State interpolation??
