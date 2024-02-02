@@ -1,6 +1,5 @@
 #pragma once
 #include "all_inc.hpp"
-#include <d3dcommon.h>
 
 // pass initial settings
 void

@@ -35,3 +35,13 @@ error_context_pop(Error_Context *context);
     Str8 desc__ = str8_sprintf(gContext.error_context->arena, fmt, __VA_ARGS__);     \
     error_context_push(gContext.error_context, file__, func__, desc__);              \
   } while (0)
+
+#define ErrorIf(cnd)                                                                 \
+  do {                                                                               \
+    if ((cnd)) {                                                                     \
+      Str8 file__ = __FILE__ ":" Stringify(__LINE__) ""_s8;                          \
+      Str8 func__ = str8_cstr(__FUNCTION__);                                         \
+      Str8 cnd__  = Stringify(cnd) ""_s8;                                            \
+      os_hard_fail(file__, func__, cnd__);                                           \
+    }                                                                                \
+  } while (0)

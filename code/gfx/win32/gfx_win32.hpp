@@ -23,7 +23,7 @@ struct {
 
   ID3D11Device        *device;  // GPU. Handles objects. Executes commands.
   ID3D11DeviceContext *context; // State manager, generates commands.
-  IDXGISwapChain1 *dxgi_swapchain;
+  IDXGISwapChain1     *dxgi_swapchain;
 
   ID3D11Texture2D        *framebuffer;
   ID3D11RenderTargetView *framebuffer_rtv;

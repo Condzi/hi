@@ -64,6 +64,12 @@ str16_range(u16 *beg, u16 *end) {
   return {.v = beg, .sz = PtrToU64(end) - PtrToU64(beg)};
 }
 
+must_use global Str16
+str16_cstr(wchar_t const *cstr) {
+  u64 const len = wcslen(cstr);
+  return {.v = (u16*)cstr, .sz = len};
+}
+
 // String Operations
 //
 

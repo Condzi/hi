@@ -15,6 +15,7 @@
 #define internal static
 #define read_only constexpr
 #define must_use [[nodiscard]]
+#define no_return [[noreturn]]
 
 // Language layer -- memory operations
 //

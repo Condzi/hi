@@ -1,6 +1,7 @@
 #pragma once
 #include "all_inc.hpp"
-
+#include <corecrt_wstdlib.h>
+#include <cwchar>
 
 global void
 os_gfx_init() {
@@ -41,7 +42,7 @@ os_gfx_open_window(Window_Options opts) {
   UINT const style = WS_OVERLAPPEDWINDOW;
   w32_hwnd         = CreateWindowExW(0,
                              L"game-window",
-                             (WCHAR*)title.v,
+                             (WCHAR *)title.v,
                              style,
                              CW_USEDEFAULT,
                              CW_USEDEFAULT,
@@ -223,4 +224,89 @@ win32_push_event(OS_Event_Type type) {
   ev->timestamp_us = os_now_us();
 
   return ev;
+}
+
+internal HRESULT WINAPI
+win32_os_hard_fail_dialog_callback(
+    HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam, LONG_PTR data) {
+  Unused(data);
+  Unused(wparam);
+  Unused(hwnd);
+
+  if (msg == TDN_HYPERLINK_CLICKED) {
+    Str8 hyperlink_s8 =
+        str8_from_16(gContext.frame_arena, str16_cstr((wchar_t const *)lparam));
+    if (str8_has_prefix(hyperlink_s8, "mailto:"_s8)) {
+      // It's the email address.
+      //
+      ShellExecuteW(0, L"open", (LPCWSTR)lparam, 0, 0, SW_SHOWNORMAL);
+    } else {
+      // It's a hyperlink to a source file, so open it in VS Code.
+      //
+      Str8 cmd8 =
+          str8_sprintf(gContext.frame_arena, "code --goto -r %s"_s8, hyperlink_s8.v);
+      Str16 cmd16 = str16_from_8(gContext.frame_arena, cmd8);
+      _wsystem((wchar_t const *)(cmd16.v));
+    }
+    OutputDebugStringW((LPWSTR)lparam);
+  }
+  return S_OK;
+}
+
+no_return void
+os_hard_fail(Str8 file, Str8 func, Str8 cnd) {
+  Str8 const message_fmt =
+      "Please, kindly send a screenshot of this message to <a "
+      "href=\"mailto:conradkubacki+bugreport@gmail.com\">"
+      "conradkubacki+bugreport@gmail.com</a>.\n(To take a screenshot, You can use ⊞ Win + ⇧ Shift + S)\n\n"
+      "       %s (%s → <a href=\"%s\">%s</a>)"
+      "\n%s"_s8;
+
+  Str8 err_ctx = "Error context is not available."_s8;
+  if (gContext.error_context && gContext.error_context->first) {
+    // Try to retrieve error context.
+    //
+    err_ctx                     = "\n"_s8;
+    s32                 counter = 1;
+    Error_Context_Node *node    = 0;
+    for (node = gContext.error_context->first; node; node = node->next) {
+      err_ctx = str8_sprintf(gContext.frame_arena,
+                             "%s  %*s↪ %d. %s (%s → <a href=\"%s\">%s</a>)\n"_s8,
+                             err_ctx.v,
+                             counter * 2,
+                             "",
+                             counter,
+                             node->desc.v,
+                             node->function.v,
+                             node->file.v,
+                             node->file.v + ArrayCount("W:\\hi\\code"));
+      counter++;
+    }
+  }
+
+  Str8  final_message    = str8_sprintf(gContext.frame_arena,
+                                    message_fmt,
+                                    cnd.v,
+                                    func.v,
+                                    file.v,
+                                    file.v + ArrayCount("W:\\hi\\code"),
+                                    err_ctx.v);
+  Str16 final_message_16 = str16_from_8(gContext.frame_arena, final_message);
+
+  TASKDIALOGCONFIG dialog = {
+      .cbSize = sizeof(dialog),
+      .dwFlags =
+          TDF_SIZE_TO_CONTENT | TDF_ENABLE_HYPERLINKS | TDF_ALLOW_DIALOG_CANCELLATION,
+      .dwCommonButtons    = TDCBF_CLOSE_BUTTON,
+      .pszWindowTitle     = L"Fatal Error",
+      .pszMainIcon        = TD_ERROR_ICON,
+      .pszMainInstruction = L"Program encountered an error and terminated.",
+      .pszContent         = (LPCWSTR)final_message_16.v,
+      .pszFooterIcon      = TD_INFORMATION_ICON,
+      .pszFooter          = L"" GAME_TITLE_LITERAL,
+      .pfCallback         = &win32_os_hard_fail_dialog_callback,
+  };
+  TaskDialogIndirect(&dialog, 0, 0, 0);
+
+  exit(0);
 }

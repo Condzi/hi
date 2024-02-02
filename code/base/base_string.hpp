@@ -35,6 +35,9 @@ str16(u16 *v, u64 sz);
 must_use global Str16
 str16_range(u16 *beg, u16 *end);
 
+must_use global Str16
+str16_cstr(wchar_t const* cstr);
+
 // String Operations
 //
 

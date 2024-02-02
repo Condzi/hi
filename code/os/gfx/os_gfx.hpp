@@ -75,3 +75,6 @@ struct OS_Window_Event {
 
 must_use global OS_Window_Event *
 os_gfx_event_pump(Arena *arena);
+
+no_return void
+os_hard_fail(Str8 file, Str8 func, Str8 cnd);
