@@ -2,6 +2,8 @@
 #include "all_inc.hpp"
 #include <corecrt_wstdlib.h>
 #include <cwchar>
+#include <debugapi.h>
+#include <winuser.h>
 
 global void
 os_gfx_init() {
@@ -248,19 +250,22 @@ win32_os_hard_fail_dialog_callback(
       Str16 cmd16 = str16_from_8(gContext.frame_arena, cmd8);
       _wsystem((wchar_t const *)(cmd16.v));
     }
-    OutputDebugStringW((LPWSTR)lparam);
+  } else if (msg == TDN_BUTTON_CLICKED) {
+    EndDialog(hwnd, 0);
   }
   return S_OK;
 }
 
 no_return void
-os_hard_fail(Str8 file, Str8 func, Str8 cnd) {
-  Str8 const message_fmt =
-      "Please, kindly send a screenshot of this message to <a "
-      "href=\"mailto:conradkubacki+bugreport@gmail.com\">"
-      "conradkubacki+bugreport@gmail.com</a>.\n(To take a screenshot, You can use ⊞ Win + ⇧ Shift + S)\n\n"
-      "       %s (%s → <a href=\"%s\">%s</a>)"
-      "\n%s"_s8;
+os_hard_fail(Str8 file, Str8 func, Str8 cnd, Str8 desc) {
+  Str8 const message_fmt = "Please, kindly send a screenshot of this message to <a "
+                           "href=\"mailto:conradkubacki+bugreport@gmail.com\">"
+                           "conradkubacki+bugreport@gmail.com</a>.\n"
+                           "You can use ⊞ Win + ⇧ Shift + S to take a screenshot.\n\n"
+                           "       %s\n"
+                           "       %s\n"
+                           "       (%s → <a href=\"%s\">%s</a>)\n"
+                           "\n%s"_s8;
 
   Str8 err_ctx = "Error context is not available."_s8;
   if (gContext.error_context && gContext.error_context->first) {
@@ -286,6 +291,7 @@ os_hard_fail(Str8 file, Str8 func, Str8 cnd) {
 
   Str8  final_message    = str8_sprintf(gContext.frame_arena,
                                     message_fmt,
+                                    desc.v,
                                     cnd.v,
                                     func.v,
                                     file.v,
@@ -293,20 +299,31 @@ os_hard_fail(Str8 file, Str8 func, Str8 cnd) {
                                     err_ctx.v);
   Str16 final_message_16 = str16_from_8(gContext.frame_arena, final_message);
 
-  TASKDIALOGCONFIG dialog = {
-      .cbSize = sizeof(dialog),
-      .dwFlags =
+  TASKDIALOG_BUTTON debug_btn = {.nButtonID = 1001, .pszButtonText = L"Debug"};
+  TASKDIALOGCONFIG  dialog    = {
+          .cbSize = sizeof(dialog),
+          .dwFlags =
           TDF_SIZE_TO_CONTENT | TDF_ENABLE_HYPERLINKS | TDF_ALLOW_DIALOG_CANCELLATION,
-      .dwCommonButtons    = TDCBF_CLOSE_BUTTON,
-      .pszWindowTitle     = L"Fatal Error",
-      .pszMainIcon        = TD_ERROR_ICON,
-      .pszMainInstruction = L"Program encountered an error and terminated.",
-      .pszContent         = (LPCWSTR)final_message_16.v,
-      .pszFooterIcon      = TD_INFORMATION_ICON,
-      .pszFooter          = L"" GAME_TITLE_LITERAL,
-      .pfCallback         = &win32_os_hard_fail_dialog_callback,
+          .dwCommonButtons    = TDCBF_CLOSE_BUTTON,
+          .pszWindowTitle     = L"Fatal Error :(",
+          .pszMainIcon        = TD_ERROR_ICON,
+          .pszMainInstruction = L"Program encountered an error and terminated.",
+          .pszContent         = (LPCWSTR)final_message_16.v,
+          .pszFooterIcon      = TD_INFORMATION_ICON,
+          .pszFooter          = L"" GAME_TITLE_LITERAL,
+          .pfCallback         = &win32_os_hard_fail_dialog_callback,
   };
-  TaskDialogIndirect(&dialog, 0, 0, 0);
 
+#if !defined(NDEBUG)
+  dialog.pButtons = &debug_btn;
+  dialog.cButtons = 1;
+#endif
+
+  int debug_btn_status = 0;
+  TaskDialogIndirect(&dialog, &debug_btn_status, 0, 0);
+
+  if (debug_btn_status == 1001) {
+    Trap();
+  }
   exit(0);
 }

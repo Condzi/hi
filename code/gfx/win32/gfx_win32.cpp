@@ -4,12 +4,14 @@
 // pass initial settings
 void
 gfx_init(GFX_Opts const &opts) {
+  ErrorContext("%ux%u px, vsync=%s"_s8,
+               opts.vp_width,
+               opts.vp_height,
+               opts.vsync ? "on" : "off");
   HRESULT hr;
 
   hr = CreateDXGIFactory1(__uuidof(IDXGIFactory6), (void **)&gD3d.dxgi_factory);
-  if (FAILED(hr)) {
-    //
-  }
+  ErrorIf(FAILED(hr), "CreateDXGIFactory1 returned 0x%X"_s8, hr);
 
   // Try to find dedicated GPU.
   //
@@ -71,10 +73,8 @@ gfx_init(GFX_Opts const &opts) {
         "Failed to create device on dedicated GPU. Fallback to WARP..\n"_s8);
   }
 
-  if (FAILED(hr)) {
-    os_debug_message("Device creation failed.\n"_s8);
-    // Devic ecreation failed...
-  }
+  ErrorIf(
+      FAILED(hr), "Unable to create a device (neither HW nor WARP). hr=0x%X"_s8, hr);
 
 // Enable break-on-error.
 //
@@ -102,10 +102,7 @@ gfx_init(GFX_Opts const &opts) {
   };
   hr = gD3d.dxgi_factory->CreateSwapChainForHwnd(
       gD3d.device, w32_hwnd, &sc_desc, 0, 0, &gD3d.dxgi_swapchain);
-  if (FAILED(hr)) {
-    // @ToDo !
-    os_debug_message("Failed to create swap chain.\n"_s8);
-  }
+  ErrorIf(FAILED(hr), "Unable to create the swapchain. hr=0x%X"_s8, hr);
 
   gD3d.dxgi_swapchain->GetBuffer(
       0, __uuidof(ID3D11Texture2D), (void **)&gD3d.framebuffer);
@@ -114,6 +111,7 @@ gfx_init(GFX_Opts const &opts) {
 
 void
 gfx_swap_buffers() {
+  ErrorContext("Swapchain stuff..."_s8);
   gD3d.context->ClearState();
 
   // Render here
@@ -121,8 +119,5 @@ gfx_swap_buffers() {
 
   HRESULT hr;
   hr = gD3d.dxgi_swapchain->Present(1, 0);
-  if (FAILED(hr)) {
-    // Driver crash
-    // @ToDo !
-  }
+  ErrorIf(FAILED(hr), "Call to Present failed. hr=0x%X"_s8, hr);
 }
