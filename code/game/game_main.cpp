@@ -10,7 +10,6 @@ main(int argc, char const *argv[]) {
 
   Arena *error_context_arena = make_arena(false);
   gContext.error_context     = error_context_init(error_context_arena);
-  ErrorContext("argc=%d"_s8, argc);
   // Error context is put into scratch buffer, cleared every frame.
   Scratch_Buffer error_context_scratch = scratch_begin(error_context_arena);
   os_init(argc, argv);
@@ -51,7 +50,9 @@ main(int argc, char const *argv[]) {
 
   gfx_init({.vp_width = 1280, .vp_height = 720});
 
+  u64 frame = 0;
   while (os_gfx_window_mode() != OS_WindowMode_Closed) {
+    ErrorContext("frame=%zu"_s8, frame);
     OS_Window_Event *events = os_gfx_event_pump(gContext.frame_arena);
     Unused(events);
 
@@ -63,5 +64,6 @@ main(int argc, char const *argv[]) {
     //
     scratch_end(&error_context_scratch);
     gContext.error_context->first = gContext.error_context->last = 0;
+    frame++;
   }
 }

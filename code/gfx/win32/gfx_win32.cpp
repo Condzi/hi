@@ -69,12 +69,10 @@ gfx_init(GFX_Opts const &opts) {
                            0,
                            &gD3d.context);
 
-    os_debug_message(
-        "Failed to create device on dedicated GPU. Fallback to WARP..\n"_s8);
+    os_debug_message("Failed to create device on dedicated GPU. Fallback to WARP..\n"_s8);
   }
 
-  ErrorIf(
-      FAILED(hr), "Unable to create a device (neither HW nor WARP). hr=0x%X"_s8, hr);
+  ErrorIf(FAILED(hr), "Unable to create a device (neither HW nor WARP). hr=0x%X"_s8, hr);
 
 // Enable break-on-error.
 //
@@ -104,9 +102,37 @@ gfx_init(GFX_Opts const &opts) {
       gD3d.device, w32_hwnd, &sc_desc, 0, 0, &gD3d.dxgi_swapchain);
   ErrorIf(FAILED(hr), "Unable to create the swapchain. hr=0x%X"_s8, hr);
 
-  gD3d.dxgi_swapchain->GetBuffer(
-      0, __uuidof(ID3D11Texture2D), (void **)&gD3d.framebuffer);
+  // Acquire the framebuffer.
+  //
+
+  hr = gD3d.dxgi_swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void **)&gD3d.framebuffer);
+  ErrorIf(FAILED(hr), "Failed to acquire the framebuffer. hr=0x%X."_s8, hr);
+  hr = gD3d.device->CreateRenderTargetView(gD3d.framebuffer, 0, &gD3d.framebuffer_rtv);
+  ErrorIf(FAILED(hr), "Failed to create rtv for framebuffer. hr=0x%X."_s8, hr);
+}
+
+void
+gfx_resize(u32 new_width, u32 new_height) {
+  ErrorContext("new_width=%u, new_height=%u"_s8, new_width, new_height);
+
+  // Release all references to back buffers.
+  //
+  gD3d.framebuffer_rtv->Release();
+  gD3d.framebuffer->Release();
+
+  HRESULT hr;
+
+  // Resize the swap chain buffers.
+  //
+  hr = gD3d.dxgi_swapchain->ResizeBuffers(0, new_width, new_height, DXGI_FORMAT_UNKNOWN, 0);
+  ErrorIf(FAILED(hr), "ResizeBuffers failed. hr=0x%X."_s8, hr);
+
+  // Reacquire the framebuffer.
+  //
+  gD3d.dxgi_swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void **)&gD3d.framebuffer);
+  ErrorIf(FAILED(hr), "Failed to reacquire the framebuffer. hr=0x%X."_s8, hr);
   gD3d.device->CreateRenderTargetView(gD3d.framebuffer, 0, &gD3d.framebuffer_rtv);
+  ErrorIf(FAILED(hr), "Failed to recreate rtv for framebuffer. hr=0x%X."_s8, hr);
 }
 
 void
@@ -115,6 +141,9 @@ gfx_swap_buffers() {
   gD3d.context->ClearState();
 
   // Render here
+  //
+
+  // Swap buffers
   //
 
   HRESULT hr;

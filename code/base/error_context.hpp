@@ -27,22 +27,22 @@ error_context_push(Error_Context *context, Str8 file, Str8 func, Str8 desc);
 global void
 error_context_pop(Error_Context *context);
 
-#define ErrorContext(fmt, ...)                                                       \
-  Defer { error_context_pop(gContext.error_context); };                              \
-  do {                                                                               \
-    Str8 file__ = __FILE__ ":" Stringify(__LINE__) ""_s8;                            \
-    Str8 func__ = str8_cstr(__FUNCTION__);                                           \
-    Str8 desc__ = str8_sprintf(gContext.error_context->arena, fmt, __VA_ARGS__);     \
-    error_context_push(gContext.error_context, file__, func__, desc__);              \
+#define ErrorContext(fmt, ...)                                                                     \
+  Defer { error_context_pop(gContext.error_context); };                                            \
+  do {                                                                                             \
+    Str8 file__ = __FILE__ ":" Stringify(__LINE__) ""_s8;                                          \
+    Str8 func__ = str8_cstr(__FUNCTION__);                                                         \
+    Str8 desc__ = str8_sprintf(gContext.error_context->arena, fmt, __VA_ARGS__);                   \
+    error_context_push(gContext.error_context, file__, func__, desc__);                            \
   } while (0)
 
-#define ErrorIf(cnd, fmt, ...)                                                       \
-  do {                                                                               \
-    if ((cnd)) {                                                                     \
-      Str8 file__ = __FILE__ ":" Stringify(__LINE__) ""_s8;                          \
-      Str8 func__ = str8_cstr(__FUNCTION__);                                         \
-      Str8 cnd__  = #cnd ""_s8;                                            \
-      Str8 desc__ = str8_sprintf(gContext.error_context->arena, fmt, __VA_ARGS__);   \
-      os_hard_fail(file__, func__, cnd__, desc__);                                   \
-    }                                                                                \
+#define ErrorIf(cnd, fmt, ...)                                                                     \
+  do {                                                                                             \
+    if ((cnd)) {                                                                                   \
+      Str8 file__ = __FILE__ ":" Stringify(__LINE__) ""_s8;                                        \
+      Str8 func__ = str8_cstr(__FUNCTION__);                                                       \
+      Str8 cnd__  = #cnd ""_s8;                                                                    \
+      Str8 desc__ = str8_sprintf(gContext.error_context->arena, fmt, __VA_ARGS__);                 \
+      os_hard_fail(file__, func__, cnd__, desc__);                                                 \
+    }                                                                                              \
   } while (0)

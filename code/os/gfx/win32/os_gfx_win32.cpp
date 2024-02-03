@@ -85,8 +85,7 @@ os_gfx_set_fullscreen(bool fullscreen) {
       GetWindowPlacement(w32_hwnd, &w32_window_placement);
     }
     MONITORINFO monitor_info = {.cbSize = sizeof(monitor_info)};
-    if (GetMonitorInfo(MonitorFromWindow(w32_hwnd, MONITOR_DEFAULTTOPRIMARY),
-                       &monitor_info)) {
+    if (GetMonitorInfo(MonitorFromWindow(w32_hwnd, MONITOR_DEFAULTTOPRIMARY), &monitor_info)) {
       SetWindowLong(w32_hwnd, GWL_STYLE, (LONG)(window_style & ~WS_OVERLAPPEDWINDOW));
       SetWindowPos(w32_hwnd,
                    HWND_TOP,
@@ -106,8 +105,7 @@ os_gfx_set_fullscreen(bool fullscreen) {
                  0,
                  0,
                  0,
-                 SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER |
-                     SWP_FRAMECHANGED);
+                 SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
   }
 }
 
@@ -182,6 +180,9 @@ win32_window_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
     case WM_SIZE: {
       win32_push_event(OS_EventType_WindowResized);
+      // @ToDo: Move this to the os-independent event queue handling!
+      //
+      gfx_resize(os_gfx_surface_width(), os_gfx_surface_height());
       os_debug_message("WM_SIZE\n"_s8);
     } break;
 
@@ -236,8 +237,7 @@ win32_os_hard_fail_dialog_callback(
   Unused(hwnd);
 
   if (msg == TDN_HYPERLINK_CLICKED) {
-    Str8 hyperlink_s8 =
-        str8_from_16(gContext.frame_arena, str16_cstr((wchar_t const *)lparam));
+    Str8 hyperlink_s8 = str8_from_16(gContext.frame_arena, str16_cstr((wchar_t const *)lparam));
     if (str8_has_prefix(hyperlink_s8, "mailto:"_s8)) {
       // It's the email address.
       //
@@ -271,10 +271,9 @@ os_hard_fail(Str8 file, Str8 func, Str8 cnd, Str8 desc) {
   if (gContext.error_context && gContext.error_context->first) {
     // Try to retrieve error context.
     //
-    err_ctx                     = "\n"_s8;
-    s32                 counter = 1;
-    Error_Context_Node *node    = 0;
-    for (node = gContext.error_context->first; node; node = node->next) {
+    err_ctx     = "\n"_s8;
+    s32 counter = 1;
+    for (Error_Context_Node *node = gContext.error_context->first; node; node = node->next) {
       err_ctx = str8_sprintf(gContext.frame_arena,
                              "%s  %*s↪ %d. %s (%s → <a href=\"%s\">%s</a>)\n"_s8,
                              err_ctx.v,

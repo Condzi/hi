@@ -19,7 +19,7 @@
     [X] stb_sprintf integration
     [X] Math (vectors, matrices, functions)
     [ ] Rand (perlin noise, random range)
-    [X?] Error context, Check(cnd, "Context")
+    [X] Error context, Check(cnd, "Context")
 
   ## Debug Tools
     [ ] Frame Time Graph
