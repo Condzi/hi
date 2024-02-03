@@ -33,4 +33,7 @@
     "--background-index",
     "--background-index-priority=low"
   ],
+  "codechecker.backend.compilationDatabasePath": "${workspaceFolder}/compile_commands.json",
+  "codechecker.executor.runOnSave": false,
+  "codechecker.backend.outputFolder": "${workspaceFolder}/.codechecker",
 }

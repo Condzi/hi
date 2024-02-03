@@ -1,0 +1,21 @@
+[
+  {
+    "file": "./code/game/game_main.cpp",
+    "directory": "./",
+    "arguments": [
+      "clang++",
+      "code/game/game_main.cpp",
+      "-ferror-limit=0",
+      "-IW:/hi/code",
+      "-IW:/hi/code/3rdparty",
+      "-DWIN32",
+      "-D_WINDOWS",
+      "-D_HAS_EXCEPTIONS=0",
+      "-D_CRT_SECURE_NO_WARNINGS",
+      "-W1",
+      "-std=c++20",
+      "-o",
+      "build/game-clang.exe"
+    ]
+  }
+]
