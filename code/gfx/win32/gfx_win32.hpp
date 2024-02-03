@@ -10,9 +10,12 @@
 #pragma comment(lib, "dxgi.lib")
 
 #include <d3d11.h>
-#include <d3dcommon.h>
-#include <d3dcompiler.h>
 #include <d3d11sdklayers.h>
+
+#include <d3dcommon.h>
+
+#include <d3dcompiler.h>
+
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
@@ -20,7 +23,7 @@
 // DirectX 11 backend state
 //
 
-struct {
+struct D3d {
   IDXGIFactory6 *dxgi_factory;
 
   ID3D11Device        *device;  // GPU. Handles objects. Executes commands.

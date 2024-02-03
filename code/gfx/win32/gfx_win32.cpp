@@ -8,7 +8,7 @@ gfx_init(GFX_Opts const &opts) {
                opts.vp_width,
                opts.vp_height,
                opts.vsync ? "on" : "off");
-  HRESULT hr;
+  HRESULT hr = 0;
 
   hr = CreateDXGIFactory1(__uuidof(IDXGIFactory6), (void **)&gD3d.dxgi_factory);
   ErrorIf(FAILED(hr), "CreateDXGIFactory1 returned 0x%X"_s8, hr);
@@ -120,7 +120,7 @@ gfx_resize(u32 new_width, u32 new_height) {
   gD3d.framebuffer_rtv->Release();
   gD3d.framebuffer->Release();
 
-  HRESULT hr;
+  HRESULT hr = 0;
 
   // Resize the swap chain buffers.
   //
@@ -129,9 +129,9 @@ gfx_resize(u32 new_width, u32 new_height) {
 
   // Reacquire the framebuffer.
   //
-  gD3d.dxgi_swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void **)&gD3d.framebuffer);
+  hr = gD3d.dxgi_swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void **)&gD3d.framebuffer);
   ErrorIf(FAILED(hr), "Failed to reacquire the framebuffer. hr=0x%X."_s8, hr);
-  gD3d.device->CreateRenderTargetView(gD3d.framebuffer, 0, &gD3d.framebuffer_rtv);
+  hr = gD3d.device->CreateRenderTargetView(gD3d.framebuffer, 0, &gD3d.framebuffer_rtv);
   ErrorIf(FAILED(hr), "Failed to recreate rtv for framebuffer. hr=0x%X."_s8, hr);
 }
 
@@ -146,7 +146,6 @@ gfx_swap_buffers() {
   // Swap buffers
   //
 
-  HRESULT hr;
-  hr = gD3d.dxgi_swapchain->Present(1, 0);
+  HRESULT hr = gD3d.dxgi_swapchain->Present(1, 0);
   ErrorIf(FAILED(hr), "Call to Present failed. hr=0x%X"_s8, hr);
 }

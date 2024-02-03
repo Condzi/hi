@@ -166,6 +166,7 @@ win32_window_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
     case WM_SYSCOMMAND: {
       switch (wParam) {
+        default: break;
         case SC_MINIMIZE: {
           w32_mode = OS_WindowMode_Minimized;
         } break;
