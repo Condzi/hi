@@ -31,7 +31,7 @@ if not exist %cc_dir% mkdir %cc_dir%
 if not exist %cc_report_dir% set new=1
 
 :: --- Run the analysis -------------------------------------------------------
-if "%new%"=="1" %cc_analyze% -c --tidyargs .clang-tidy -i skipfile.txt --output %cc_report_dir% %cc_compile_cmds% --analyzers %cc_analyzers%
+if "%new%"=="1" %cc_analyze% -c -i skipfile.txt --output %cc_report_dir% %cc_compile_cmds% --analyzers %cc_analyzers% --analyzer-config 'clang-tidy:take-config-from-directory=true'
 
 :: --- Generate the report ----------------------------------------------------
 if "%web%"=="1" %cc_parse% -e html %cc_report_dir% -o %cc_http_dir%

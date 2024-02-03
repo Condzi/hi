@@ -6,7 +6,7 @@ Checks:
 
   '-bugprone-easily-swappable-parameters',
   '-bugprone-suspicious-include',
-  
+
   '-cppcoreguidelines-macro-usage',
   '-cppcoreguidelines-avoid-non-const-global-variables',
   '-cppcoreguidelines-pro-type-union-access',
@@ -33,6 +33,7 @@ Checks:
   '-modernize-use-trailing-return-type',
   
   '-misc-use-anonymous-namespace',
+  '-misc-header-include-cycle',
 
   '-performance-no-int-to-ptr',
   
@@ -42,6 +43,8 @@ Checks:
   '-readability-magic-numbers',
   '-readability-implicit-bool-conversion',
   '-readability-identifier-length',
+
+  '-clang-diagnostic-unknown-pragmas',
   ]
   
 HeaderFileExtensions:         ['', 'hpp','hxx']
@@ -57,7 +60,7 @@ ExtraArgs:
   '-D_WINDOWS', 
   '-D_HAS_EXCEPTIONS=0', 
   '-D_CRT_SECURE_NO_WARNINGS', 
-  '-Wextra', 
-  '-Wall',
-  '-std=c++20'
-  ]                    
+  '-std=c++20',
+  '-Wno-unknown-pragmas',
+  '-Wno-missing-field-initializers',
+  ]
