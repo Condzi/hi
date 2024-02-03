@@ -30,7 +30,7 @@ main(int argc, char const *argv[]) {
 
   // This should be in the old one
   //
-  u    = (u64 *)arena_alloc(a, 8, 8);
+  u = (u64 *)arena_alloc(a, 8, 8);
   // u[1] = 123;
 
   u64 now = os_now_us();
@@ -38,8 +38,7 @@ main(int argc, char const *argv[]) {
 
   os_debug_message("Cześć, Świecie! ąćźłóę ĄĆŹŁÓĘ\n"_s8);
 
-  os_debug_message(
-      str8_sprintf(a, "Test: %_$$d. 8 in binary is 0b%b"_s8, MB(128), 8));
+  os_debug_message(str8_sprintf(a, "Test: %_$$d. 8 in binary is 0b%b"_s8, MB(128), 8));
 
   os_gfx_open_window({
       .title      = GAME_TITLE_LITERAL ""_s8,

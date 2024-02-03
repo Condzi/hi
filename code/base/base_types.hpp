@@ -29,13 +29,13 @@
 
 #define Unused(x) (void)(x)
 
-#define Trap() __debugbreak();
+#define Trap() __debugbreak()
 
-#define AssertAlways(x)                                                              \
-  do {                                                                               \
-    if (!(x)) {                                                                      \
-      Trap();                                                                        \
-    }                                                                                \
+#define AssertAlways(x)                                                                            \
+  do {                                                                                             \
+    if (!(x)) {                                                                                    \
+      Trap();                                                                                      \
+    }                                                                                              \
   } while (0)
 
 #if !defined(NDEBUG)
@@ -107,11 +107,11 @@ struct Defer_Maker final {
 #define Million(n) ((n) * 1000000)
 #define Billion(n) ((n) * 1000000000)
 
-#define Swap(a, b)                                                                   \
-  do {                                                                               \
-    decltype(a) t__ = a;                                                             \
-    a               = b;                                                             \
-    b               = t__;                                                           \
+#define Swap(a, b)                                                                                 \
+  do {                                                                                             \
+    decltype(a) t__ = a;                                                                           \
+    a               = b;                                                                           \
+    b               = t__;                                                                         \
   } while (0)
 
 // Conversion macros
@@ -138,8 +138,7 @@ __asan_unpoison_memory_region(void const volatile *addr, size_t size);
 C_LINKAGE_END
 
 #define AsanPoisonMemoryRegion(addr, size) __asan_poison_memory_region((addr), (size))
-#define AsanUnpoisonMemoryRegion(addr, size)                                         \
-  __asan_unpoison_memory_region((addr), (size))
+#define AsanUnpoisonMemoryRegion(addr, size) __asan_unpoison_memory_region((addr), (size))
 #else
 #define AsanPoisonMemoryRegion(addr, size) ((void)(addr), (void)(size))
 #define AsanUnpoisonMemoryRegion(addr, size) ((void)(addr), (void)(size))

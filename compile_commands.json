@@ -1,10 +1,10 @@
 [
   {
-    "file": "./code/game/game_main.cpp",
-    "directory": "./",
+    "file": "W:/hi/code/game/game_main.cpp",
+    "directory": "W:/hi/",
     "arguments": [
       "clang++",
-      "code/game/game_main.cpp",
+      "W:/hi/code/game/game_main.cpp",
       "-ferror-limit=0",
       "-IW:/hi/code",
       "-IW:/hi/code/3rdparty",
