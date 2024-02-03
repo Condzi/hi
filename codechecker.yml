@@ -1,0 +1,10 @@
+#
+# Because some of the checks just can't be disabled from clang-tidy level...
+#
+analyzer:
+  - --disable=clang-diagnostic-missing-field-initializers
+  - --disable=clang-diagnostic-missing-braces
+  - --disable=misc-header-include-cycle
+
+  # @ToDo: add this check back when we have more code!
+  - --disable=clang-diagnostic-unused-function
