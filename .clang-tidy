@@ -6,6 +6,10 @@ Checks:
 
   '-bugprone-easily-swappable-parameters',
   '-bugprone-suspicious-include',
+  '-bugprone-reserved-identifier',
+  
+  '-cert-dcl37-c',
+  '-cert-dcl51-cpp',
 
   '-cppcoreguidelines-macro-usage',
   '-cppcoreguidelines-avoid-non-const-global-variables',
@@ -31,6 +35,7 @@ Checks:
 
   '-modernize-use-auto',
   '-modernize-use-trailing-return-type',
+  '-modernize-avoid-c-arrays',
   
   '-misc-use-anonymous-namespace',
   '-misc-header-include-cycle',

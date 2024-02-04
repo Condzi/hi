@@ -80,13 +80,8 @@
       - use deferred rendering by gathering rendering commands and executing them:
       https://learn.microsoft.com/en-us/windows/win32/direct3d11/overviews-direct3d-11-render-multi-thread-command-list
 
-    - flip models https://learn.microsoft.com/en-us/windows/win32/direct3ddxgi/dxgi-flip-model
-    and https://learn.microsoft.com/en-us/windows/win32/direct3ddxgi/for-best-performance--use-dxgi-flip-model
     - variable refresh rate: https://walbourn.github.io/care-and-feeding-of-modern-swap-chains-3/
     and https://learn.microsoft.com/en-us/windows/win32/direct3ddxgi/variable-refresh-rate-displays
-    - Resize buffers on WM_SIZE (IDXGISwapChain::ResizeBuffers)
-    - Fallback to WARP when D3D hardware not available (https://learn.microsoft.com/en-us/windows/win32/direct3darticles/directx-warp)
-    - D3D Present will fail on driver crash - handle it accordingly
     - Render_Target oriented, so we can apply effects to surfaces
     - We can put post-processing pipelines (and other?) to a linked-list of pipelines!
     - dxgi debug device: https://walbourn.github.io/dxgi-debug-device/
@@ -123,7 +118,23 @@
   Additionally, batchers pipelines have instancing. How to handle that?
 
   ### Pipelines Plan
-  - Drawing textured rectangles, then sorting them...?
+  Objects should be rendered in following order:
+    - Textured rectangles - static geometry (background image, walls, immovable objects) - Tex_Vertex
+    - Textured rectangles - dynamic geometry - Tex_Vertex
+    - Particle effects (textures, etc) - Particle_Vertex
+    - Debug rects (using instancing) - Im_Vertex
+    - UI text - Tex_Vertex; UI panels - Im_Vertex?
+
+  Dynamic geometry should take layers into account.
+  Layers: Background, Middle, Foreground + sorting inside them (sub-layers). This could be just a 
+  byte - first 4 bits for layer, second 4 bits for sub-layer.
+
+  (Extra) Textured rectangles should support rendering to them and exporting the texture, so UI can cache
+  its drawing results, right?
+
+  (Extra+) The final assembly of the raw (non-post processed image) could happen in parallel? I mean, every
+  stage of the pipeline (static, dynamic geometry, particle effect and debug shapes) could be
+  drawed in separate thread, then displayed in the main?
 
   PostFX:
   - This could be applied to any surface, no?
