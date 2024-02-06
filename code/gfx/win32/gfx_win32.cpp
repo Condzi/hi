@@ -1,5 +1,6 @@
 #pragma once
 #include "all_inc.hpp"
+#include <d3d11.h>
 
 // pass initial settings
 void
@@ -52,7 +53,7 @@ gfx_init(GFX_Opts const &opts) {
                          D3D11_SDK_VERSION,
                          &gD3d.device,
                          0,
-                         &gD3d.context);
+                         &gD3d.immediate_context);
 
   // Try WARP driver if HW is not available.
   // @ToDo: Warn about this!
@@ -67,7 +68,7 @@ gfx_init(GFX_Opts const &opts) {
                            D3D11_SDK_VERSION,
                            &gD3d.device,
                            0,
-                           &gD3d.context);
+                           &gD3d.immediate_context);
 
     os_debug_message("Failed to create device on dedicated GPU. Fallback to WARP..\n"_s8);
   }
@@ -109,6 +110,11 @@ gfx_init(GFX_Opts const &opts) {
   ErrorIf(FAILED(hr), "Failed to acquire the framebuffer. hr=0x%X."_s8, hr);
   hr = gD3d.device->CreateRenderTargetView(gD3d.framebuffer, 0, &gD3d.framebuffer_rtv);
   ErrorIf(FAILED(hr), "Failed to create rtv for framebuffer. hr=0x%X."_s8, hr);
+
+  // Create deferred context.
+  //
+  hr = gD3d.device->CreateDeferredContext(0, &gD3d.deferred_context);
+  ErrorIf(FAILED(hr), "Failed to create deferred context. hr=0x%X"_s8, hr);
 }
 
 void
@@ -138,14 +144,28 @@ gfx_resize(u32 new_width, u32 new_height) {
 void
 gfx_swap_buffers() {
   ErrorContext("Swapchain stuff..."_s8);
-  gD3d.context->ClearState();
+  HRESULT hr = 0;
+
+  // Clear the state.
+  //
+  gD3d.immediate_context->ClearState();
+  gD3d.deferred_context->ClearState();
+
+  fvec4 clear_color = {0.6f, 0.25f, 0.29f, 1.0f};
+  gD3d.deferred_context->ClearRenderTargetView(gD3d.framebuffer_rtv, clear_color.v);
 
   // Render here
   //
 
+  // Execute rendering commands
+  //
+  ID3D11CommandList *command_list = 0;
+  hr                              = gD3d.deferred_context->FinishCommandList(FALSE, &command_list);
+  ErrorIf(FAILED(hr), "Failed to finish command list. hr=0x%X."_s8, hr);
+  gD3d.immediate_context->ExecuteCommandList(command_list, FALSE);
+
   // Swap buffers
   //
-
-  HRESULT hr = gD3d.dxgi_swapchain->Present(1, 0);
+  hr = gD3d.dxgi_swapchain->Present(1, 0);
   ErrorIf(FAILED(hr), "Call to Present failed. hr=0x%X"_s8, hr);
 }

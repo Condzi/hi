@@ -167,6 +167,7 @@
 ### Misc notes
 
 - SRV are read only, UAV are read/write but a bit more expensive
+- there need to be different levels of the api, from low (resource creation) to high (render graph???)
 
 ## Key Bindings
 

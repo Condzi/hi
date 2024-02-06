@@ -1,36 +1,7 @@
 #pragma once
 
-// Handles to resources
+// Helper types
 //
-
-struct GFX_Image {
-  u64 v[1] = {};
-};
-
-struct GFX_Shader {
-  u64 v[1] = {};
-};
-
-struct GFX_Buffer {
-  u64 v[1] = {};
-};
-
-// Misc types
-//
-
-enum GFX_Layer_Category {
-  GFX_Layer_Background,
-  GFX_Layer_Middle,
-  GFX_Layer_Foreground,
-};
-
-union GFX_Layer {
-  u8 v;
-  struct {
-    u8 category : 2 = {};
-    u8 priority : 6 = {};
-  };
-};
 
 struct GFX_Viewport {
   fvec2 pos;
@@ -49,10 +20,42 @@ union GFX_Color {
 };
 
 struct GFX_Tex_Coords {
-  u16 x      = {};
-  u16 y      = {};
-  u16 width  = {};
-  u16 height = {};
+  u16 x = {};
+  u16 y = {};
+  u16 w = {};
+  u16 h = {};
+};
+
+// Handles to resources
+//
+
+struct GFX_Image {
+  u64 v[1] = {};
+};
+
+struct GFX_Shader {
+  u64 v[1] = {};
+};
+
+struct GFX_Buffer {
+  u64 v[1] = {};
+};
+
+// Layering. Layers are effective per-batch; there is no layering between batches!
+//
+
+enum GFX_Layer_Category {
+  GFX_Layer_Background,
+  GFX_Layer_Middle,
+  GFX_Layer_Foreground,
+};
+
+union GFX_Layer {
+  u8 v;
+  struct {
+    u8 category : 2 = {};
+    u8 priority : 6 = {};
+  };
 };
 
 // Materials

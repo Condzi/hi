@@ -25,10 +25,11 @@
 
 struct D3d {
   IDXGIFactory6 *dxgi_factory;
+  IDXGISwapChain1 *dxgi_swapchain;
 
   ID3D11Device        *device;  // GPU. Handles objects. Executes commands.
-  ID3D11DeviceContext *context; // Immediate context.
-  IDXGISwapChain1     *dxgi_swapchain;
+  ID3D11DeviceContext *immediate_context;
+  ID3D11DeviceContext *deferred_context;
 
   ID3D11Texture2D        *framebuffer;
   ID3D11RenderTargetView *framebuffer_rtv;
