@@ -4,7 +4,7 @@
     "directory": "W:/hi/",
     "arguments": [
       "clang++",
-      "W:/hi/code/game/game_main.cpp",
+      "game/game_main.cpp",
       "-ferror-limit=0",
       "-includeall_inc.hpp",
       "-IW:/hi/code",

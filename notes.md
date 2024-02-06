@@ -1,15 +1,19 @@
 # Layers (alphabetically)
-  ## Audio
+
+## Audio
+
     [ ] Enumerate available audio devices
     [ ] Frontend design (play_sound("blah"))
     [ ] Backend things (how to handle mastering and loading voices?)
 
-  ## Assets
+## Assets
+
     List of textures and audio files...
     [ ] stb_image integration
     [ ] list of resources that can be accessed with their IDs / handles?
 
-  ## Base
+## Base
+
     [X] Basic Types
     [X] Language Layer
     [X] Allocators
@@ -21,13 +25,14 @@
     [ ] Rand (perlin noise, random range)
     [X] Error context, Check(cnd, "Context")
 
-  ## Debug Tools
+## Debug Tools
+
     [ ] Frame Time Graph
     [ ] Menu with toggable flags, for example for debug view of collisions
     [ ] Menu with Entity information...?
 
+## Entities & Systems
 
-  ## Entities & Systems
     [ ] List of systems to update. Maybe sort by priority?
 
     Rough system ideas:
@@ -53,10 +58,12 @@
 
     - all kind of debug subsystems? for some diagrams, drawing, debug UI
 
-  ## Game
+## Game
+
     Just app initialization.
 
-  ## GFX
+## GFX
+
   Do not get side tracked with multithreaded rendering!
   This should be splitted into backend / frontend and game land?
   In game land we would have actual usable pipelines, front end
@@ -86,13 +93,15 @@
     - We can put post-processing pipelines (and other?) to a linked-list of pipelines!
     - dxgi debug device: https://walbourn.github.io/dxgi-debug-device/
 
-  ### Use GPU for particle effects
+### Use GPU for particle effects
+
     - use this particle effect to create trail effect behind space ships
 
     We need textures and noise:
     https://www.youtube.com/watch?v=wvK6MNlmCCE
 
-  ### Summary
+### Summary
+
   Batcher renders to a Render_Target. Result of that is a texture.
   This texture can be assigned to a sprite. Sprite can be easily layered, where
   in batchers, because they are immediate-mode, the layering is based on what was
@@ -105,19 +114,22 @@
   the gui in the end can get drawn as a one texture, either on top of the game
   post-processing, or with it.
 
-  ### Pipelines
+### Pipelines
+
   All pipelines follow a common structure:
-  - Vertex and Pixel Shader
-  - Input Layout (Maybe should be shared amongst all pipelines?)
-  - Vertex Buffer
-  - VS and PS Constants Buffers (camera matrices, time, viewport size...)
-  - Render Target (dest, source (can be empty))
-  - Optionally: Sampler State, Rasterizer State, Blend State
-  - Additional, pipeline-specific uniforms for adjusting the effects
+
+- Vertex and Pixel Shader
+- Input Layout (Maybe should be shared amongst all pipelines?)
+- Vertex Buffer
+- VS and PS Constants Buffers (camera matrices, time, viewport size...)
+- Render Target (dest, source (can be empty))
+- Optionally: Sampler State, Rasterizer State, Blend State
+- Additional, pipeline-specific uniforms for adjusting the effects
 
   Additionally, batchers pipelines have instancing. How to handle that?
 
-  ### Pipelines Plan
+### Pipelines Plan
+
   Objects should be rendered in following order:
     - Textured rectangles - static geometry (background image, walls, immovable objects) - Tex_Vertex
     - Textured rectangles - dynamic geometry - Tex_Vertex
@@ -126,7 +138,7 @@
     - UI text - Tex_Vertex; UI panels - Im_Vertex?
 
   Dynamic geometry should take layers into account.
-  Layers: Background, Middle, Foreground + sorting inside them (sub-layers). This could be just a 
+  Layers: Background, Middle, Foreground + sorting inside them (sub-layers). This could be just a
   byte - first 4 bits for layer, second 4 bits for sub-layer.
 
   (Extra) Textured rectangles should support rendering to them and exporting the texture, so UI can cache
@@ -137,16 +149,31 @@
   drawed in separate thread, then displayed in the main?
 
   PostFX:
-  - This could be applied to any surface, no?
-  - Blur, Bloom etc?
+
+- This could be applied to any surface, no?
+- Blur, Bloom etc?
 
   Final:
-  - Combine all postfx stages?
 
-  ## Key Bindings
+- Combine all postfx stages?
+
+### Render Graphs / Commands queues
+
+- Don't do the graph interface *yet*. Just hardcode the graph structure first using command buffers.
+- Resource creation and gpu commands should be separate.
+- We can have multiple queues. In the end, they are combined into one queue.
+- Each command is identified and sorted by ID.
+
+### Misc notes
+
+- SRV are read only, UAV are read/write but a bit more expensive
+
+## Key Bindings
+
     Checks input events and updates the binding status accordingly.
 
-  ## OS Core
+## OS Core
+
     [X] Debugger output
     [ ] Filesystem 
     [ ] File Watch (notify when file updates) / Hot Reload
@@ -159,58 +186,61 @@
     [ ] OS Information, SIMD detection, CPU and memory info
     [X] Time
 
-  ## OS Gfx
+## OS Gfx
+
     [ ] Message boxes (custom ones!) https://learn.microsoft.com/en-us/windows/win32/api/commctrl/nf-commctrl-taskdialogindirect
     [ ] Monitor enumeration
     [X] Event loop and forwarding the OS events to our abstracted ones
     [ ] RawInput, keys and mouse buttons, scroll and mouse position
     [X] Window
 
-  ## Physics 
+## Physics
+
     Must support AI and building system! Also, collision resolution (just don't allow objects to overleap, nothing fancy for now)
     [ ] SAH
     [ ] BVH
     [ ] Debugging stats?
     [ ] Static geometry
 
+## [new] Text Rasterizing
 
-  ## [new] Text Rasterizing
     Use DirectDraw or freetype to render fonts?
 
-  ## [new] LOD system?
+## [new] LOD system?
+
     Can this be a separate layer? Basically, determine if something is
     off-screen and handle it with less detail? Or just apply this philosophy for existing systems?
 
-  ## [new] Logging system?
+## [new] Logging system?
+
     Basically own layer for writing to a buffer. Multiple severities? Also, error boxes live here? Or what? 
     Handles logging to file...? And to console?
 
-  ## [new] Localization
+## [new] Localization
+
     Have some special localized strings that are mapped to some string loaded from a 
     CSV. Only in UI I guess?
 
-  ## Text Rendering
+## Text Rendering
+
     [ ] Handling \n etc
     [ ] Rendering to texture
     [ ] Handle transforms
     [ ] Handling color (maybe escape codes?)
     [ ] Figure out styles bold, italic etc?
 
-  ## UI
+## UI
+
     [ ] Text box (automatically wraps)
     [ ] Button
     [ ] Window
     [ ] Panels
     [ ] Auto layout?
 
-  ## Misc
+## Misc
+
     Add Open Source licenses (RAD, stb...)
 
 # Layers Dependencies
 
   ![Game Layers](game_layers_1.png)
-
-
-
-
-

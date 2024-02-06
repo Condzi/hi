@@ -3,15 +3,7 @@
 // Handles to resources
 //
 
-struct GFX_Texture {
-  u64 v[1] = {};
-};
-
-struct GFX_Surface {
-  u64 v[1] = {};
-};
-
-struct GFX_Buffer {
+struct GFX_Image {
   u64 v[1] = {};
 };
 
@@ -19,10 +11,14 @@ struct GFX_Shader {
   u64 v[1] = {};
 };
 
+struct GFX_Buffer {
+  u64 v[1] = {};
+};
+
 // Misc types
 //
 
-enum GFX_Layer_Type {
+enum GFX_Layer_Category {
   GFX_Layer_Background,
   GFX_Layer_Middle,
   GFX_Layer_Foreground,
@@ -31,8 +27,8 @@ enum GFX_Layer_Type {
 union GFX_Layer {
   u8 v;
   struct {
-    u8 type : 2     = 0;
-    u8 sublayer : 6 = 0;
+    u8 category : 2 = {};
+    u8 priority : 6 = {};
   };
 };
 
@@ -43,7 +39,7 @@ struct GFX_Viewport {
 };
 
 union GFX_Color {
-  u32 v = 0;
+  u32 v = {};
   struct {
     u8 r;
     u8 g;
@@ -53,18 +49,18 @@ union GFX_Color {
 };
 
 struct GFX_Tex_Coords {
-  u16 x      = 0;
-  u16 y      = 0;
-  u16 width  = 0;
-  u16 height = 0;
+  u16 x      = {};
+  u16 y      = {};
+  u16 width  = {};
+  u16 height = {};
 };
 
 // Materials
 //
 
 enum GFX_Material_Type : u8 {
-  GFX_MaterialType_Default = 0,
-  GFX_MaterialType_Sprite  = GFX_MaterialType_Default,
+  GFX_MaterialType_Default,
+  GFX_MaterialType_Sprite = GFX_MaterialType_Default,
   // BasicShape, AnimatedSprite, TiledTexture, Particles, Text?
 
   GFX_MaterialType__count,
@@ -77,53 +73,45 @@ struct GFX_Material {
       GFX_Tex_Coords tex_coords;
       GFX_Color      color;
     } sprite;
-  };
+  } data;
 };
 
 struct GFX_Object {
-  fvec2 pos;
-  fvec2 sz;
-
+  fvec2        pos;
+  fvec2        sz;
+  GFX_Layer    layer;
   GFX_Material material;
+};
+
+struct GFX_Object_Array {
+  GFX_Object *v   = {};
+  u64         sz  = {};
+  u64         cap = {};
 };
 
 // Batching
 //
 
-enum GFX_Batch_Type : u8 {
-  GFX_BatchType_Sprite,
-
-  GFX_BatchType__count
-};
-
 global read_only u64 GFX_BATCH_SIZE = 64;
 struct GFX_Batch {
-  GFX_Batch *next = 0;
+  GFX_Buffer       instances;
+  GFX_Viewport     viewport; // At what exacly are we looking?
+  GFX_Object_Array objects;
 
-  GFX_Buffer   instances;
-  GFX_Viewport viewport;
-
-  GFX_Batch_Type type = {};
+  // What is the material of the objects in this batch?
+  GFX_Material_Type type = {};
   union {
     struct {
-      GFX_Texture texture;
+      GFX_Image texture;
     } sprite;
-  };
-
-  // @ToDo: Sort by layer when inserting!!
-  GFX_Object objects[GFX_BATCH_SIZE];
-  u64        objects_count = 0;
-};
-
-struct GFX_Batch_List {
-  GFX_Batch *first;
+  } data;
 };
 
 // Post processing types
 //
 
 enum GFX_Post_Fx_Type {
-  GFX_PostFxType_None = 0,
+  GFX_PostFxType_None,
 
   GFX_PostFxType_Vignette,
   GFX_PostFxType_CRT,
@@ -140,24 +128,52 @@ struct GFX_Post_Fx_CRT_Opts {
 };
 
 struct GFX_Fx {
-  GFX_Fx *next = 0;
-
-  GFX_Shader  vertex_shader;
-  GFX_Shader  pixel_shader;
-  GFX_Surface surface;
+  GFX_Shader shader; // Compute shader!
 
   GFX_Post_Fx_Type type = {};
   union {
     GFX_Post_Fx_Vignette_Opts vignette = {};
     GFX_Post_Fx_CRT_Opts      crt;
-  };
+  } data;
 };
 
-struct GFX_Fx_List {
-  GFX_Fx *first;
+// Render Graph
+//
+
+enum GFX_RG_Node_Type {
+  GFX_RG_NodeType_None,
+
+  // Batch of objects to render.
+  //
+  GFX_RG_NodeType_Batch,
+
+  // PostFX process to aply to some image.
+  //
+  GFX_RG_NodeType_PostFx,
+
+  // Combine two images together. Example: render two batches to separate images,
+  // then combine batch A with batch B images. B will be on top of A.
+  //
+  GFX_RG_NodeType_CombineImages,
 };
 
-void
-render(GFX_Batch_List *batchers, GFX_Surface surface);
-void
-render_post(GFX_Texture source, GFX_Fx_List effects, GFX_Surface target);
+struct GFX_RG_Node {
+  GFX_Image out_img;
+
+  GFX_RG_Node_Type type = GFX_RG_NodeType_None;
+  union {
+    struct {
+      GFX_Batch batch;
+    } batch;
+
+    struct {
+      GFX_Image img;
+      GFX_Fx    fx;
+    } post_fx;
+
+    struct {
+      GFX_Image a;
+      GFX_Image b;
+    } combine_images;
+  } input;
+};
