@@ -51,6 +51,14 @@ struct D3d {
   } input_layout;
 } global gD3d;
 
+struct Rect_Instance {
+  fvec2 pos;
+  fvec2 scale;
+  u32   col = 0;
+};
+
+global Arena *gfx_arena;
+
 // Helper functions.
 //
 

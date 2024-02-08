@@ -34,13 +34,13 @@ struct GFX_Image {
 };
 
 must_use GFX_Image
-make_empty_image();
+gfx_make_empty_image();
 
 must_use GFX_Image
-make_image(u8* data, u64 sz);
+gfx_make_image(u8* data, u64 sz);
 
 void
-release_image(GFX_Image img);
+gfX_release_image(GFX_Image img);
 
 struct GFX_Buffer {
   u64 v[1] = {};
@@ -120,10 +120,10 @@ struct GFX_Batch {
 };
 
 must_use GFX_Batch*
-make_batch();
+gfx_make_batch(GFX_Material_Type material);
 
 void
-release_batch(GFX_Batch* batch);
+gfx_release_batch(GFX_Batch* batch);
 
 
 // Post processing types

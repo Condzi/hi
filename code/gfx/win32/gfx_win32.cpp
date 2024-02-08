@@ -1,5 +1,6 @@
 #pragma once
 #include "all_inc.hpp"
+#include <basetsd.h>
 
 must_use internal HRESULT
 compile_shader(Str8       src,
@@ -73,6 +74,9 @@ gfx_init(GFX_Opts const &opts) {
                opts.vp_width,
                opts.vp_height,
                opts.vsync ? "on" : "off");
+
+  gfx_arena = make_arena(true);
+
   HRESULT hr = 0;
 
   hr = CreateDXGIFactory1(__uuidof(IDXGIFactory6), (void **)&gD3d.dxgi_factory);
@@ -293,12 +297,6 @@ gfx_resize(u32 new_width, u32 new_height) {
   ErrorIf(FAILED(hr), "Failed to recreate rtv for framebuffer. hr=0x%X."_s8, hr);
 }
 
-struct Rect_Instance {
-  fvec2 pos;
-  fvec2 scale;
-  u32   col = 0;
-};
-
 void
 gfx_swap_buffers() {
   ErrorContext("Swapchain stuff..."_s8);
@@ -376,4 +374,44 @@ gfx_swap_buffers() {
   //
   hr = gD3d.dxgi_swapchain->Present(1, 0);
   ErrorIf(FAILED(hr), "Call to Present failed. hr=0x%X"_s8, hr);
+}
+
+must_use GFX_Batch *
+gfx_make_batch(GFX_Material_Type material) {
+  ErrorContext("material=%d"_s8, (int)material);
+
+  GFX_Batch *batch   = arena_alloc<GFX_Batch>(gfx_arena);
+  batch->type        = material;
+  batch->objects.v   = arena_alloc_array<GFX_Object>(gfx_arena, 64);
+  batch->objects.cap = 64;
+
+  UINT byte_width = batch->objects.cap;
+  switch (material) {
+    default: {
+      // @ToDo: implement other materials
+      InvalidPath;
+    } break;
+
+    case GFX_MaterialType_Rect: {
+      byte_width *= sizeof(Rect_Instance);
+    } break;
+  }
+
+  ID3D11Buffer     *instances = 0;
+  D3D11_BUFFER_DESC desc      = {
+           .ByteWidth = byte_width,
+           .Usage     = D3D11_USAGE_DEFAULT,
+           .BindFlags = D3D11_BIND_VERTEX_BUFFER,
+  };
+  HRESULT hr = gD3d.device->CreateBuffer(&desc, 0, &instances);
+  ErrorIf(FAILED(hr), "Failed to create instance buffer. hr=0x%X."_s8, hr);
+  batch->instances.v[0] = PtrToU64(instances);
+  return batch;
+}
+
+void
+gfx_release_batch(GFX_Batch *batch) {
+  // Not implemented
+  Unused(batch);
+  InvalidPath;
 }

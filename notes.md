@@ -69,12 +69,11 @@
     [X] Initialization
     [X] Debug device
     [ ] Batch rendering for filled rects
-      [ ] Vertex Input Layout -- only per-instance data!! Empty vertex buffer?
+      [X] Vertex Input Layout -- only per-instance data!! Empty vertex buffer?
       [ ] Creating Batches
       [ ] Inserting objects into batches
       [ ] Memory management
       [ ] Figure out MVP matrix -- how exactly does it work in our 2D game?
-      [ ] Figure out command reordering things? Or maybe dać se siana?
 
     [ ] GPU info
 
@@ -124,7 +123,7 @@
 
 ## OS Gfx
 
-    [ ] Message boxes (custom ones!) https://learn.microsoft.com/en-us/windows/win32/api/commctrl/nf-commctrl-taskdialogindirect
+    [X] Message boxes (custom ones!) https://learn.microsoft.com/en-us/windows/win32/api/commctrl/nf-commctrl-taskdialogindirect
     [ ] Monitor enumeration
     [X] Event loop and forwarding the OS events to our abstracted ones
     [ ] RawInput, keys and mouse buttons, scroll and mouse position
