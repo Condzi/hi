@@ -41,6 +41,22 @@ struct D3d {
   } index_buffer;
 
   struct {
-    ID3D11InputLayout *pos_sz;
+    ID3D11VertexShader* vs;
+    ID3D11PixelShader* ps;
+    ID3D11InputLayout *input_layout;
+ 
+  } rect; 
+  struct {
   } input_layout;
 } global gD3d;
+
+// Helper functions.
+//
+
+// On failure `blob` is set to error messages. Otherwise, it's the shader.
+//
+must_use internal HRESULT
+compile_shader(Str8       src,
+               Str8       entry_point, // vs_main, ps_main
+               Str8       profile,     // vs_5_0, ps_5_0
+               ID3DBlob **blob);

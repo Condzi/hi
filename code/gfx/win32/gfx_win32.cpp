@@ -1,6 +1,38 @@
 #pragma once
 #include "all_inc.hpp"
 
+must_use internal HRESULT
+compile_shader(Str8       src,
+               Str8       entry_point, // vs_main, ps_main
+               Str8       profile,     // vs_5_0, ps_5_0
+               ID3DBlob **blob) {
+  ErrorContext("entry_point = %s, profile = %s"_s8, entry_point.v, profile.v);
+
+  read_only local_persist UINT SHADER_FLAGS = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_DEBUG;
+
+  ID3DBlob *err_blob = 0;
+  HRESULT   hr       = 0;
+  hr                 = ::D3DCompile(src.v,
+                    src.sz,
+                    0,
+                    0,
+                    D3D_COMPILE_STANDARD_FILE_INCLUDE,
+                    (LPCSTR)entry_point.v,
+                    (LPCSTR)profile.v,
+                    SHADER_FLAGS,
+                    0,
+                    blob,
+                    &err_blob);
+
+  // On failure, the error buffer to the output.
+  //
+  if (FAILED(hr)) {
+    (*blob) = err_blob;
+  }
+
+  return hr;
+}
+
 // Input Element Tables
 //
 
@@ -180,6 +212,50 @@ gfx_init(GFX_Opts const &opts) {
   };
   hr = gD3d.device->CreateBuffer(&ib_desc, &ib_data, &gD3d.index_buffer.rect);  
   ErrorIf(FAILED(hr), "Unable to create rect index buffer. hr=0x%X."_s8, hr);
+
+  // Load and compile shaders.
+  //
+
+  ID3DBlob *vs_blob = 0;
+  ID3DBlob *ps_blob = 0;
+
+  // Compile shaders.
+  //
+
+  hr = compile_shader(str8_cstr(RECT_SHADER), "vs_main"_s8, "vs_5_0"_s8, &vs_blob);
+
+  ErrorIf(FAILED(hr),
+          "Failed to compile vertex shader: %s"_s8,
+          (char const *)vs_blob->GetBufferPointer());
+
+  hr = compile_shader(str8_cstr(RECT_SHADER), "ps_main"_s8, "ps_5_0"_s8, &ps_blob);
+
+  ErrorIf(FAILED(hr),
+          "Failed to compile pixel shader: %s"_s8,
+          (char const *)ps_blob->GetBufferPointer());
+
+  // Create shaders. No circle shader yet!
+  //
+
+  hr = gD3d.device->CreateVertexShader(
+      vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), 0, &(gD3d.rect.vs));
+  ErrorIf(FAILED(hr), "Failed to create vertex shader. hr=0x%X"_s8, hr);
+  Defer { vs_blob->Release(); };
+
+  hr = gD3d.device->CreatePixelShader(
+      ps_blob->GetBufferPointer(), ps_blob->GetBufferSize(), 0, &(gD3d.rect.ps));
+  ErrorIf(FAILED(hr), "Failed to create pixel shader. hr=0x%X"_s8, hr);
+  Defer { ps_blob->Release(); };
+
+  // Create input layout of the Vertex Shader.
+  //
+  hr = gD3d.device->CreateInputLayout(INPUT_ELEMENT_LAYOUT_RECT,
+                                      ArrayCount(INPUT_ELEMENT_LAYOUT_RECT),
+                                      vs_blob->GetBufferPointer(),
+                                      vs_blob->GetBufferSize(),
+                                      &(gD3d.rect.input_layout));
+
+  ErrorIf(FAILED(hr), "Failed to create input layout. hr=0x%X"_s8, hr);
 } 
 
 void
