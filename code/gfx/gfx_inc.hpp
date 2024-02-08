@@ -25,6 +25,8 @@ gfx_resize(u32 new_width, u32 new_height);
 void
 gfx_swap_buffers();
 
+#include "gfx_base.hpp"
+
 #if OS_WINDOWS
 #include "win32/gfx_win32.hpp"
 #include "win32/gfx_win32_hlsl.hpp"

@@ -35,6 +35,7 @@ struct D3d {
   ID3D11RenderTargetView *framebuffer_rtv;
 
   ID3D11BlendState *blend_state;
+  ID3D11RasterizerState *rasterizer_state;
 
   struct {
     ID3D11Buffer *rect;

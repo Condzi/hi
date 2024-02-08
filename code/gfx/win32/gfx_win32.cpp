@@ -1,5 +1,7 @@
 #pragma once
 #include "all_inc.hpp"
+#include <d3d11.h>
+#include <d3dcommon.h>
 
 must_use internal HRESULT
 compile_shader(Str8       src,
@@ -196,6 +198,17 @@ gfx_init(GFX_Opts const &opts) {
   hr = gD3d.device->CreateBlendState(&bs_desc, &gD3d.blend_state);
   ErrorIf(FAILED(hr), "Unable to create blend state. hr=0x%X."_s8, hr);
 
+  // Create rasterizer state.
+  //
+
+  D3D11_RASTERIZER_DESC const rasterizer_desc = {
+      .FillMode = D3D11_FILL_SOLID,
+      .CullMode = D3D11_CULL_NONE,
+  };
+
+  hr = gD3d.device->CreateRasterizerState(&rasterizer_desc, &(gD3d.rasterizer_state));
+  ErrorIf(FAILED(hr), "Unable to create rasterizer state. hr=0x%X"_s8, hr);
+
   // Create index buffer
   //
 
@@ -282,10 +295,35 @@ gfx_resize(u32 new_width, u32 new_height) {
   ErrorIf(FAILED(hr), "Failed to recreate rtv for framebuffer. hr=0x%X."_s8, hr);
 }
 
+struct Rect_Instance {
+  fvec2 pos;
+  fvec2 scale;
+  u32   col = 0;
+};
+
 void
 gfx_swap_buffers() {
   ErrorContext("Swapchain stuff..."_s8);
   HRESULT hr = 0;
+
+  Rect_Instance objects[] = {
+      {
+          .pos   = {.x = 0, .y = 0},
+          .scale = {.x = 0.25f, .y = 0.25f},
+          .col   = 0xFF0000FF,
+      },
+  };
+  local_persist ID3D11Buffer *instance_buffer = 0;
+  if (!instance_buffer) {
+    D3D11_BUFFER_DESC desc = {
+        .ByteWidth = sizeof(objects),
+        .Usage     = D3D11_USAGE_DEFAULT,
+        .BindFlags = D3D11_BIND_VERTEX_BUFFER,
+    };
+    D3D11_SUBRESOURCE_DATA data = {.pSysMem = objects};
+    hr                          = gD3d.device->CreateBuffer(&desc, &data, &instance_buffer);
+    ErrorIf(FAILED(hr), "Failed to create instance buffer. hr=0x%X."_s8, hr);
+  }
 
   // Clear the state.
   //
@@ -297,6 +335,31 @@ gfx_swap_buffers() {
 
   // Render here
   //
+
+  UINT stride = sizeof(Rect_Instance);
+  UINT offset = 0;
+
+  gD3d.deferred_context->IASetVertexBuffers(0, 1, &instance_buffer, &stride, &offset);
+  gD3d.deferred_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+  gD3d.deferred_context->IASetIndexBuffer(gD3d.index_buffer.rect, DXGI_FORMAT_R32_UINT, 0);
+  gD3d.deferred_context->IASetInputLayout(gD3d.rect.input_layout);
+
+  gD3d.deferred_context->VSSetShader(gD3d.rect.vs, 0, 0);
+  gD3d.deferred_context->PSSetShader(gD3d.rect.ps, 0, 0);
+
+  D3D11_VIEWPORT vp = {.TopLeftX = 0,
+                       .TopLeftY = 0,
+                       .Width    = (f32)os_gfx_surface_width(),
+                       .Height   = (f32)os_gfx_surface_height(),
+                       .MinDepth = 0.f,
+                       .MaxDepth = 1.0f};
+
+  gD3d.deferred_context->RSSetViewports(1, &vp);
+  gD3d.deferred_context->RSSetState(gD3d.rasterizer_state);
+
+  gD3d.deferred_context->OMSetRenderTargets(1, &gD3d.framebuffer_rtv, 0);
+
+  gD3d.deferred_context->DrawIndexedInstanced(6, 1, 0, 0, 0);
 
   // Execute rendering commands
   //

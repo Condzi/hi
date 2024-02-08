@@ -52,10 +52,10 @@ enum GFX_Layer_Category {
 };
 
 union GFX_Layer {
-  u8 v;
+  u8 v = {};
   struct {
-    u8 category : 2 = {};
-    u8 priority : 6 = {};
+    u8 category : 2;
+    u8 priority : 6;
   };
 };
 
@@ -76,7 +76,7 @@ struct GFX_Material {
   union {
     struct {
       GFX_Color color;
-    } filled_rect;
+    } filled_rect = {};
     struct {
       GFX_Tex_Coords tex_coords;
       GFX_Color      color;
@@ -111,7 +111,7 @@ struct GFX_Batch {
   union {
     struct {
       GFX_Image texture;
-    } sprite;
+    } sprite = {};
   } data;
 };
 
@@ -172,7 +172,7 @@ struct GFX_RG_Node {
   union {
     struct {
       GFX_Batch batch;
-    } batch;
+    } batch = {};
 
     struct {
       GFX_Image img;
