@@ -53,7 +53,7 @@ vs_main(Cpu2Vertex input) {
 
   Vertex2Pixel output;
   output.pos = float4(pos, 0.0, 1.0);
-  output.color = float4(1, 0, 0, 1); // unpack_color(input.color);
+  output.color = unpack_color(input.color);
   return output;
 }
 

@@ -33,9 +33,14 @@ struct GFX_Image {
   u64 v[1] = {};
 };
 
-struct GFX_Shader {
-  u64 v[1] = {};
-};
+must_use GFX_Image
+make_empty_image();
+
+must_use GFX_Image
+make_image(u8* data, u64 sz);
+
+void
+release_image(GFX_Image img);
 
 struct GFX_Buffer {
   u64 v[1] = {};
@@ -76,7 +81,7 @@ struct GFX_Material {
   union {
     struct {
       GFX_Color color;
-    } filled_rect = {};
+    } rect = {};
     struct {
       GFX_Tex_Coords tex_coords;
       GFX_Color      color;
@@ -100,7 +105,6 @@ struct GFX_Object_Array {
 // Batching
 //
 
-global read_only u64 GFX_BATCH_SIZE = 64;
 struct GFX_Batch {
   GFX_Buffer       instances;
   GFX_Viewport     viewport; // At what exacly are we looking?
@@ -114,6 +118,13 @@ struct GFX_Batch {
     } sprite = {};
   } data;
 };
+
+must_use GFX_Batch*
+make_batch();
+
+void
+release_batch(GFX_Batch* batch);
+
 
 // Post processing types
 //
@@ -136,8 +147,6 @@ struct GFX_Post_Fx_CRT_Opts {
 };
 
 struct GFX_Fx {
-  GFX_Shader shader; // Compute shader!
-
   GFX_Post_Fx_Type type = {};
   union {
     GFX_Post_Fx_Vignette_Opts vignette = {};

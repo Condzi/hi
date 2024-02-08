@@ -1,7 +1,5 @@
 #pragma once
 #include "all_inc.hpp"
-#include <d3d11.h>
-#include <d3dcommon.h>
 
 must_use internal HRESULT
 compile_shader(Str8       src,
@@ -306,11 +304,16 @@ gfx_swap_buffers() {
   ErrorContext("Swapchain stuff..."_s8);
   HRESULT hr = 0;
 
-  Rect_Instance objects[] = {
+  local_persist Rect_Instance objects[] = {
       {
           .pos   = {.x = 0, .y = 0},
           .scale = {.x = 0.25f, .y = 0.25f},
           .col   = 0xFF0000FF,
+      },
+      {
+          .pos   = {.x = 0.1f, .y = 0.1f},
+          .scale = {.x = 0.25f, .y = 0.25f},
+          .col   = 0x00FF0080,
       },
   };
   local_persist ID3D11Buffer *instance_buffer = 0;
@@ -339,6 +342,7 @@ gfx_swap_buffers() {
   UINT stride = sizeof(Rect_Instance);
   UINT offset = 0;
 
+  gD3d.deferred_context->OMSetBlendState(gD3d.blend_state, 0, 0xffffffff);
   gD3d.deferred_context->IASetVertexBuffers(0, 1, &instance_buffer, &stride, &offset);
   gD3d.deferred_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
   gD3d.deferred_context->IASetIndexBuffer(gD3d.index_buffer.rect, DXGI_FORMAT_R32_UINT, 0);
@@ -347,19 +351,19 @@ gfx_swap_buffers() {
   gD3d.deferred_context->VSSetShader(gD3d.rect.vs, 0, 0);
   gD3d.deferred_context->PSSetShader(gD3d.rect.ps, 0, 0);
 
-  D3D11_VIEWPORT vp = {.TopLeftX = 0,
+  D3D11_VIEWPORT vp = {
+      .TopLeftX = 0,
                        .TopLeftY = 0,
                        .Width    = (f32)os_gfx_surface_width(),
                        .Height   = (f32)os_gfx_surface_height(),
-                       .MinDepth = 0.f,
-                       .MaxDepth = 1.0f};
+  };
 
   gD3d.deferred_context->RSSetViewports(1, &vp);
   gD3d.deferred_context->RSSetState(gD3d.rasterizer_state);
 
   gD3d.deferred_context->OMSetRenderTargets(1, &gD3d.framebuffer_rtv, 0);
 
-  gD3d.deferred_context->DrawIndexedInstanced(6, 1, 0, 0, 0);
+  gD3d.deferred_context->DrawIndexedInstanced(6, ArrayCount(objects), 0, 0, 0);
 
   // Execute rendering commands
   //
