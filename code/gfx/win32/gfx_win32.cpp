@@ -1,6 +1,38 @@
 #pragma once
 #include "all_inc.hpp"
-#include <d3d11.h>
+
+// Input Element Tables
+//
+
+internal D3D11_INPUT_ELEMENT_DESC const INPUT_ELEMENT_LAYOUT_RECT[] = {
+    {
+        .SemanticName         = "POS",
+        .SemanticIndex        = 0,
+        .Format               = DXGI_FORMAT_R32G32_FLOAT,
+        .InputSlot            = 0,
+        .AlignedByteOffset    = 0,
+        .InputSlotClass       = D3D11_INPUT_PER_INSTANCE_DATA,
+        .InstanceDataStepRate = 1,
+    },
+    {
+        .SemanticName         = "SCALE",
+        .SemanticIndex        = 0,
+        .Format               = DXGI_FORMAT_R32G32_FLOAT,
+        .InputSlot            = 0,
+        .AlignedByteOffset    = D3D11_APPEND_ALIGNED_ELEMENT,
+        .InputSlotClass       = D3D11_INPUT_PER_INSTANCE_DATA,
+        .InstanceDataStepRate = 1,
+    },
+    {
+        .SemanticName         = "COL",
+        .SemanticIndex        = 0,
+        .Format               = DXGI_FORMAT_R32_UINT,
+        .InputSlot            = 0,
+        .AlignedByteOffset    = D3D11_APPEND_ALIGNED_ELEMENT,
+        .InputSlotClass       = D3D11_INPUT_PER_INSTANCE_DATA,
+        .InstanceDataStepRate = 1,
+    },
+};
 
 // pass initial settings
 void
@@ -115,7 +147,40 @@ gfx_init(GFX_Opts const &opts) {
   //
   hr = gD3d.device->CreateDeferredContext(0, &gD3d.deferred_context);
   ErrorIf(FAILED(hr), "Failed to create deferred context. hr=0x%X"_s8, hr);
-}
+
+  // Create blend state.
+  //
+  D3D11_BLEND_DESC bs_desc = {};
+  bs_desc.RenderTarget[0]  = {
+       .BlendEnable           = 1,
+       .SrcBlend              = D3D11_BLEND_SRC_ALPHA,
+       .DestBlend             = D3D11_BLEND_INV_SRC_ALPHA,
+       .BlendOp               = D3D11_BLEND_OP_ADD,
+       .SrcBlendAlpha         = D3D11_BLEND_ONE,
+       .DestBlendAlpha        = D3D11_BLEND_ZERO,
+       .BlendOpAlpha          = D3D11_BLEND_OP_ADD,
+       .RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL,
+  };
+  hr = gD3d.device->CreateBlendState(&bs_desc, &gD3d.blend_state);
+  ErrorIf(FAILED(hr), "Unable to create blend state. hr=0x%X."_s8, hr);
+
+  // Create index buffer
+  //
+
+  // top-left, bottom-left, top-right; top-right, bottom-left, bottom-right
+  //
+  u32 const         indices[] = {0, 1, 2, 2, 1, 3};
+  D3D11_BUFFER_DESC ib_desc   = {
+        .ByteWidth = sizeof(indices),
+        .Usage     = D3D11_USAGE_DEFAULT,
+        .BindFlags = D3D11_BIND_INDEX_BUFFER,
+  };
+  D3D11_SUBRESOURCE_DATA ib_data = {
+      .pSysMem = indices,
+  };
+  hr = gD3d.device->CreateBuffer(&ib_desc, &ib_data, &gD3d.index_buffer.rect);  
+  ErrorIf(FAILED(hr), "Unable to create rect index buffer. hr=0x%X."_s8, hr);
+} 
 
 void
 gfx_resize(u32 new_width, u32 new_height) {

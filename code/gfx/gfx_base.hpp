@@ -41,7 +41,8 @@ struct GFX_Buffer {
   u64 v[1] = {};
 };
 
-// Layering. Layers are effective per-batch; there is no layering between batches!
+// Layering.
+// Layers are effective per-batch; there is no layering between batches!
 //
 
 enum GFX_Layer_Category {
@@ -63,8 +64,9 @@ union GFX_Layer {
 
 enum GFX_Material_Type : u8 {
   GFX_MaterialType_Default,
-  GFX_MaterialType_Sprite = GFX_MaterialType_Default,
-  // BasicShape, AnimatedSprite, TiledTexture, Particles, Text?
+  GFX_MaterialType_Rect = GFX_MaterialType_Default,
+  GFX_MaterialType_Sprite,
+  // AnimatedSprite, TiledTexture, Particles, Text?
 
   GFX_MaterialType__count,
 };
@@ -72,6 +74,9 @@ enum GFX_Material_Type : u8 {
 struct GFX_Material {
   GFX_Material_Type type = {};
   union {
+    struct {
+      GFX_Color color;
+    } filled_rect;
     struct {
       GFX_Tex_Coords tex_coords;
       GFX_Color      color;

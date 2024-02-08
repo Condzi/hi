@@ -64,34 +64,26 @@
 
 ## GFX
 
-  Do not get side tracked with multithreaded rendering!
-  This should be splitted into backend / frontend and game land?
-  In game land we would have actual usable pipelines, front end
-  would be just the skeleton for the pipelines and materials?
+  [!] Assume we always and only render rects?
 
     [X] Initialization
     [X] Debug device
-    [ ] Immediate mode-like interface using render queues
-    [ ] Other pipelines...?
-    [ ] Camera / multiple viewports? Maybe set a viewport per render target?
+    [ ] Batch rendering for filled rects
+      [ ] Vertex Input Layout -- only per-instance data!! Empty vertex buffer?
+      [ ] Creating Batches
+      [ ] Inserting objects into batches
+      [ ] Memory management
+      [ ] Figure out MVP matrix -- how exactly does it work in our 2D game?
+      [ ] Figure out command reordering things? Or maybe dać se siana?
+
     [ ] GPU info
-    [ ] State interpolation??
-    [ ] Materials support??
-    Top-left corner is the anchor!!!
 
     - separate resource handling (tex, buffers) from rendering commands somehow?
       - it would be great if we could manage to handle sprite sheets in a way that we
         can divide the sprite sheet into smaller textures logically and refer to them
         not by indecies, but by names, from high level code.
-    - multiple pass rendering https://learn.microsoft.com/en-us/windows/win32/direct3d11/overviews-direct3d-11-render-multipass
-      - use deferred rendering by gathering rendering commands and executing them:
-      https://learn.microsoft.com/en-us/windows/win32/direct3d11/overviews-direct3d-11-render-multi-thread-command-list
-
     - variable refresh rate: https://walbourn.github.io/care-and-feeding-of-modern-swap-chains-3/
     and https://learn.microsoft.com/en-us/windows/win32/direct3ddxgi/variable-refresh-rate-displays
-    - Render_Target oriented, so we can apply effects to surfaces
-    - We can put post-processing pipelines (and other?) to a linked-list of pipelines!
-    - dxgi debug device: https://walbourn.github.io/dxgi-debug-device/
 
 ### Use GPU for particle effects
 
@@ -100,67 +92,10 @@
     We need textures and noise:
     https://www.youtube.com/watch?v=wvK6MNlmCCE
 
-### Summary
-
-  Batcher renders to a Render_Target. Result of that is a texture.
-  This texture can be assigned to a sprite. Sprite can be easily layered, where
-  in batchers, because they are immediate-mode, the layering is based on what was
-  drawn last.
-
-  Example:
-  GUI renders text to a batcher. Because this text did not change since last frame,
-  it reuses the baked texture and does not regenerate it.
-  Then, the rest of the GUI gets rendered to some different batcher/render target, so
-  the gui in the end can get drawn as a one texture, either on top of the game
-  post-processing, or with it.
-
-### Pipelines
-
-  All pipelines follow a common structure:
-
-- Vertex and Pixel Shader
-- Input Layout (Maybe should be shared amongst all pipelines?)
-- Vertex Buffer
-- VS and PS Constants Buffers (camera matrices, time, viewport size...)
-- Render Target (dest, source (can be empty))
-- Optionally: Sampler State, Rasterizer State, Blend State
-- Additional, pipeline-specific uniforms for adjusting the effects
-
-  Additionally, batchers pipelines have instancing. How to handle that?
-
-### Pipelines Plan
-
-  Objects should be rendered in following order:
-    - Textured rectangles - static geometry (background image, walls, immovable objects) - Tex_Vertex
-    - Textured rectangles - dynamic geometry - Tex_Vertex
-    - Particle effects (textures, etc) - Particle_Vertex
-    - Debug rects (using instancing) - Im_Vertex
-    - UI text - Tex_Vertex; UI panels - Im_Vertex?
-
-  Dynamic geometry should take layers into account.
-  Layers: Background, Middle, Foreground + sorting inside them (sub-layers). This could be just a
-  byte - first 4 bits for layer, second 4 bits for sub-layer.
-
-  (Extra) Textured rectangles should support rendering to them and exporting the texture, so UI can cache
-  its drawing results, right?
-
-  (Extra+) The final assembly of the raw (non-post processed image) could happen in parallel? I mean, every
-  stage of the pipeline (static, dynamic geometry, particle effect and debug shapes) could be
-  drawed in separate thread, then displayed in the main?
-
-  PostFX:
-
-- This could be applied to any surface, no?
-- Blur, Bloom etc?
-
-  Final:
-
-- Combine all postfx stages?
-
 ### Render Graphs / Commands queues
 
-- Don't do the graph interface *yet*. Just hardcode the graph structure first using command buffers.
-- Resource creation and gpu commands should be separate.
+- Resource creation and gpu commands should be separate?
+- How to keep track of resources, exactly?
 - We can have multiple queues. In the end, they are combined into one queue.
 - Each command is identified and sorted by ID.
 
