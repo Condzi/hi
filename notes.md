@@ -70,9 +70,12 @@
     [X] Debug device
     [ ] Batch rendering for filled rects
       [X] Vertex Input Layout -- only per-instance data!! Empty vertex buffer?
-      [ ] Creating Batches
-      [ ] Inserting objects into batches
-      [ ] Memory management
+      [X] Creating Batches
+      [X] Inserting objects into batches
+      [X] Memory management
+      [ ] Image creation
+      [ ] Rendering from image to frame buffer
+      [ ] Handle resizing
       [ ] Figure out MVP matrix -- how exactly does it work in our 2D game?
 
     [ ] GPU info

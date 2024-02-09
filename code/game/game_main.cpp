@@ -48,12 +48,41 @@ main(int argc, char const *argv[]) {
   });
 
   gfx_init({.vp_width = 1280, .vp_height = 720});
+  GFX_Batch *batch = gfx_make_batch(GFX_MaterialType_Rect);
+
+  GFX_Object obj = {
+      .pos = {0, 0},
+      .sz  = {0.25f, 0.25f},
+      .material =
+          {
+              .type = GFX_MaterialType_Rect,
+              .data = {.rect = {.color = {.v = 0xFF0000FF}}},
+          },
+  };
+
+  GFX_Object obj2 = obj;
+  obj2.pos.x += 0.1f;
+  obj2.pos.y += 0.1f;
+
+  GFX_Image target;
+  target.v[0] = PtrToU64(gD3d.framebuffer);
 
   u64 frame = 0;
   while (os_gfx_window_mode() != OS_WindowMode_Closed) {
     ErrorContext("frame=%zu"_s8, frame);
     OS_Window_Event *events = os_gfx_event_pump(gContext.frame_arena);
     Unused(events);
+
+    obj.pos.x += 0.0001f;
+    obj2.pos.y += 0.0001f;
+    obj.material.data.rect.color.g += 1;
+    obj2.material.data.rect.color.b += 1;
+
+    gfx_batch_push(batch, obj);
+    gfx_batch_push(batch, obj2);
+
+    gfx_batch_draw(batch, target);
+    batch->objects.sz = 0;
 
     gfx_swap_buffers();
 

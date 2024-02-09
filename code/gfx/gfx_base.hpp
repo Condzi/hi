@@ -125,6 +125,11 @@ gfx_make_batch(GFX_Material_Type material);
 void
 gfx_release_batch(GFX_Batch* batch);
 
+void
+gfx_batch_push(GFX_Batch *batch, GFX_Object object);
+
+void
+gfx_batch_draw(GFX_Batch* batch, GFX_Image target);
 
 // Post processing types
 //

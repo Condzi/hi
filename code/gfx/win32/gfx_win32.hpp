@@ -16,7 +16,6 @@
 
 #include <d3dcompiler.h>
 
-
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
 
@@ -24,7 +23,7 @@
 //
 
 struct D3d {
-  IDXGIFactory6 *dxgi_factory;
+  IDXGIFactory6   *dxgi_factory;
   IDXGISwapChain1 *dxgi_swapchain;
 
   ID3D11Device        *device;
@@ -34,7 +33,7 @@ struct D3d {
   ID3D11Texture2D        *framebuffer;
   ID3D11RenderTargetView *framebuffer_rtv;
 
-  ID3D11BlendState *blend_state;
+  ID3D11BlendState      *blend_state;
   ID3D11RasterizerState *rasterizer_state;
 
   struct {
@@ -42,16 +41,16 @@ struct D3d {
   } index_buffer;
 
   struct {
-    ID3D11VertexShader* vs;
-    ID3D11PixelShader* ps;
-    ID3D11InputLayout *input_layout;
- 
-  } rect; 
+    ID3D11VertexShader *vs;
+    ID3D11PixelShader  *ps;
+    ID3D11InputLayout  *input_layout;
+
+  } rect;
   struct {
   } input_layout;
 } global gD3d;
 
-struct Rect_Instance {
+struct GFX_Rect_Instance {
   fvec2 pos;
   fvec2 scale;
   u32   col = 0;
