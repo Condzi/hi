@@ -66,7 +66,7 @@ gfx_dsf(GFX_RG_Node *node, u8 visit_cookie, GFX_RG_Operation *op_arr, u32 &op_ar
   }
 }
 
-global void
+must_use global GFX_Image
 gfx_rg_evaluate(GFX_Render_Graph *rg) {
   Assert(rg);
   ErrorContext("roots=%d, operations=%d, visit_counter=%d"_s8,
@@ -88,5 +88,6 @@ gfx_rg_evaluate(GFX_Render_Graph *rg) {
     gfx_dsf(rg->roots[i], rg->visit_counter, op_arr, op_arr_idx);
   }
 
-  gfx_rg_execute_operations(op_arr, rg->operations_count);
+  GFX_Image result = gfx_rg_execute_operations(op_arr, rg->operations_count);
+  return result;
 }

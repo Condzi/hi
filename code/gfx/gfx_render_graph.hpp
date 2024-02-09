@@ -99,10 +99,10 @@ gfx_rg_add_root(GFX_Render_Graph *rg);
 
 // Traverse the render graph, make the list of operations and execute them.
 //
-global void
+must_use internal GFX_Image
 gfx_rg_evaluate(GFX_Render_Graph *rg);
 
 // Implemented by the target backend.
 //
-internal void
+must_use internal GFX_Image
 gfx_rg_execute_operations(GFX_RG_Operation *operations, u32 count);

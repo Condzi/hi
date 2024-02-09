@@ -71,7 +71,8 @@ main(int argc, char const *argv[]) {
     gfx_batch_push(batch, obj);
     gfx_batch_push(batch, obj2);
 
-    gfx_rg_evaluate(rg);
+    GFX_Image graph_result = gfx_rg_evaluate(rg);
+    gD3d.deferred_context->CopyResource(gD3d.framebuffer, (ID3D11Resource *)(graph_result.v[0]));
 
     gfx_swap_buffers();
 

@@ -508,7 +508,7 @@ gfx_batch_draw(GFX_Batch *batch, GFX_Image target) {
   gD3d.deferred_context->DrawIndexedInstanced(6, (UINT)batch->objects.sz, 0, 0, 0);
 }
 
-internal void
+must_use internal GFX_Image
 gfx_rg_execute_operations(GFX_RG_Operation *operations, u32 count) {
   ErrorContext("count=%d"_s8, (int)count);
 
@@ -568,5 +568,5 @@ gfx_rg_execute_operations(GFX_RG_Operation *operations, u32 count) {
   //
   // @ToDo: should we just return it instead? So we can have multiple render graphs?
   GFX_Image graph_result = operations[count - 1].out;
-  gD3d.deferred_context->CopyResource(gD3d.framebuffer, (ID3D11Resource *)(graph_result.v[0]));
+  return graph_result;
 }
