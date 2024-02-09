@@ -100,6 +100,8 @@ arena_rewind(Arena *arena, u64 where) {
   // Poision the memory again -- it is ready for reuse.
   //
   AsanPoisonMemoryRegion(where_ptr, bytes_to_free);
+  
+  arena->curr_pos = where;
 }
 
 global void
