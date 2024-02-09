@@ -24,17 +24,16 @@ enum GFX_RG_Op_Type {
 };
 
 struct GFX_RG_Operation {
-  GFX_Image target;
-
   GFX_RG_Op_Type type = GFX_RG_OpType_None;
   union {
     struct {
       GFX_Image *targets[GFX_RG_MAX_RENDER_TARGETS_TO_CLEAR];
-    } clear;
+      u32        num_targets;
+    } clear = {};
 
     struct {
       GFX_Batch batch;
-    } batch = {};
+    } batch;
 
     struct {
       GFX_Image src;
@@ -52,6 +51,8 @@ struct GFX_RG_Operation {
       GFX_Image src;
     } framebuffer;
   } input;
+
+  GFX_Image out;
 };
 
 // Random values for now. I think it should be enough.
@@ -104,4 +105,4 @@ GFX_RG_evaluate(GFX_Render_Graph *rg);
 // Implemented by the target backend.
 //
 internal void
-GFX_RG_execute_operations(GFX_RG_Operation const *operations, u32 count);
+GFX_RG_execute_operations(GFX_RG_Operation *operations, u32 count);

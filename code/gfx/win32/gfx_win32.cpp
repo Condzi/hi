@@ -424,27 +424,17 @@ gfx_batch_push(GFX_Batch *batch, GFX_Object object) {
 }
 
 global void
-gfx_batch_draw(GFX_Batch *batch, GFX_Image &target) {
+gfx_batch_draw(GFX_Batch *batch, GFX_Image target) {
   if (!batch) {
     return;
   }
-
+  Assert(target.v[0]);
   ErrorContext("material=%d, sz=%d"_s8, (int)batch->type, (int)batch->objects.sz);
-
-  // Check if the render target is valid.
-  //
-  if (!target.v[0]) {
-    // If we don't have a valid render target texture, create it.
-    //
-    u32 const width = (u32)batch->viewport.sz.width;
-    u32 const height = (u32)batch->viewport.sz.height;
-    target = gfx_make_image(0, width, height);
-  }
-  ID3D11Texture2D *rt_texture = (ID3D11Texture2D *)U64ToPtr(target.v[0]);
 
   // Create render target view.
   //
 
+  ID3D11Texture2D              *rt_texture = (ID3D11Texture2D *)U64ToPtr(target.v[0]);
   ID3D11RenderTargetView       *rt_view = 0;
   D3D11_RENDER_TARGET_VIEW_DESC desc    = {
          .Format        = DXGI_FORMAT_R8G8B8A8_UNORM, // Same as texture!
@@ -525,7 +515,64 @@ gfx_batch_draw(GFX_Batch *batch, GFX_Image &target) {
 }
 
 internal void
-GFX_RG_execute_operations(GFX_RG_Operation const *operations, u32 count) {
-  Unused(operations);
-  Unused(count);
+GFX_RG_execute_operations(GFX_RG_Operation *operations, u32 count) {
+  ErrorContext("count=%d"_s8, (int)count);
+
+  for (u32 i = 0; i < count; i++) {
+    GFX_RG_Operation &op = operations[i];
+
+    ErrorContext("i=%d, op.type=%d"_s8, (int)i, (int)op.type);
+    switch (op.type) {
+      default: {
+        InvalidPath;
+      } break;
+
+      case GFX_RG_OpType_ClearRenderTargets: {
+        ErrorContext("ClearRenderTargets, num_targets=%d"_s8, (int)op.input.clear.num_targets);
+        for (u32 j = 0; j < op.input.clear.num_targets; j++) {
+          ErrorContext("j=%d"_s8, (int)j);
+          // Get the render target.
+          //
+          GFX_Image *target = op.input.clear.targets[j];
+          ErrorIf(!target, "target is a NULL"_s8);
+          ID3D11Texture2D              *rt_texture = (ID3D11Texture2D *)U64ToPtr(target->v[0]);
+          ID3D11RenderTargetView       *rt_view    = 0;
+          D3D11_RENDER_TARGET_VIEW_DESC desc       = {
+                    .Format        = DXGI_FORMAT_R8G8B8A8_UNORM, // Same as texture!
+                    .ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D,
+                    .Texture2D     = {.MipSlice = 0},
+          };
+
+          HRESULT hr = 0;
+          hr         = gD3d.device->CreateRenderTargetView(rt_texture, &desc, &rt_view);
+          ErrorIf(FAILED(hr), "Failed to create render target view. hr=0x%X."_s8, hr);
+          Defer { rt_view->Release(); };
+
+          local_persist const fvec4 clear_color = {.r = 1.0, .g = 1.0, .b = 1.0, .a = 0.0};
+          gD3d.deferred_context->ClearRenderTargetView(rt_view, clear_color.v);
+        }
+      } break;
+
+      case GFX_RG_OpType_Batch: {
+        gfx_batch_draw(&(op.input.batch.batch), op.out);
+      } break;
+
+      case GFX_RG_OpType_PostFx: {
+        // @ToDo: add postfx to render graph
+        //
+        InvalidPath;
+      } break;
+
+      case GFX_RG_OpType_CombineImages: {
+        // @ToDo: add combining images to render graph
+        //
+      } break;
+    }
+  }
+
+  // Assuming that last operation result is the final image to render.
+  //
+  // @ToDo: should we just return it instead? So we can have multiple render graphs?
+  GFX_Image graph_result = operations[count - 1].out;
+  gD3d.deferred_context->CopyResource(gD3d.framebuffer, (ID3D11Resource *)graph_result.v[0]);
 }

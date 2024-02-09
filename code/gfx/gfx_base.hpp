@@ -129,7 +129,7 @@ global void
 gfx_batch_push(GFX_Batch *batch, GFX_Object object);
 
 global void
-gfx_batch_draw(GFX_Batch* batch, GFX_Image& target);
+gfx_batch_draw(GFX_Batch* batch, GFX_Image target);
 
 // Post processing types
 //

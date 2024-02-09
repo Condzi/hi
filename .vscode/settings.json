@@ -31,6 +31,8 @@
   "clangd.arguments": [
     "--clang-tidy",
     "--background-index",
-    "--background-index-priority=low"
+    "--background-index-priority=low",
+    "-j=4"
   ],
+  "clangd.checkUpdates": true,
 }

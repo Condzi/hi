@@ -39,7 +39,9 @@ main(int argc, char const *argv[]) {
   obj2.pos.x += 0.1f;
   obj2.pos.y += 0.1f;
 
-  GFX_Image target = gfx_make_empty_image();
+  u32 const width  = (u32)batch->viewport.sz.width;
+  u32 const height = (u32)batch->viewport.sz.height;
+  GFX_Image target = gfx_make_image(0, width, height);
 
   u64 frame = 0;
   while (os_gfx_window_mode() != OS_WindowMode_Closed) {
