@@ -69,10 +69,7 @@ internal D3D11_INPUT_ELEMENT_DESC const INPUT_ELEMENT_LAYOUT_RECT[] = {
 // pass initial settings
 void
 gfx_init(GFX_Opts const &opts) {
-  ErrorContext("%ux%u px, vsync=%s"_s8,
-               opts.vp_width,
-               opts.vp_height,
-               opts.vsync ? "on" : "off");
+  ErrorContext("%ux%u px, vsync=%s"_s8, opts.vp_width, opts.vp_height, opts.vsync ? "on" : "off");
 
   gfx_arena = make_arena(true);
 
@@ -146,7 +143,7 @@ gfx_init(GFX_Opts const &opts) {
 //
 #if !defined(NDEBUG)
   ID3D11InfoQueue *info = 0;
-  hr = gD3d.device->QueryInterface(__uuidof(ID3D11InfoQueue), (void **)&info);
+  hr                    = gD3d.device->QueryInterface(__uuidof(ID3D11InfoQueue), (void **)&info);
   if (SUCCEEDED(hr)) {
     info->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_ERROR, TRUE);
     info->SetBreakOnSeverity(D3D11_MESSAGE_SEVERITY_CORRUPTION, TRUE);
@@ -224,7 +221,7 @@ gfx_init(GFX_Opts const &opts) {
   D3D11_SUBRESOURCE_DATA ib_data = {
       .pSysMem = indices,
   };
-  hr = gD3d.device->CreateBuffer(&ib_desc, &ib_data, &gD3d.index_buffer.rect);  
+  hr = gD3d.device->CreateBuffer(&ib_desc, &ib_data, &gD3d.index_buffer.rect);
   ErrorIf(FAILED(hr), "Unable to create rect index buffer. hr=0x%X."_s8, hr);
 
   // Load and compile shaders.
@@ -270,7 +267,7 @@ gfx_init(GFX_Opts const &opts) {
                                       &(gD3d.rect.input_layout));
 
   ErrorIf(FAILED(hr), "Failed to create input layout. hr=0x%X"_s8, hr);
-} 
+}
 
 void
 gfx_resize(u32 new_width, u32 new_height) {
@@ -322,15 +319,56 @@ gfx_swap_buffers() {
   ErrorIf(FAILED(hr), "Call to Present failed. hr=0x%X"_s8, hr);
 }
 
+must_use GFX_Image
+gfx_make_empty_image() {
+  return {};
+}
+
+must_use GFX_Image
+gfx_make_image(u8 *data, u32 width, u32 height) {
+  ErrorContext("data=%s, width=%d, height=%d"_s8, data ? "yes" : "nope", (int)width, (int)height);
+
+  D3D11_TEXTURE2D_DESC desc = {
+      .Width      = width,
+      .Height     = height,
+      .MipLevels  = 1,
+      .ArraySize  = 1,
+      .Format     = DXGI_FORMAT_R8G8B8A8_UNORM,
+      .SampleDesc = {.Count = 1},
+      .Usage      = D3D11_USAGE_DEFAULT,
+      .BindFlags  = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE,
+  };
+
+  D3D11_SUBRESOURCE_DATA initial_data = {
+      .pSysMem = data,
+  };
+
+  ID3D11Texture2D *tex = 0;
+
+  HRESULT hr = 0;
+  hr         = gD3d.device->CreateTexture2D(&desc, data ? (&initial_data) : 0, &tex);
+  ErrorIf(FAILED(hr), "Failed to create render target texture. hr=0x%X."_s8, hr);
+
+  GFX_Image img;
+  img.v[0] = PtrToU64(tex);
+  return img;
+}
+
+void
+gfx_release_image(GFX_Image img) {
+  ID3D11Texture2D *tex = (ID3D11Texture2D *)U64ToPtr(img.v[0]);
+  tex->Release();
+}
+
 must_use GFX_Batch *
 gfx_make_batch(GFX_Material_Type material) {
   ErrorContext("material=%d"_s8, (int)material);
 
-  GFX_Batch *batch   = arena_alloc<GFX_Batch>(gfx_arena);
-  batch->type        = material;
-  batch->viewport    = {
-         .sz   = {.width = (f32)1280, .height = (f32)720},
-         .zoom = 1,
+  GFX_Batch *batch = arena_alloc<GFX_Batch>(gfx_arena);
+  batch->type      = material;
+  batch->viewport  = {
+       .sz   = {.width = (f32)1280, .height = (f32)720},
+       .zoom = 1,
   };
   batch->objects.v   = arena_alloc_array<GFX_Object>(gfx_arena, 64);
   batch->objects.cap = 64;
@@ -386,7 +424,7 @@ gfx_batch_push(GFX_Batch *batch, GFX_Object object) {
 }
 
 void
-gfx_batch_draw(GFX_Batch *batch, GFX_Image target) {
+gfx_batch_draw(GFX_Batch *batch, GFX_Image& target) {
   if (!batch) {
     return;
   }
@@ -395,39 +433,14 @@ gfx_batch_draw(GFX_Batch *batch, GFX_Image target) {
 
   // Check if the render target is valid.
   //
-
-  ID3D11Texture2D *rt_texture = (ID3D11Texture2D *)U64ToPtr(target.v[0]);
-  if (rt_texture) {
-    // Check if the dimensions are OK
-    //
-    D3D11_TEXTURE2D_DESC desc;
-    rt_texture->GetDesc(&desc);
-    if (desc.Width != (u32)batch->viewport.sz.width ||
-        desc.Height != (u32)batch->viewport.sz.height) {
-      rt_texture->Release();
-      rt_texture = 0;
-    }
-  }
-
-  if (!rt_texture) {
+  if (!target.v[0]) {
     // If we don't have a valid render target texture, create it.
     //
-    D3D11_TEXTURE2D_DESC desc = {
-        .Width      = (UINT)batch->viewport.sz.width,
-        .Height     = (UINT)batch->viewport.sz.height,
-        .MipLevels  = 1,
-        .ArraySize  = 1,
-        .Format     = DXGI_FORMAT_R8G8B8A8_UNORM,
-        .SampleDesc = {.Count = 1},
-        .Usage      = D3D11_USAGE_DEFAULT,
-        .BindFlags  = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE,
-    };
-
-    HRESULT hr = 0;
-    hr         = gD3d.device->CreateTexture2D(&desc, 0, &rt_texture);
-    ErrorIf(FAILED(hr), "Failed to create render target texture. hr=0x%X."_s8, hr);
-    target.v[0] = PtrToU64(rt_texture);
+    u32 const width = (u32)batch->viewport.sz.width;
+    u32 const height = (u32)batch->viewport.sz.height;
+    target = gfx_make_image(0, width, height);
   }
+  ID3D11Texture2D *rt_texture = (ID3D11Texture2D *)U64ToPtr(target.v[0]);
 
   // Create render target view.
   //
@@ -442,7 +455,7 @@ gfx_batch_draw(GFX_Batch *batch, GFX_Image target) {
   HRESULT hr = 0;
   hr         = gD3d.device->CreateRenderTargetView(rt_texture, &desc, &rt_view);
   ErrorIf(FAILED(hr), "Failed to create render target view. hr=0x%X."_s8, hr);
-  Defer{rt_view->Release();};
+  Defer { rt_view->Release(); };
 
   // Copy the instance data to the instance buffer of appropiate layout.
   //

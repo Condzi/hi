@@ -15,31 +15,6 @@ main(int argc, char const *argv[]) {
   os_init(argc, argv);
   os_gfx_init();
 
-  Arena *a = make_arena(true);
-
-  u64 *u = (u64 *)arena_alloc(a, 80, 8);
-  Unused(u);
-  u = (u64 *)arena_alloc(a, 80, 16);
-  // This should trigger asan!
-  // u[11] = 123;
-
-  Unused(arena_alloc(a, MB(62), 8));
-  // This should be in a new arena
-  //
-  u = (u64 *)arena_alloc(a, MB(2), 8);
-
-  // This should be in the old one
-  //
-  u = (u64 *)arena_alloc(a, 8, 8);
-  // u[1] = 123;
-
-  u64 now = os_now_us();
-  Unused(now);
-
-  os_debug_message("Cześć, Świecie! ąćźłóę ĄĆŹŁÓĘ\n"_s8);
-
-  os_debug_message(str8_sprintf(a, "Test: %_$$d. 8 in binary is 0b%b"_s8, MB(128), 8));
-
   os_gfx_open_window({
       .title      = GAME_TITLE_LITERAL ""_s8,
       .width      = 1280,
@@ -64,8 +39,7 @@ main(int argc, char const *argv[]) {
   obj2.pos.x += 0.1f;
   obj2.pos.y += 0.1f;
 
-  GFX_Image target;
-  target.v[0] = PtrToU64(gD3d.framebuffer);
+  GFX_Image target = gfx_make_empty_image();
 
   u64 frame = 0;
   while (os_gfx_window_mode() != OS_WindowMode_Closed) {
@@ -75,16 +49,23 @@ main(int argc, char const *argv[]) {
 
     obj.pos.x += 0.0001f;
     obj2.pos.y += 0.0001f;
-    obj.material.data.rect.color.g += 1;
-    obj2.material.data.rect.color.b += 1;
+    obj.material.data.rect.color.v += 0xff;
+    obj2.material.data.rect.color.v += 1;
 
     gfx_batch_push(batch, obj);
     gfx_batch_push(batch, obj2);
 
     gfx_batch_draw(batch, target);
-    batch->objects.sz = 0;
+
+    // Copy batch to frame buffer
+    //
+    gD3d.deferred_context->CopyResource(gD3d.framebuffer, (ID3D11Resource*)target.v[0]);
 
     gfx_swap_buffers();
+
+    // Reset the batches
+    //
+    batch->objects.sz = 0;
 
     arena_clear(gContext.frame_arena);
 

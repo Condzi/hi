@@ -37,10 +37,10 @@ must_use GFX_Image
 gfx_make_empty_image();
 
 must_use GFX_Image
-gfx_make_image(u8* data, u64 sz);
+gfx_make_image(u8* data, u32 width, u32 height);
 
 void
-gfX_release_image(GFX_Image img);
+gfx_release_image(GFX_Image img);
 
 struct GFX_Buffer {
   u64 v[1] = {};
@@ -129,7 +129,7 @@ void
 gfx_batch_push(GFX_Batch *batch, GFX_Object object);
 
 void
-gfx_batch_draw(GFX_Batch* batch, GFX_Image target);
+gfx_batch_draw(GFX_Batch* batch, GFX_Image& target);
 
 // Post processing types
 //
@@ -180,7 +180,7 @@ enum GFX_RG_Node_Type {
 };
 
 struct GFX_RG_Node {
-  GFX_Image out_img;
+  GFX_Image target;
 
   GFX_RG_Node_Type type = GFX_RG_NodeType_None;
   union {
@@ -189,11 +189,13 @@ struct GFX_RG_Node {
     } batch = {};
 
     struct {
-      GFX_Image img;
+      GFX_Image src;
       GFX_Fx    fx;
     } post_fx;
 
     struct {
+      // Assume a and b are the same size and type!
+      //
       GFX_Image a;
       GFX_Image b;
     } combine_images;
