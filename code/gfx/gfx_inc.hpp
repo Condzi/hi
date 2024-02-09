@@ -29,6 +29,7 @@ gfx_swap_buffers();
 
 #include "gfx_base.hpp"
 #include "gfx_render_graph.hpp"
+#include "gfx_checkerboard.hpp"
 
 #if OS_WINDOWS
 #include "win32/gfx_win32.hpp"

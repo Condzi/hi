@@ -310,10 +310,11 @@ gfx_init(GFX_Opts const &opts) {
   {
     ErrorContext("Linear sampler"_s8);
     D3D11_SAMPLER_DESC const desc = {
-        .Filter         = D3D11_FILTER_MIN_MAG_MIP_LINEAR, // Linear filtering
-        .AddressU       = D3D11_TEXTURE_ADDRESS_CLAMP,     // Clamp addressing mode
-        .AddressV       = D3D11_TEXTURE_ADDRESS_CLAMP,     // Clamp addressing mode
-        .AddressW       = D3D11_TEXTURE_ADDRESS_CLAMP,     // Clamp addressing mode
+        //.Filter         = D3D11_FILTER_MIN_MAG_MIP_LINEAR, // Linear filtering
+        .Filter         = D3D11_FILTER_MIN_MAG_MIP_POINT,
+        .AddressU       = D3D11_TEXTURE_ADDRESS_WRAP,
+        .AddressV       = D3D11_TEXTURE_ADDRESS_WRAP,
+        .AddressW       = D3D11_TEXTURE_ADDRESS_WRAP,
         .ComparisonFunc = D3D11_COMPARISON_NEVER,
         .MinLOD         = 0,
         .MaxLOD         = D3D11_FLOAT32_MAX,

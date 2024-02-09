@@ -53,12 +53,8 @@ vs_main(Cpu2Vertex input) {
     case 3: pos = float2(1.0, 0.0); break; // Bottom-right
   }
 
-  // @ToDo: transform matrix here!
-  //
-
   // Apply rotation about the center
   //
-
 
   pos *= input.scale;
   float s = sin(input.rot);

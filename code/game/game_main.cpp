@@ -42,8 +42,7 @@ main(int argc, char const *argv[]) {
   u32 const  width   = (u32)batch_a->viewport.sz.width;
   u32 const  height  = (u32)batch_a->viewport.sz.height;
 
-  u32       bg           = 0xFF000000;
-  GFX_Image background   = gfx_make_image((u8 *)&bg, 1, 1);
+  GFX_Image background   = gfx_make_image(gfx_checkerboard(8, 16, 16), 16 * 8, 16 * 8);
   GFX_Image target_a     = gfx_make_image(0, width, height);
   GFX_Image target_b     = gfx_make_image(0, width, height);
   GFX_Image target_ab    = gfx_make_image(0, width, height);
