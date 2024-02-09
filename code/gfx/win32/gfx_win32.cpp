@@ -76,6 +76,55 @@ internal D3D11_INPUT_ELEMENT_DESC const INPUT_ELEMENT_LAYOUT_RECT[] = {
     },
 };
 
+internal D3D11_INPUT_ELEMENT_DESC const INPUT_ELEMENT_LAYOUT_SPRITE[] = {
+    {
+        .SemanticName         = "POS",
+        .SemanticIndex        = 0,
+        .Format               = DXGI_FORMAT_R32G32_FLOAT,
+        .InputSlot            = 0,
+        .AlignedByteOffset    = 0,
+        .InputSlotClass       = D3D11_INPUT_PER_INSTANCE_DATA,
+        .InstanceDataStepRate = 1,
+    },
+    {
+        .SemanticName         = "SCALE",
+        .SemanticIndex        = 0,
+        .Format               = DXGI_FORMAT_R32G32_FLOAT,
+        .InputSlot            = 0,
+        .AlignedByteOffset    = D3D11_APPEND_ALIGNED_ELEMENT,
+        .InputSlotClass       = D3D11_INPUT_PER_INSTANCE_DATA,
+        .InstanceDataStepRate = 1,
+    },
+
+    {
+        .SemanticName         = "TEX_RECT",
+        .SemanticIndex        = 0,
+        .Format               = DXGI_FORMAT_R32G32B32A32_FLOAT,
+        .InputSlot            = 0,
+        .AlignedByteOffset    = D3D11_APPEND_ALIGNED_ELEMENT,
+        .InputSlotClass       = D3D11_INPUT_PER_INSTANCE_DATA,
+        .InstanceDataStepRate = 1,
+    },
+    {
+        .SemanticName         = "COL",
+        .SemanticIndex        = 0,
+        .Format               = DXGI_FORMAT_R32_UINT,
+        .InputSlot            = 0,
+        .AlignedByteOffset    = D3D11_APPEND_ALIGNED_ELEMENT,
+        .InputSlotClass       = D3D11_INPUT_PER_INSTANCE_DATA,
+        .InstanceDataStepRate = 1,
+    },
+    {
+        .SemanticName         = "ROT",
+        .SemanticIndex        = 0,
+        .Format               = DXGI_FORMAT_R32_FLOAT,
+        .InputSlot            = 0,
+        .AlignedByteOffset    = D3D11_APPEND_ALIGNED_ELEMENT,
+        .InputSlotClass       = D3D11_INPUT_PER_INSTANCE_DATA,
+        .InstanceDataStepRate = 1,
+    },
+};
+
 // pass initial settings
 global void
 gfx_init(GFX_Opts const &opts) {
@@ -276,6 +325,40 @@ gfx_init(GFX_Opts const &opts) {
                                         vs_blob->GetBufferPointer(),
                                         vs_blob->GetBufferSize(),
                                         &(gD3d.rect.input_layout));
+    ErrorIf(FAILED(hr), "Failed to create input layout. hr=0x%X"_s8, hr);
+  }
+
+  {
+    ErrorContext("Compiling GFX_SPRITE_SHADER"_s8);
+    hr = compile_shader(str8_cstr(GFX_SPRITE_SHADER), "vs_main"_s8, "vs_5_0"_s8, &vs_blob);
+
+    ErrorIf(FAILED(hr),
+            "Failed to compile vertex shader: %s"_s8,
+            (char const *)vs_blob->GetBufferPointer());
+
+    hr = compile_shader(str8_cstr(GFX_SPRITE_SHADER), "ps_main"_s8, "ps_5_0"_s8, &ps_blob);
+
+    ErrorIf(FAILED(hr),
+            "Failed to compile pixel shader: %s"_s8,
+            (char const *)ps_blob->GetBufferPointer());
+
+    hr = gD3d.device->CreateVertexShader(
+        vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), 0, &(gD3d.sprite.vs));
+    ErrorIf(FAILED(hr), "Failed to create vertex shader. hr=0x%X"_s8, hr);
+    Defer { vs_blob->Release(); };
+
+    hr = gD3d.device->CreatePixelShader(
+        ps_blob->GetBufferPointer(), ps_blob->GetBufferSize(), 0, &(gD3d.sprite.ps));
+    ErrorIf(FAILED(hr), "Failed to create pixel shader. hr=0x%X"_s8, hr);
+    Defer { ps_blob->Release(); };
+
+    // Create input layout of the Vertex Shader.
+    //
+    hr = gD3d.device->CreateInputLayout(INPUT_ELEMENT_LAYOUT_SPRITE,
+                                        ArrayCount(INPUT_ELEMENT_LAYOUT_SPRITE),
+                                        vs_blob->GetBufferPointer(),
+                                        vs_blob->GetBufferSize(),
+                                        &(gD3d.sprite.input_layout));
     ErrorIf(FAILED(hr), "Failed to create input layout. hr=0x%X"_s8, hr);
   }
 

@@ -56,6 +56,12 @@ struct D3d {
   struct {
     ID3D11VertexShader *vs;
     ID3D11PixelShader  *ps;
+    ID3D11InputLayout  *input_layout;
+  } sprite;
+
+  struct {
+    ID3D11VertexShader *vs;
+    ID3D11PixelShader  *ps;
   } combine;
 
   struct {
@@ -70,6 +76,14 @@ struct GFX_Rect_Instance {
   fvec2 scale;
   u32   col = 0;
   f32   rot = 0;
+};
+
+struct GFX_Sprite_Instance {
+  fvec2 pos;
+  fvec2 scale;
+  fvec4 tex_coords; // Lazy way since our tex coords are 16 bit xD
+  u32   color = 0;
+  f32   rot   = 0;
 };
 
 // Helper functions.
