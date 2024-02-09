@@ -69,6 +69,7 @@ struct GFX_Rect_Instance {
   fvec2 pos;
   fvec2 scale;
   u32   col = 0;
+  f32   rot = 0;
 };
 
 // Helper functions.

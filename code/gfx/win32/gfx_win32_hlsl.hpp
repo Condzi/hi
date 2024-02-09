@@ -19,6 +19,7 @@ struct Cpu2Vertex {
   float2 pos       : POS;
   float2 scale     : SCALE;
   uint   color     : COL;
+  float  rot       : ROT;
   uint   vertex_id : SV_VertexID;
 };
 
@@ -53,10 +54,21 @@ vs_main(Cpu2Vertex input) {
   }
 
   // @ToDo: transform matrix here!
-  //  Rotate about center?
   //
+
+  // Apply rotation about the center
+  //
+
+
   pos *= input.scale;
-  pos += input.pos;
+  float s = sin(input.rot);
+  float c = cos(input.rot);
+  float2 rotated_pos = float2(
+    (pos.x - 0.5*input.scale.x) * c - (pos.y - 0.5*input.scale.y) * s,
+    (pos.x - 0.5*input.scale.x) * s + (pos.y - 0.5*input.scale.y) * c
+  );
+
+  pos = rotated_pos + input.pos;
 
   // @ToDo: View matrix here!
   //

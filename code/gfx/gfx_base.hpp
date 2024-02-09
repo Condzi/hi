@@ -92,6 +92,7 @@ struct GFX_Material {
 struct GFX_Object {
   fvec2        pos;
   fvec2        sz;
+  f32          rot;
   GFX_Layer    layer;
   GFX_Material material;
 };
@@ -119,17 +120,17 @@ struct GFX_Batch {
   } data;
 };
 
-must_use global GFX_Batch*
+must_use global GFX_Batch *
 gfx_make_batch(GFX_Material_Type material);
 
 global void
-gfx_release_batch(GFX_Batch* batch);
+gfx_release_batch(GFX_Batch *batch);
 
 global void
 gfx_batch_push(GFX_Batch *batch, GFX_Object object);
 
 global void
-gfx_batch_draw(GFX_Batch* batch, GFX_Image target);
+gfx_batch_draw(GFX_Batch *batch, GFX_Image target);
 
 // Post processing types
 //
@@ -159,5 +160,5 @@ struct GFX_Fx {
   } data;
 };
 
-global void 
+global void
 gfx_combine_images(GFX_Image a, GFX_Image b, GFX_Image target);

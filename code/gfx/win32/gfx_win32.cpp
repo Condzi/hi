@@ -65,6 +65,15 @@ internal D3D11_INPUT_ELEMENT_DESC const INPUT_ELEMENT_LAYOUT_RECT[] = {
         .InputSlotClass       = D3D11_INPUT_PER_INSTANCE_DATA,
         .InstanceDataStepRate = 1,
     },
+    {
+        .SemanticName         = "ROT",
+        .SemanticIndex        = 0,
+        .Format               = DXGI_FORMAT_R32_FLOAT,
+        .InputSlot            = 0,
+        .AlignedByteOffset    = D3D11_APPEND_ALIGNED_ELEMENT,
+        .InputSlotClass       = D3D11_INPUT_PER_INSTANCE_DATA,
+        .InstanceDataStepRate = 1,
+    },
 };
 
 // pass initial settings
@@ -546,6 +555,7 @@ gfx_batch_draw(GFX_Batch *batch, GFX_Image target) {
         .pos   = object.pos,
         .scale = object.sz,
         .col   = object.material.rect.color.v,
+        .rot   = object.rot,
     };
   }
 

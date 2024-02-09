@@ -95,8 +95,10 @@ main(int argc, char const *argv[]) {
 
     obj.pos.x += 0.5f;
     obj2.pos.y += 0.5f;
-    obj.material.rect.color.a += 1;
-    obj2.material.rect.color.a += 1;
+    //obj.material.rect.color.a += 1;
+    //obj2.material.rect.color.a += 1;
+    obj.rot -= 0.1f;
+    obj2.rot += 0.1f;
 
     gfx_batch_push(batch_a, obj);
     gfx_batch_push(batch_b, obj2);
