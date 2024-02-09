@@ -412,7 +412,7 @@ gfx_make_batch(GFX_Material_Type material) {
   GFX_Batch *batch = arena_alloc<GFX_Batch>(gfx_arena);
   batch->type      = material;
   batch->viewport  = {
-       .sz   = {.width = (f32)1280, .height = (f32)720},
+       .sz   = {.width = (f32)os_gfx_surface_width(), .height = (f32)os_gfx_surface_height()},
        .zoom = 1,
   };
   batch->objects.v   = arena_alloc_array<GFX_Object>(gfx_arena, 64);

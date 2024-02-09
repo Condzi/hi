@@ -73,10 +73,14 @@
       [X] Creating Batches
       [X] Inserting objects into batches
       [X] Memory management
-      [ ] Image creation
-      [ ] Rendering from image to frame buffer
-      [ ] Handle resizing
+      [X] Image creation
+      [X] Rendering from image to frame buffer
       [ ] Figure out MVP matrix -- how exactly does it work in our 2D game?
+    [ ] Sprite pipeline
+      [ ] Load image from disk
+      [ ] Write shader
+      [ ] Implement batch_draw for sprites
+    [ ] Handle resizing
 
     [ ] GPU info
 

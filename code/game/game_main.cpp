@@ -22,7 +22,7 @@ main(int argc, char const *argv[]) {
       .fullscreen = false,
   });
 
-  gfx_init({.vp_width = 1280, .vp_height = 720});
+  gfx_init({.vp_width = os_gfx_surface_width(), .vp_height = os_gfx_surface_height()});
 
   GFX_Object obj = {
       .pos = {0, 0},
@@ -42,7 +42,7 @@ main(int argc, char const *argv[]) {
   u32 const  width   = (u32)batch_a->viewport.sz.width;
   u32 const  height  = (u32)batch_a->viewport.sz.height;
 
-  u32       bg           = 0xFFFFFFFF;
+  u32       bg           = 0xFF000000;
   GFX_Image background   = gfx_make_image((u8 *)&bg, 1, 1);
   GFX_Image target_a     = gfx_make_image(0, width, height);
   GFX_Image target_b     = gfx_make_image(0, width, height);
