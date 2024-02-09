@@ -1,5 +1,6 @@
 #pragma once
 #include "all_inc.hpp"
+#include <d3d11.h>
 
 must_use internal HRESULT
 compile_shader(Str8       src,
@@ -183,15 +184,18 @@ gfx_init(GFX_Opts const &opts) {
   // Create blend state.
   //
   D3D11_BLEND_DESC bs_desc = {};
-  bs_desc.RenderTarget[0]  = {
-       .BlendEnable           = 1,
-       .SrcBlend              = D3D11_BLEND_SRC_ALPHA,
-       .DestBlend             = D3D11_BLEND_INV_SRC_ALPHA,
-       .BlendOp               = D3D11_BLEND_OP_ADD,
-       .SrcBlendAlpha         = D3D11_BLEND_ONE,
-       .DestBlendAlpha        = D3D11_BLEND_ZERO,
-       .BlendOpAlpha          = D3D11_BLEND_OP_ADD,
-       .RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL,
+  // Set up for rendering onto a transparent texture
+  // Src: https://stackoverflow.com/a/27932112/6696102
+  //
+  bs_desc.RenderTarget[0] = {
+      .BlendEnable           = 1,
+      .SrcBlend              = D3D11_BLEND_SRC_ALPHA,
+      .DestBlend             = D3D11_BLEND_INV_SRC_ALPHA,
+      .BlendOp               = D3D11_BLEND_OP_ADD,
+      .SrcBlendAlpha         = D3D11_BLEND_INV_DEST_ALPHA,
+      .DestBlendAlpha        = D3D11_BLEND_ONE,
+      .BlendOpAlpha          = D3D11_BLEND_OP_ADD,
+      .RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL,
   };
   hr = gD3d.device->CreateBlendState(&bs_desc, &gD3d.blend_state);
   ErrorIf(FAILED(hr), "Unable to create blend state. hr=0x%X."_s8, hr);
@@ -380,7 +384,8 @@ gfx_make_image(u8 *data, u32 width, u32 height) {
   };
 
   D3D11_SUBRESOURCE_DATA initial_data = {
-      .pSysMem = data,
+      .pSysMem     = data,
+      .SysMemPitch = width * 4, // 4 channels
   };
 
   ID3D11Texture2D *tex = 0;
@@ -503,7 +508,7 @@ gfx_batch_draw(GFX_Batch *batch, GFX_Image target) {
     instances[i] = {
         .pos   = object.pos,
         .scale = object.sz,
-        .col   = object.material.data.rect.color.v,
+        .col   = object.material.rect.color.v,
     };
   }
 
@@ -524,6 +529,7 @@ gfx_batch_draw(GFX_Batch *batch, GFX_Image target) {
   UINT stride = sizeof(GFX_Rect_Instance);
   UINT offset = 0;
 
+  gD3d.deferred_context->ClearState();
   gD3d.deferred_context->IASetVertexBuffers(0, 1, &instances_buffer, &stride, &offset);
   gD3d.deferred_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
   gD3d.deferred_context->IASetIndexBuffer(gD3d.index_buffer.rect, DXGI_FORMAT_R32_UINT, 0);
@@ -584,7 +590,7 @@ gfx_rg_execute_operations(GFX_RG_Operation *operations, u32 count) {
           ErrorIf(FAILED(hr), "Failed to create render target view. hr=0x%X."_s8, hr);
           Defer { rt_view->Release(); };
 
-          local_persist const fvec4 clear_color = {.r = 0.25, .g = 1.0, .b = 1.0, .a = 1.0};
+          local_persist const fvec4 clear_color = {.r = 0.0, .g = 0.0, .b = 0.0, .a = 0.0};
           gD3d.deferred_context->ClearRenderTargetView(rt_view, clear_color.v);
         }
       } break;
@@ -614,9 +620,9 @@ gfx_rg_execute_operations(GFX_RG_Operation *operations, u32 count) {
 global void
 gfx_combine_images(GFX_Image a, GFX_Image b, GFX_Image target) {
   ErrorContext("Combining stuff..."_s8);
-  ErrorIf(a.v[0], "Image A not set!"_s8);
-  ErrorIf(b.v[0], "Image B not set!"_s8);
-  ErrorIf(target.v[0], "Target not set!"_s8);
+  ErrorIf(!a.v[0], "Image A not set!"_s8);
+  ErrorIf(!b.v[0], "Image B not set!"_s8);
+  ErrorIf(!target.v[0], "Target not set!"_s8);
 
   // Create render target view.
   //
@@ -654,15 +660,17 @@ gfx_combine_images(GFX_Image a, GFX_Image b, GFX_Image target) {
   Defer { srv_a->Release(); };
   Defer { srv_b->Release(); };
 
+  gD3d.deferred_context->ClearState();
   gD3d.deferred_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
   gD3d.deferred_context->IASetIndexBuffer(gD3d.index_buffer.rect, DXGI_FORMAT_R32_UINT, 0);
-  gD3d.deferred_context->IASetInputLayout(gD3d.rect.input_layout);
+  gD3d.deferred_context->IASetInputLayout(0);
 
   gD3d.deferred_context->VSSetShader(gD3d.combine.vs, 0, 0);
   gD3d.deferred_context->PSSetShader(gD3d.combine.ps, 0, 0);
 
-  gD3d.deferred_context->PSSetShaderResources(0, 1, &(srv_a));
-  gD3d.deferred_context->PSSetShaderResources(1, 1, &(srv_b));
+  gD3d.deferred_context->PSSetShaderResources(0, 1, &srv_a);
+  gD3d.deferred_context->PSSetShaderResources(1, 1, &srv_b);
+
   gD3d.deferred_context->PSSetSamplers(0, 1, &(gD3d.linear_sampler));
 
   // @Robustness: what should be the viewport here?
@@ -676,7 +684,7 @@ gfx_combine_images(GFX_Image a, GFX_Image b, GFX_Image target) {
   gD3d.deferred_context->RSSetViewports(1, &vp);
   gD3d.deferred_context->RSSetState(gD3d.rasterizer_state);
 
-  gD3d.deferred_context->OMSetBlendState(gD3d.blend_state, 0, 0xffffffff);
+  // gD3d.deferred_context->OMSetBlendState(gD3d.blend_state, 0, 0xffffffff);
   gD3d.deferred_context->OMSetRenderTargets(1, &rt_view, 0);
 
   gD3d.deferred_context->DrawIndexed(6, 0, 0);

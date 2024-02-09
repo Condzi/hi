@@ -12,10 +12,10 @@ struct GFX_Viewport {
 union GFX_Color {
   u32 v = {};
   struct {
-    u8 r;
-    u8 g;
-    u8 b;
     u8 a;
+    u8 b;
+    u8 g;
+    u8 r;
   };
 };
 
@@ -86,7 +86,7 @@ struct GFX_Material {
       GFX_Tex_Coords tex_coords;
       GFX_Color      color;
     } sprite;
-  } data;
+  };
 };
 
 struct GFX_Object {

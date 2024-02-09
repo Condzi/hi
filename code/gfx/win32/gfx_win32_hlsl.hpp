@@ -115,6 +115,6 @@ ps_main(Vertex2Pixel input) : SV_TARGET {
   float4 col_a = tex_a.Sample(splr, input.uv);
   float4 col_b = tex_b.Sample(splr, input.uv);
 
-  return lerp(col_a, col_b, col_a.a);
+  return lerp(col_a, col_b, col_b.a);
 }
 )";

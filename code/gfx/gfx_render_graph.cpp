@@ -20,8 +20,8 @@ global void
 gfx_rg_attach_node_to_parent(GFX_RG_Node *parent, GFX_RG_Node *child) {
   Assert(parent);
   Assert(child);
-  Assert(parent->children_count + 1 != GFX_RG_MAX_CHILDREN);
-  Assert(child->parents_count + 1 != GFX_RG_MAX_PARENTS);
+  Assert(parent->children_count != GFX_RG_MAX_CHILDREN);
+  Assert(child->parents_count != GFX_RG_MAX_PARENTS);
 
   parent->children[parent->children_count] = child;
   child->parents[child->parents_count]     = parent;
@@ -32,7 +32,7 @@ gfx_rg_attach_node_to_parent(GFX_RG_Node *parent, GFX_RG_Node *child) {
 must_use global GFX_RG_Node *
 gfx_rg_add_root(GFX_Render_Graph *rg) {
   Assert(rg);
-  Assert(rg->roots_count + 1 != GFX_RG_MAX_ROOTS);
+  Assert(rg->roots_count != GFX_RG_MAX_ROOTS);
 
   GFX_RG_Node *root          = gfx_rg_make_node(rg);
   rg->roots[rg->roots_count] = root;
