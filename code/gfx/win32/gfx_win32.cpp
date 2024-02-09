@@ -1,6 +1,5 @@
 #pragma once
 #include "all_inc.hpp"
-#include <d3d11.h>
 
 must_use internal HRESULT
 compile_shader(Str8       src,

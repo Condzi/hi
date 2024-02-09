@@ -1,9 +1,5 @@
 #pragma once
 #include "all_inc.hpp"
-#include <corecrt_wstdlib.h>
-#include <cwchar>
-#include <debugapi.h>
-#include <winuser.h>
 
 global void
 os_gfx_init() {
