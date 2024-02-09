@@ -232,41 +232,65 @@ gfx_init(GFX_Opts const &opts) {
 
   // Compile shaders.
   //
+  {
+    ErrorContext("Compiling GFX_RECT_SHADER"_s8);
+    hr = compile_shader(str8_cstr(GFX_RECT_SHADER), "vs_main"_s8, "vs_5_0"_s8, &vs_blob);
 
-  hr = compile_shader(str8_cstr(RECT_SHADER), "vs_main"_s8, "vs_5_0"_s8, &vs_blob);
+    ErrorIf(FAILED(hr),
+            "Failed to compile vertex shader: %s"_s8,
+            (char const *)vs_blob->GetBufferPointer());
 
-  ErrorIf(FAILED(hr),
-          "Failed to compile vertex shader: %s"_s8,
-          (char const *)vs_blob->GetBufferPointer());
+    hr = compile_shader(str8_cstr(GFX_RECT_SHADER), "ps_main"_s8, "ps_5_0"_s8, &ps_blob);
 
-  hr = compile_shader(str8_cstr(RECT_SHADER), "ps_main"_s8, "ps_5_0"_s8, &ps_blob);
+    ErrorIf(FAILED(hr),
+            "Failed to compile pixel shader: %s"_s8,
+            (char const *)ps_blob->GetBufferPointer());
 
-  ErrorIf(FAILED(hr),
-          "Failed to compile pixel shader: %s"_s8,
-          (char const *)ps_blob->GetBufferPointer());
+    hr = gD3d.device->CreateVertexShader(
+        vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), 0, &(gD3d.rect.vs));
+    ErrorIf(FAILED(hr), "Failed to create vertex shader. hr=0x%X"_s8, hr);
+    Defer { vs_blob->Release(); };
 
-  // Create shaders. No circle shader yet!
-  //
+    hr = gD3d.device->CreatePixelShader(
+        ps_blob->GetBufferPointer(), ps_blob->GetBufferSize(), 0, &(gD3d.rect.ps));
+    ErrorIf(FAILED(hr), "Failed to create pixel shader. hr=0x%X"_s8, hr);
+    Defer { ps_blob->Release(); };
 
-  hr = gD3d.device->CreateVertexShader(
-      vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), 0, &(gD3d.rect.vs));
-  ErrorIf(FAILED(hr), "Failed to create vertex shader. hr=0x%X"_s8, hr);
-  Defer { vs_blob->Release(); };
+    // Create input layout of the Vertex Shader.
+    //
+    hr = gD3d.device->CreateInputLayout(INPUT_ELEMENT_LAYOUT_RECT,
+                                        ArrayCount(INPUT_ELEMENT_LAYOUT_RECT),
+                                        vs_blob->GetBufferPointer(),
+                                        vs_blob->GetBufferSize(),
+                                        &(gD3d.rect.input_layout));
+    ErrorIf(FAILED(hr), "Failed to create input layout. hr=0x%X"_s8, hr);
+  }
 
-  hr = gD3d.device->CreatePixelShader(
-      ps_blob->GetBufferPointer(), ps_blob->GetBufferSize(), 0, &(gD3d.rect.ps));
-  ErrorIf(FAILED(hr), "Failed to create pixel shader. hr=0x%X"_s8, hr);
-  Defer { ps_blob->Release(); };
+  {
+    ErrorContext("Compiling GFX_COMBINE_SHADER"_s8);
+    hr = compile_shader(str8_cstr(GFX_COMBINE_SHADER), "vs_main"_s8, "vs_5_0"_s8, &vs_blob);
 
-  // Create input layout of the Vertex Shader.
-  //
-  hr = gD3d.device->CreateInputLayout(INPUT_ELEMENT_LAYOUT_RECT,
-                                      ArrayCount(INPUT_ELEMENT_LAYOUT_RECT),
-                                      vs_blob->GetBufferPointer(),
-                                      vs_blob->GetBufferSize(),
-                                      &(gD3d.rect.input_layout));
+    ErrorIf(FAILED(hr),
+            "Failed to compile vertex shader: %s"_s8,
+            (char const *)vs_blob->GetBufferPointer());
 
-  ErrorIf(FAILED(hr), "Failed to create input layout. hr=0x%X"_s8, hr);
+    hr = compile_shader(str8_cstr(GFX_COMBINE_SHADER), "ps_main"_s8, "ps_5_0"_s8, &ps_blob);
+
+    ErrorIf(FAILED(hr),
+            "Failed to compile pixel shader: %s"_s8,
+            (char const *)ps_blob->GetBufferPointer());
+
+    hr = gD3d.device->CreateVertexShader(
+        vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), 0, &(gD3d.combine.vs));
+    ErrorIf(FAILED(hr), "Failed to create vertex shader. hr=0x%X"_s8, hr);
+    Defer { vs_blob->Release(); };
+
+    hr = gD3d.device->CreatePixelShader(
+        ps_blob->GetBufferPointer(), ps_blob->GetBufferSize(), 0, &(gD3d.combine.ps));
+    ErrorIf(FAILED(hr), "Failed to create pixel shader. hr=0x%X"_s8, hr);
+    Defer { ps_blob->Release(); };
+  }
+
 }
 
 global void
@@ -431,11 +455,11 @@ gfx_batch_draw(GFX_Batch *batch, GFX_Image target) {
   //
 
   ID3D11Texture2D              *rt_texture = (ID3D11Texture2D *)U64ToPtr(target.v[0]);
-  ID3D11RenderTargetView       *rt_view = 0;
-  D3D11_RENDER_TARGET_VIEW_DESC desc    = {
-         .Format        = DXGI_FORMAT_R8G8B8A8_UNORM, // Same as texture!
-         .ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D,
-         .Texture2D     = {.MipSlice = 0},
+  ID3D11RenderTargetView       *rt_view    = 0;
+  D3D11_RENDER_TARGET_VIEW_DESC desc       = {
+            .Format        = DXGI_FORMAT_R8G8B8A8_UNORM, // Same as texture!
+            .ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D,
+            .Texture2D     = {.MipSlice = 0},
   };
 
   HRESULT hr = 0;
@@ -566,7 +590,6 @@ gfx_rg_execute_operations(GFX_RG_Operation *operations, u32 count) {
 
   // Assuming that last operation result is the final image to render.
   //
-  // @ToDo: should we just return it instead? So we can have multiple render graphs?
   GFX_Image graph_result = operations[count - 1].out;
   return graph_result;
 }

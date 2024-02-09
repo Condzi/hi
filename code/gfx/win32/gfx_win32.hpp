@@ -44,10 +44,12 @@ struct D3d {
     ID3D11VertexShader *vs;
     ID3D11PixelShader  *ps;
     ID3D11InputLayout  *input_layout;
-
   } rect;
+
   struct {
-  } input_layout;
+    ID3D11VertexShader *vs;
+    ID3D11PixelShader  *ps;
+  } combine;
 } global gD3d;
 
 struct GFX_Rect_Instance {

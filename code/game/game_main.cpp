@@ -7,7 +7,7 @@ int
 main(int argc, char const *argv[]) {
   gContext.frame_arena = make_arena(false);
   gContext.misc_arena  = make_arena(true);
-
+  
   Arena *error_context_arena = make_arena(false);
   gContext.error_context     = error_context_init(error_context_arena);
   // Error context is put into scratch buffer, cleared every frame.

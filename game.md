@@ -40,3 +40,4 @@ inspo from plants vs zombies (jumping over fence etc)
 - Cartoony style
 - Hotline Miami
 - Plants vs. Zombies
+- humor
