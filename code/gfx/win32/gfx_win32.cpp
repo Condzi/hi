@@ -67,7 +67,7 @@ internal D3D11_INPUT_ELEMENT_DESC const INPUT_ELEMENT_LAYOUT_RECT[] = {
 };
 
 // pass initial settings
-void
+global void
 gfx_init(GFX_Opts const &opts) {
   ErrorContext("%ux%u px, vsync=%s"_s8, opts.vp_width, opts.vp_height, opts.vsync ? "on" : "off");
 
@@ -269,7 +269,7 @@ gfx_init(GFX_Opts const &opts) {
   ErrorIf(FAILED(hr), "Failed to create input layout. hr=0x%X"_s8, hr);
 }
 
-void
+global void
 gfx_resize(u32 new_width, u32 new_height) {
   ErrorContext("new_width=%u, new_height=%u"_s8, new_width, new_height);
 
@@ -293,7 +293,7 @@ gfx_resize(u32 new_width, u32 new_height) {
   ErrorIf(FAILED(hr), "Failed to recreate rtv for framebuffer. hr=0x%X."_s8, hr);
 }
 
-void
+global void
 gfx_swap_buffers() {
   ErrorContext("Swapchain stuff..."_s8);
   HRESULT hr = 0;
@@ -319,12 +319,12 @@ gfx_swap_buffers() {
   ErrorIf(FAILED(hr), "Call to Present failed. hr=0x%X"_s8, hr);
 }
 
-must_use GFX_Image
+must_use global GFX_Image
 gfx_make_empty_image() {
   return {};
 }
 
-must_use GFX_Image
+must_use global GFX_Image
 gfx_make_image(u8 *data, u32 width, u32 height) {
   ErrorContext("data=%s, width=%d, height=%d"_s8, data ? "yes" : "nope", (int)width, (int)height);
 
@@ -354,13 +354,13 @@ gfx_make_image(u8 *data, u32 width, u32 height) {
   return img;
 }
 
-void
+global void
 gfx_release_image(GFX_Image img) {
   ID3D11Texture2D *tex = (ID3D11Texture2D *)U64ToPtr(img.v[0]);
   tex->Release();
 }
 
-must_use GFX_Batch *
+must_use global GFX_Batch *
 gfx_make_batch(GFX_Material_Type material) {
   ErrorContext("material=%d"_s8, (int)material);
 
@@ -398,14 +398,14 @@ gfx_make_batch(GFX_Material_Type material) {
   return batch;
 }
 
-void
+global void
 gfx_release_batch(GFX_Batch *batch) {
   // Not implemented
   Unused(batch);
   InvalidPath;
 }
 
-void
+global void
 gfx_batch_push(GFX_Batch *batch, GFX_Object object) {
   if (!batch) {
     return;
@@ -423,8 +423,8 @@ gfx_batch_push(GFX_Batch *batch, GFX_Object object) {
   batch->objects.sz++;
 }
 
-void
-gfx_batch_draw(GFX_Batch *batch, GFX_Image& target) {
+global void
+gfx_batch_draw(GFX_Batch *batch, GFX_Image &target) {
   if (!batch) {
     return;
   }
@@ -465,6 +465,8 @@ gfx_batch_draw(GFX_Batch *batch, GFX_Image& target) {
 
   Scratch_Buffer scratch = scratch_begin(gContext.frame_arena);
 
+  // @ToDo: respect layering! Sort by layer somehow.
+  //
   GFX_Rect_Instance *instances =
       arena_alloc_array<GFX_Rect_Instance>(gContext.frame_arena, batch->objects.sz);
   for (u64 i = 0; i < batch->objects.sz; i++) {
@@ -515,7 +517,7 @@ gfx_batch_draw(GFX_Batch *batch, GFX_Image& target) {
   gD3d.deferred_context->RSSetViewports(1, &vp);
   gD3d.deferred_context->RSSetState(gD3d.rasterizer_state);
 
-  fvec4 clear_color = {1.0, 1.0, 1.0, 1.0};
+  fvec4 clear_color = {1.0, 1.0, 1.0, 0.0};
   gD3d.deferred_context->ClearRenderTargetView(rt_view, clear_color.v);
   gD3d.deferred_context->OMSetRenderTargets(1, &rt_view, 0);
 

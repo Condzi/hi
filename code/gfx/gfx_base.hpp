@@ -33,13 +33,13 @@ struct GFX_Image {
   u64 v[1] = {};
 };
 
-must_use GFX_Image
+must_use global GFX_Image
 gfx_make_empty_image();
 
-must_use GFX_Image
-gfx_make_image(u8* data, u32 width, u32 height);
+must_use global GFX_Image
+gfx_make_image(u8 *data, u32 width, u32 height);
 
-void
+global void
 gfx_release_image(GFX_Image img);
 
 struct GFX_Buffer {
@@ -119,16 +119,16 @@ struct GFX_Batch {
   } data;
 };
 
-must_use GFX_Batch*
+must_use global GFX_Batch*
 gfx_make_batch(GFX_Material_Type material);
 
-void
+global void
 gfx_release_batch(GFX_Batch* batch);
 
-void
+global void
 gfx_batch_push(GFX_Batch *batch, GFX_Object object);
 
-void
+global void
 gfx_batch_draw(GFX_Batch* batch, GFX_Image& target);
 
 // Post processing types
@@ -157,47 +157,4 @@ struct GFX_Fx {
     GFX_Post_Fx_Vignette_Opts vignette = {};
     GFX_Post_Fx_CRT_Opts      crt;
   } data;
-};
-
-// Render Graph
-//
-
-enum GFX_RG_Node_Type {
-  GFX_RG_NodeType_None,
-
-  // Batch of objects to render.
-  //
-  GFX_RG_NodeType_Batch,
-
-  // PostFX process to aply to some image.
-  //
-  GFX_RG_NodeType_PostFx,
-
-  // Combine two images together. Example: render two batches to separate images,
-  // then combine batch A with batch B images. B will be on top of A.
-  //
-  GFX_RG_NodeType_CombineImages,
-};
-
-struct GFX_RG_Node {
-  GFX_Image target;
-
-  GFX_RG_Node_Type type = GFX_RG_NodeType_None;
-  union {
-    struct {
-      GFX_Batch batch;
-    } batch = {};
-
-    struct {
-      GFX_Image src;
-      GFX_Fx    fx;
-    } post_fx;
-
-    struct {
-      // Assume a and b are the same size and type!
-      //
-      GFX_Image a;
-      GFX_Image b;
-    } combine_images;
-  } input;
 };

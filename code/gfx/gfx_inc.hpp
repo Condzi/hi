@@ -10,22 +10,23 @@ struct GFX_Opts {
   bool vsync;
 };
 
-void
+global void
 gfx_init(GFX_Opts const& opts);
 
-must_use bool
+must_use global bool
 gfx_is_vsync_enabled();
 
-void
+global void
 gfx_set_vsync(bool v);
 
-void
+global void
 gfx_resize(u32 new_width, u32 new_height);
 
-void
+global void
 gfx_swap_buffers();
 
 #include "gfx_base.hpp"
+#include "gfx_render_graph.hpp"
 
 #if OS_WINDOWS
 #include "win32/gfx_win32.hpp"
