@@ -1,5 +1,7 @@
 #pragma once
 
+global Arena *gfx_arena;
+
 struct GFX_Cmd_List {
   u64 v[1];
 };

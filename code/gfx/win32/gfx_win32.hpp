@@ -56,8 +56,6 @@ struct GFX_Rect_Instance {
   u32   col = 0;
 };
 
-global Arena *gfx_arena;
-
 // Helper functions.
 //
 

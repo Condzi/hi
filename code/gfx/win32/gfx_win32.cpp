@@ -523,3 +523,9 @@ gfx_batch_draw(GFX_Batch *batch, GFX_Image &target) {
 
   gD3d.deferred_context->DrawIndexedInstanced(6, (UINT)batch->objects.sz, 0, 0, 0);
 }
+
+internal void
+GFX_RG_execute_operations(GFX_RG_Operation const *operations, u32 count) {
+  Unused(operations);
+  Unused(count);
+}

@@ -63,10 +63,10 @@ read_only global u64 GFX_RG_MAX_CHILDREN = 4;
 
 struct GFX_RG_Node {
   GFX_RG_Operation op;
-  GFX_RG_Node     *parent[GFX_RG_MAX_PARENTS]    = {};
+  GFX_RG_Node     *parents[GFX_RG_MAX_PARENTS]    = {};
   GFX_RG_Node     *children[GFX_RG_MAX_CHILDREN] = {};
 
-  u32 parent_count   = 0;
+  u32 parents_count   = 0;
   u32 children_count = 0;
   // We have some 8 bit counter incremented every time we
   // start to traverse the graph. If the visit_cookie != counter,
@@ -88,7 +88,10 @@ must_use global GFX_Render_Graph *
 GFX_make_render_graph();
 
 must_use global GFX_RG_Node *
-GFX_RG_add_node(GFX_Render_Graph *rg, GFX_RG_Node *parent);
+GFX_RG_make_node(GFX_Render_Graph *rg);
+
+global void
+GFX_RG_attach_node_to_parent(GFX_RG_Node *parent, GFX_RG_Node *child);
 
 must_use global GFX_RG_Node *
 GFX_RG_add_root(GFX_Render_Graph *rg);
