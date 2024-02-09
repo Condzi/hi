@@ -43,6 +43,20 @@ main(int argc, char const *argv[]) {
   u32 const height = (u32)batch->viewport.sz.height;
   GFX_Image target = gfx_make_image(0, width, height);
 
+  GFX_Render_Graph *rg = gfx_make_render_graph();
+  GFX_RG_Node* root = gfx_rg_add_root(rg);
+  GFX_RG_Node* draw = gfx_rg_make_node(rg);
+
+  gfx_rg_attach_node_to_parent(root, draw);
+
+  root->op.type = GFX_RG_OpType_ClearRenderTargets;
+  root->op.input.clear.num_targets = 1;
+  root->op.input.clear.targets[0] = &target;
+
+  draw->op.type = GFX_RG_OpType_Batch;
+  draw->op.input.batch.batch = batch;
+  draw->op.out = target;
+
   u64 frame = 0;
   while (os_gfx_window_mode() != OS_WindowMode_Closed) {
     ErrorContext("frame=%zu"_s8, frame);
@@ -57,11 +71,7 @@ main(int argc, char const *argv[]) {
     gfx_batch_push(batch, obj);
     gfx_batch_push(batch, obj2);
 
-    gfx_batch_draw(batch, target);
-
-    // Copy batch to frame buffer
-    //
-    gD3d.deferred_context->CopyResource(gD3d.framebuffer, (ID3D11Resource*)target.v[0]);
+    gfx_rg_evaluate(rg);
 
     gfx_swap_buffers();
 

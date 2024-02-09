@@ -301,8 +301,6 @@ gfx_swap_buffers() {
   // Clear the state.
   //
   gD3d.immediate_context->ClearState();
-  fvec4 clear_color = {0.6f, 0.25f, 0.29f, 1.0f};
-  gD3d.immediate_context->ClearRenderTargetView(gD3d.framebuffer_rtv, clear_color.v);
 
   // Execute rendering commands
   //
@@ -425,9 +423,7 @@ gfx_batch_push(GFX_Batch *batch, GFX_Object object) {
 
 global void
 gfx_batch_draw(GFX_Batch *batch, GFX_Image target) {
-  if (!batch) {
-    return;
-  }
+  Assert(batch);
   Assert(target.v[0]);
   ErrorContext("material=%d, sz=%d"_s8, (int)batch->type, (int)batch->objects.sz);
 
@@ -486,7 +482,6 @@ gfx_batch_draw(GFX_Batch *batch, GFX_Image target) {
   UINT stride = sizeof(GFX_Rect_Instance);
   UINT offset = 0;
 
-  gD3d.deferred_context->OMSetBlendState(gD3d.blend_state, 0, 0xffffffff);
   gD3d.deferred_context->IASetVertexBuffers(0, 1, &instances_buffer, &stride, &offset);
   gD3d.deferred_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
   gD3d.deferred_context->IASetIndexBuffer(gD3d.index_buffer.rect, DXGI_FORMAT_R32_UINT, 0);
@@ -507,15 +502,14 @@ gfx_batch_draw(GFX_Batch *batch, GFX_Image target) {
   gD3d.deferred_context->RSSetViewports(1, &vp);
   gD3d.deferred_context->RSSetState(gD3d.rasterizer_state);
 
-  fvec4 clear_color = {1.0, 1.0, 1.0, 0.0};
-  gD3d.deferred_context->ClearRenderTargetView(rt_view, clear_color.v);
+  gD3d.deferred_context->OMSetBlendState(gD3d.blend_state, 0, 0xffffffff);
   gD3d.deferred_context->OMSetRenderTargets(1, &rt_view, 0);
 
   gD3d.deferred_context->DrawIndexedInstanced(6, (UINT)batch->objects.sz, 0, 0, 0);
 }
 
 internal void
-GFX_RG_execute_operations(GFX_RG_Operation *operations, u32 count) {
+gfx_rg_execute_operations(GFX_RG_Operation *operations, u32 count) {
   ErrorContext("count=%d"_s8, (int)count);
 
   for (u32 i = 0; i < count; i++) {
@@ -548,13 +542,13 @@ GFX_RG_execute_operations(GFX_RG_Operation *operations, u32 count) {
           ErrorIf(FAILED(hr), "Failed to create render target view. hr=0x%X."_s8, hr);
           Defer { rt_view->Release(); };
 
-          local_persist const fvec4 clear_color = {.r = 1.0, .g = 1.0, .b = 1.0, .a = 0.0};
+          local_persist const fvec4 clear_color = {.r = 0.25, .g = 1.0, .b = 1.0, .a = 1.0};
           gD3d.deferred_context->ClearRenderTargetView(rt_view, clear_color.v);
         }
       } break;
 
       case GFX_RG_OpType_Batch: {
-        gfx_batch_draw(&(op.input.batch.batch), op.out);
+        gfx_batch_draw(op.input.batch.batch, op.out);
       } break;
 
       case GFX_RG_OpType_PostFx: {
@@ -574,5 +568,5 @@ GFX_RG_execute_operations(GFX_RG_Operation *operations, u32 count) {
   //
   // @ToDo: should we just return it instead? So we can have multiple render graphs?
   GFX_Image graph_result = operations[count - 1].out;
-  gD3d.deferred_context->CopyResource(gD3d.framebuffer, (ID3D11Resource *)graph_result.v[0]);
+  gD3d.deferred_context->CopyResource(gD3d.framebuffer, (ID3D11Resource *)(graph_result.v[0]));
 }

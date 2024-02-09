@@ -32,7 +32,7 @@ struct GFX_RG_Operation {
     } clear = {};
 
     struct {
-      GFX_Batch batch;
+      GFX_Batch *batch;
     } batch;
 
     struct {
@@ -86,23 +86,23 @@ struct GFX_Render_Graph {
 };
 
 must_use global GFX_Render_Graph *
-GFX_make_render_graph();
+gfx_make_render_graph();
 
 must_use global GFX_RG_Node *
-GFX_RG_make_node(GFX_Render_Graph *rg);
+gfx_rg_make_node(GFX_Render_Graph *rg);
 
 global void
-GFX_RG_attach_node_to_parent(GFX_RG_Node *parent, GFX_RG_Node *child);
+gfx_rg_attach_node_to_parent(GFX_RG_Node *parent, GFX_RG_Node *child);
 
 must_use global GFX_RG_Node *
-GFX_RG_add_root(GFX_Render_Graph *rg);
+gfx_rg_add_root(GFX_Render_Graph *rg);
 
 // Traverse the render graph, make the list of operations and execute them.
 //
 global void
-GFX_RG_evaluate(GFX_Render_Graph *rg);
+gfx_rg_evaluate(GFX_Render_Graph *rg);
 
 // Implemented by the target backend.
 //
 internal void
-GFX_RG_execute_operations(GFX_RG_Operation *operations, u32 count);
+gfx_rg_execute_operations(GFX_RG_Operation *operations, u32 count);

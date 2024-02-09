@@ -2,13 +2,13 @@
 #include "all_inc.hpp"
 
 must_use global GFX_Render_Graph *
-GFX_make_render_graph() {
+gfx_make_render_graph() {
   GFX_Render_Graph *rg = arena_alloc<GFX_Render_Graph>(gfx_arena);
   return rg;
 }
 
 must_use global GFX_RG_Node *
-GFX_RG_make_node(GFX_Render_Graph *rg) {
+gfx_rg_make_node(GFX_Render_Graph *rg) {
   Assert(rg);
 
   rg->operations_count++;
@@ -17,7 +17,7 @@ GFX_RG_make_node(GFX_Render_Graph *rg) {
 }
 
 global void
-GFX_RG_attach_node_to_parent(GFX_RG_Node *parent, GFX_RG_Node *child) {
+gfx_rg_attach_node_to_parent(GFX_RG_Node *parent, GFX_RG_Node *child) {
   Assert(parent);
   Assert(child);
   Assert(parent->children_count + 1 != GFX_RG_MAX_CHILDREN);
@@ -30,11 +30,11 @@ GFX_RG_attach_node_to_parent(GFX_RG_Node *parent, GFX_RG_Node *child) {
 }
 
 must_use global GFX_RG_Node *
-GFX_RG_add_root(GFX_Render_Graph *rg) {
+gfx_rg_add_root(GFX_Render_Graph *rg) {
   Assert(rg);
   Assert(rg->roots_count + 1 != GFX_RG_MAX_ROOTS);
 
-  GFX_RG_Node *root          = GFX_RG_make_node(rg);
+  GFX_RG_Node *root          = gfx_rg_make_node(rg);
   rg->roots[rg->roots_count] = root;
   rg->roots_count++;
   return root;
@@ -59,6 +59,7 @@ gfx_dsf(GFX_RG_Node *node, u8 visit_cookie, GFX_RG_Operation *op_arr, u32 &op_ar
   }
 
   op_arr[op_arr_idx] = node->op;
+  op_arr_idx++;
 
   for (u32 i = 0; i < node->children_count; i++) {
     gfx_dsf(node->children[i], visit_cookie, op_arr, op_arr_idx);
@@ -66,7 +67,7 @@ gfx_dsf(GFX_RG_Node *node, u8 visit_cookie, GFX_RG_Operation *op_arr, u32 &op_ar
 }
 
 global void
-GFX_RG_evaluate(GFX_Render_Graph *rg) {
+gfx_rg_evaluate(GFX_Render_Graph *rg) {
   Assert(rg);
   ErrorContext("roots=%d, operations=%d, visit_counter=%d"_s8,
                (int)rg->roots_count,
@@ -87,5 +88,5 @@ GFX_RG_evaluate(GFX_Render_Graph *rg) {
     gfx_dsf(rg->roots[i], rg->visit_counter, op_arr, op_arr_idx);
   }
 
-  GFX_RG_execute_operations(op_arr, rg->operations_count);
+  gfx_rg_execute_operations(op_arr, rg->operations_count);
 }
