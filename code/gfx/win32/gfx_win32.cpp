@@ -291,6 +291,24 @@ gfx_init(GFX_Opts const &opts) {
     Defer { ps_blob->Release(); };
   }
 
+  // Create samplers
+  //
+
+  {
+    ErrorContext("Linear sampler"_s8);
+    ::D3D11_SAMPLER_DESC const desc = {
+        .Filter         = D3D11_FILTER_MIN_MAG_MIP_LINEAR, // Linear filtering
+        .AddressU       = D3D11_TEXTURE_ADDRESS_CLAMP,     // Clamp addressing mode
+        .AddressV       = D3D11_TEXTURE_ADDRESS_CLAMP,     // Clamp addressing mode
+        .AddressW       = D3D11_TEXTURE_ADDRESS_CLAMP,     // Clamp addressing mode
+        .ComparisonFunc = D3D11_COMPARISON_NEVER,
+        .MinLOD         = 0,
+        .MaxLOD         = D3D11_FLOAT32_MAX,
+    };
+
+    hr = gD3d.device->CreateSamplerState(&desc, &(gD3d.linear_sampler));
+    ErrorIf(FAILED(hr), "hr=0x%X"_s8, hr);
+  }
 }
 
 global void
@@ -582,8 +600,7 @@ gfx_rg_execute_operations(GFX_RG_Operation *operations, u32 count) {
       } break;
 
       case GFX_RG_OpType_CombineImages: {
-        // @ToDo: add combining images to render graph
-        //
+        gfx_combine_images(op.input.combine_images.a, op.input.combine_images.b, op.out);
       } break;
     }
   }
@@ -592,4 +609,75 @@ gfx_rg_execute_operations(GFX_RG_Operation *operations, u32 count) {
   //
   GFX_Image graph_result = operations[count - 1].out;
   return graph_result;
+}
+
+global void
+gfx_combine_images(GFX_Image a, GFX_Image b, GFX_Image target) {
+  ErrorContext("Combining stuff..."_s8);
+  ErrorIf(a.v[0], "Image A not set!"_s8);
+  ErrorIf(b.v[0], "Image B not set!"_s8);
+  ErrorIf(target.v[0], "Target not set!"_s8);
+
+  // Create render target view.
+  //
+  ID3D11Texture2D              *rt_texture = (ID3D11Texture2D *)U64ToPtr(target.v[0]);
+  ID3D11RenderTargetView       *rt_view    = 0;
+  D3D11_RENDER_TARGET_VIEW_DESC desc       = {
+            .Format        = DXGI_FORMAT_R8G8B8A8_UNORM, // Same as texture!
+            .ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D,
+            .Texture2D     = {.MipSlice = 0},
+  };
+
+  HRESULT hr = 0;
+  hr         = gD3d.device->CreateRenderTargetView(rt_texture, &desc, &rt_view);
+  ErrorIf(FAILED(hr), "Failed to create render target view. hr=0x%X."_s8, hr);
+  Defer { rt_view->Release(); };
+
+  // Create the SRVs for images a and b.
+  //
+  ID3D11Texture2D          *tex_a = (ID3D11Texture2D *)U64ToPtr(a.v[0]);
+  ID3D11Texture2D          *tex_b = (ID3D11Texture2D *)U64ToPtr(b.v[0]);
+  ID3D11ShaderResourceView *srv_a = 0;
+  ID3D11ShaderResourceView *srv_b = 0;
+
+  ::D3D11_SHADER_RESOURCE_VIEW_DESC const srv_desc = {
+      .Format        = DXGI_FORMAT_R8G8B8A8_UNORM,
+      .ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D,
+      .Texture2D     = {.MipLevels = 1},
+  };
+
+  hr = gD3d.device->CreateShaderResourceView(tex_a, &srv_desc, &srv_a);
+  ErrorIf(FAILED(hr), "Failed to create SRV for A. hr=0x%X."_s8, hr);
+  hr = gD3d.device->CreateShaderResourceView(tex_b, &srv_desc, &srv_b);
+  ErrorIf(FAILED(hr), "Failed to create SRV for B. hr=0x%X."_s8, hr);
+
+  Defer { srv_a->Release(); };
+  Defer { srv_b->Release(); };
+
+  gD3d.deferred_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+  gD3d.deferred_context->IASetIndexBuffer(gD3d.index_buffer.rect, DXGI_FORMAT_R32_UINT, 0);
+  gD3d.deferred_context->IASetInputLayout(gD3d.rect.input_layout);
+
+  gD3d.deferred_context->VSSetShader(gD3d.combine.vs, 0, 0);
+  gD3d.deferred_context->PSSetShader(gD3d.combine.ps, 0, 0);
+
+  gD3d.deferred_context->PSSetShaderResources(0, 1, &(srv_a));
+  gD3d.deferred_context->PSSetShaderResources(1, 1, &(srv_b));
+  gD3d.deferred_context->PSSetSamplers(0, 1, &(gD3d.linear_sampler));
+
+  // @Robustness: what should be the viewport here?
+  D3D11_VIEWPORT vp = {
+      .TopLeftX = 0,
+      .TopLeftY = 0,
+      .Width    = (f32)os_gfx_surface_width(),
+      .Height   = (f32)os_gfx_surface_height(),
+  };
+
+  gD3d.deferred_context->RSSetViewports(1, &vp);
+  gD3d.deferred_context->RSSetState(gD3d.rasterizer_state);
+
+  gD3d.deferred_context->OMSetBlendState(gD3d.blend_state, 0, 0xffffffff);
+  gD3d.deferred_context->OMSetRenderTargets(1, &rt_view, 0);
+
+  gD3d.deferred_context->DrawIndexed(6, 0, 0);
 }

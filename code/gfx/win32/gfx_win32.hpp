@@ -35,6 +35,7 @@ struct D3d {
 
   ID3D11BlendState      *blend_state;
   ID3D11RasterizerState *rasterizer_state;
+  ID3D11SamplerState    *linear_sampler;
 
   struct {
     ID3D11Buffer *rect;

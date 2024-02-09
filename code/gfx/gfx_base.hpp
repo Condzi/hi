@@ -158,3 +158,6 @@ struct GFX_Fx {
     GFX_Post_Fx_CRT_Opts      crt;
   } data;
 };
+
+global void 
+gfx_combine_images(GFX_Image a, GFX_Image b, GFX_Image target);
