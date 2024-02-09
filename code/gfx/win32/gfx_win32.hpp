@@ -22,6 +22,12 @@
 // DirectX 11 backend state
 //
 
+struct D3d_Common_Constants {
+  // Updated on window resize.
+  //
+  fmat4 projection;
+};
+
 struct D3d {
   IDXGIFactory6   *dxgi_factory;
   IDXGISwapChain1 *dxgi_swapchain;
@@ -51,6 +57,12 @@ struct D3d {
     ID3D11VertexShader *vs;
     ID3D11PixelShader  *ps;
   } combine;
+
+  struct {
+    D3d_Common_Constants data;
+    ID3D11Buffer        *buffer;
+  } common_constants;
+
 } global gD3d;
 
 struct GFX_Rect_Instance {

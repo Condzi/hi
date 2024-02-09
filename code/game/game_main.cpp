@@ -25,8 +25,8 @@ main(int argc, char const *argv[]) {
   gfx_init({.vp_width = os_gfx_surface_width(), .vp_height = os_gfx_surface_height()});
 
   GFX_Object obj = {
-      .pos = {0, 0},
-      .sz  = {0.25f, 0.25f},
+      .pos = {200, 200},
+      .sz  = {50.f, 50.f},
       .material =
           {
               .type = GFX_MaterialType_Rect,
@@ -93,8 +93,8 @@ main(int argc, char const *argv[]) {
     OS_Window_Event *events = os_gfx_event_pump(gContext.frame_arena);
     Unused(events);
 
-    obj.pos.x += 0.0001f;
-    obj2.pos.y += 0.0001f;
+    obj.pos.x += 0.5f;
+    obj2.pos.y += 0.5f;
     obj.material.rect.color.a += 1;
     obj2.material.rect.color.a += 1;
 

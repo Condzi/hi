@@ -300,7 +300,7 @@ gfx_init(GFX_Opts const &opts) {
 
   {
     ErrorContext("Linear sampler"_s8);
-    ::D3D11_SAMPLER_DESC const desc = {
+    D3D11_SAMPLER_DESC const desc = {
         .Filter         = D3D11_FILTER_MIN_MAG_MIP_LINEAR, // Linear filtering
         .AddressU       = D3D11_TEXTURE_ADDRESS_CLAMP,     // Clamp addressing mode
         .AddressV       = D3D11_TEXTURE_ADDRESS_CLAMP,     // Clamp addressing mode
@@ -312,6 +312,31 @@ gfx_init(GFX_Opts const &opts) {
 
     hr = gD3d.device->CreateSamplerState(&desc, &(gD3d.linear_sampler));
     ErrorIf(FAILED(hr), "hr=0x%X"_s8, hr);
+  }
+
+  {
+    ErrorContext("Create common constants buffer"_s8);
+
+    // Create common constants
+    //
+    gD3d.common_constants.data.projection =
+        ortho_proj((f32)os_gfx_surface_width(), (f32)os_gfx_surface_height());
+
+    // Upload common constants to GPU
+    //
+    ::D3D11_BUFFER_DESC desc = {
+        .ByteWidth      = sizeof(D3d_Common_Constants),
+        .Usage          = D3D11_USAGE_DYNAMIC,
+        .BindFlags      = D3D11_BIND_CONSTANT_BUFFER,
+        .CPUAccessFlags = D3D11_CPU_ACCESS_WRITE,
+    };
+
+    D3D11_SUBRESOURCE_DATA data = {
+        .pSysMem = &gD3d.common_constants.data,
+    };
+
+    hr = gD3d.device->CreateBuffer(&desc, &data, &(gD3d.common_constants.buffer));
+    ErrorIf(FAILED(hr), "CreateBuffer failed. hr=0x%X."_s8, hr);
   }
 }
 
@@ -337,6 +362,18 @@ gfx_resize(u32 new_width, u32 new_height) {
   ErrorIf(FAILED(hr), "Failed to reacquire the framebuffer. hr=0x%X."_s8, hr);
   hr = gD3d.device->CreateRenderTargetView(gD3d.framebuffer, 0, &gD3d.framebuffer_rtv);
   ErrorIf(FAILED(hr), "Failed to recreate rtv for framebuffer. hr=0x%X."_s8, hr);
+
+  // Update projection matrix
+  //
+  gD3d.common_constants.data.projection = ortho_proj((f32)new_width, (f32)new_height);
+
+  // Update common constants
+  //
+  ::D3D11_MAPPED_SUBRESOURCE mapped_consts;
+  gD3d.deferred_context->Map(
+      gD3d.common_constants.buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_consts);
+  MemoryCopy(mapped_consts.pData, &gD3d.common_constants.data, sizeof(D3d_Common_Constants));
+  gD3d.deferred_context->Unmap(gD3d.common_constants.buffer, 0);
 }
 
 global void
@@ -536,6 +573,8 @@ gfx_batch_draw(GFX_Batch *batch, GFX_Image target) {
   gD3d.deferred_context->IASetInputLayout(gD3d.rect.input_layout);
 
   gD3d.deferred_context->VSSetShader(gD3d.rect.vs, 0, 0);
+  gD3d.deferred_context->VSSetConstantBuffers(0, 1, &(gD3d.common_constants.buffer));
+
   gD3d.deferred_context->PSSetShader(gD3d.rect.ps, 0, 0);
 
   // @ToDo: Handle zoom and offsets!

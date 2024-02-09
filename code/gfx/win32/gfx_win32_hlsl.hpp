@@ -4,6 +4,14 @@
 //
 
 internal char const GFX_RECT_SHADER[] = R"(
+// Globals
+//
+
+cbuffer Globals : register(b0)
+{
+  float4x4 projection;
+};
+
 // Structures
 //
 
@@ -44,14 +52,17 @@ vs_main(Cpu2Vertex input) {
     case 3: pos = float2(1.0, 0.0); break; // Bottom-right
   }
 
+  // @ToDo: transform matrix here!
+  //  Rotate about center?
+  //
   pos *= input.scale;
   pos += input.pos;
 
-  // @ToDo: View, proj matrix here! Rotate about center?
+  // @ToDo: View matrix here!
   //
 
   Vertex2Pixel output;
-  output.pos = float4(pos, 0.0, 1.0);
+  output.pos = mul(projection, float4(pos, 0.0, 1.0));
   output.color = unpack_color(input.color);
   return output;
 }
