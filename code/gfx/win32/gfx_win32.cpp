@@ -558,6 +558,10 @@ gfx_make_batch(GFX_Material_Type material) {
     case GFX_MaterialType_Rect: {
       byte_width *= sizeof(GFX_Rect_Instance);
     } break;
+
+    case GFX_MaterialType_Sprite: {
+      byte_width *= sizeof(GFX_Sprite_Instance);
+    } break;
   }
 
   ID3D11Buffer     *instances = 0;
@@ -623,70 +627,151 @@ gfx_batch_draw(GFX_Batch *batch, GFX_Image target) {
   // Copy the instance data to the instance buffer of appropiate layout.
   //
 
-  // @ToDo: support for sprites too
-  Assert(batch->type == GFX_MaterialType_Rect);
+  Assert(batch->type == GFX_MaterialType_Rect || batch->type == GFX_MaterialType_Sprite);
 
   Scratch_Buffer scratch = scratch_begin(gContext.frame_arena);
+  Defer { scratch_end(&scratch); };
 
-  // @ToDo: respect layering! Sort by layer somehow.
-  //
-  GFX_Rect_Instance *instances =
-      arena_alloc_array<GFX_Rect_Instance>(gContext.frame_arena, batch->objects.sz);
-  for (u64 i = 0; i < batch->objects.sz; i++) {
-    GFX_Object const &object = batch->objects.v[i];
+  if (batch->type == GFX_MaterialType_Rect) {
+    // @ToDo: respect layering! Sort by layer somehow.
+    //
+    GFX_Rect_Instance *instances =
+        arena_alloc_array<GFX_Rect_Instance>(gContext.frame_arena, batch->objects.sz);
+    for (u64 i = 0; i < batch->objects.sz; i++) {
+      GFX_Object const &object = batch->objects.v[i];
 
-    instances[i] = {
-        .pos   = object.pos,
-        .scale = object.sz,
-        .col   = object.material.rect.color.v,
-        .rot   = object.rot,
+      instances[i] = {
+          .pos   = object.pos,
+          .scale = object.sz,
+          .col   = object.material.rect.color.v,
+          .rot   = object.rot,
+      };
+    }
+
+    // Map the memory to GPU
+    //
+
+    D3D11_MAPPED_SUBRESOURCE mapped_instances;
+    ID3D11Buffer            *instances_buffer = (ID3D11Buffer *)U64ToPtr(batch->instances.v[0]);
+    gD3d.deferred_context->Map(instances_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_instances);
+    MemoryCopy(mapped_instances.pData, instances, sizeof(GFX_Rect_Instance) * batch->objects.sz);
+    gD3d.deferred_context->Unmap(instances_buffer, 0);
+
+    // Draw the batch.
+    //
+
+    UINT stride = sizeof(GFX_Rect_Instance);
+    UINT offset = 0;
+
+    gD3d.deferred_context->ClearState();
+    gD3d.deferred_context->IASetVertexBuffers(0, 1, &instances_buffer, &stride, &offset);
+    gD3d.deferred_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    gD3d.deferred_context->IASetIndexBuffer(gD3d.index_buffer.rect, DXGI_FORMAT_R32_UINT, 0);
+    gD3d.deferred_context->IASetInputLayout(gD3d.rect.input_layout);
+
+    gD3d.deferred_context->VSSetShader(gD3d.rect.vs, 0, 0);
+    gD3d.deferred_context->VSSetConstantBuffers(0, 1, &(gD3d.common_constants.buffer));
+
+    gD3d.deferred_context->PSSetShader(gD3d.rect.ps, 0, 0);
+
+    // @ToDo: Handle zoom and offsets!
+    //
+    D3D11_VIEWPORT vp = {
+        .TopLeftX = 0,
+        .TopLeftY = 0,
+        .Width    = batch->viewport.sz.width,
+        .Height   = batch->viewport.sz.height,
     };
+
+    gD3d.deferred_context->RSSetViewports(1, &vp);
+    gD3d.deferred_context->RSSetState(gD3d.rasterizer_state);
+
+    gD3d.deferred_context->OMSetBlendState(gD3d.blend_state, 0, 0xffffffff);
+    gD3d.deferred_context->OMSetRenderTargets(1, &rt_view, 0);
+
+    gD3d.deferred_context->DrawIndexedInstanced(6, (UINT)batch->objects.sz, 0, 0, 0);
+  } else if (batch->type == GFX_MaterialType_Sprite) {
+    // @ToDo: respect layering! Sort by layer somehow.
+    //
+    GFX_Sprite_Instance *instances =
+        arena_alloc_array<GFX_Sprite_Instance>(gContext.frame_arena, batch->objects.sz);
+    for (u64 i = 0; i < batch->objects.sz; i++) {
+      GFX_Object const &object = batch->objects.v[i];
+
+      instances[i] = {
+          .pos   = object.pos,
+          .scale = object.sz,
+          .tex_coords =
+              {
+                  .x = (f32)object.material.sprite.tex_coords.x,
+                  .y = (f32)object.material.sprite.tex_coords.y,
+                  .z = (f32)object.material.sprite.tex_coords.w,
+                  .w = (f32)object.material.sprite.tex_coords.h,
+              },
+          .color = object.material.sprite.color.v,
+          .rot   = object.rot,
+      };
+    }
+
+    // Map the memory to GPU
+    //
+
+    D3D11_MAPPED_SUBRESOURCE mapped_instances;
+    ID3D11Buffer            *instances_buffer = (ID3D11Buffer *)U64ToPtr(batch->instances.v[0]);
+    gD3d.deferred_context->Map(instances_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_instances);
+    MemoryCopy(mapped_instances.pData, instances, sizeof(GFX_Sprite_Instance) * batch->objects.sz);
+    gD3d.deferred_context->Unmap(instances_buffer, 0);
+
+    // Create the SRV for the source image
+    //
+    ErrorIf(!batch->data.sprite.texture.v[0], "Source image not set!"_s8);
+    ID3D11Texture2D          *tex = (ID3D11Texture2D *)U64ToPtr(batch->data.sprite.texture.v[0]);
+    ID3D11ShaderResourceView *srv = 0;
+
+    ::D3D11_SHADER_RESOURCE_VIEW_DESC const srv_desc = {
+        .Format        = DXGI_FORMAT_R8G8B8A8_UNORM,
+        .ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D,
+        .Texture2D     = {.MipLevels = 1},
+    };
+
+    hr = gD3d.device->CreateShaderResourceView(tex, &srv_desc, &srv);
+    ErrorIf(FAILED(hr), "Failed to create SRV for A. hr=0x%X."_s8, hr);
+
+    // Draw the batch.
+    //
+
+    UINT stride = sizeof(GFX_Sprite_Instance);
+    UINT offset = 0;
+
+    gD3d.deferred_context->ClearState();
+    gD3d.deferred_context->IASetVertexBuffers(0, 1, &instances_buffer, &stride, &offset);
+    gD3d.deferred_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    gD3d.deferred_context->IASetIndexBuffer(gD3d.index_buffer.rect, DXGI_FORMAT_R32_UINT, 0);
+    gD3d.deferred_context->IASetInputLayout(gD3d.sprite.input_layout);
+
+    gD3d.deferred_context->VSSetShader(gD3d.sprite.vs, 0, 0);
+    gD3d.deferred_context->VSSetConstantBuffers(0, 1, &(gD3d.common_constants.buffer));
+
+    gD3d.deferred_context->PSSetShaderResources(0, 1, &srv);
+    gD3d.deferred_context->PSSetShader(gD3d.sprite.ps, 0, 0);
+
+    // @ToDo: Handle zoom and offsets!
+    //
+    D3D11_VIEWPORT vp = {
+        .TopLeftX = 0,
+        .TopLeftY = 0,
+        .Width    = batch->viewport.sz.width,
+        .Height   = batch->viewport.sz.height,
+    };
+
+    gD3d.deferred_context->RSSetViewports(1, &vp);
+    gD3d.deferred_context->RSSetState(gD3d.rasterizer_state);
+
+    gD3d.deferred_context->OMSetBlendState(gD3d.blend_state, 0, 0xffffffff);
+    gD3d.deferred_context->OMSetRenderTargets(1, &rt_view, 0);
+
+    gD3d.deferred_context->DrawIndexedInstanced(6, (UINT)batch->objects.sz, 0, 0, 0);
   }
-
-  // Map the memory to GPU
-  //
-
-  D3D11_MAPPED_SUBRESOURCE mapped_instances;
-  ID3D11Buffer            *instances_buffer = (ID3D11Buffer *)U64ToPtr(batch->instances.v[0]);
-  gD3d.deferred_context->Map(instances_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_instances);
-  MemoryCopy(mapped_instances.pData, instances, sizeof(GFX_Rect_Instance) * batch->objects.sz);
-  gD3d.deferred_context->Unmap(instances_buffer, 0);
-
-  scratch_end(&scratch);
-
-  // Draw the batch.
-  //
-
-  UINT stride = sizeof(GFX_Rect_Instance);
-  UINT offset = 0;
-
-  gD3d.deferred_context->ClearState();
-  gD3d.deferred_context->IASetVertexBuffers(0, 1, &instances_buffer, &stride, &offset);
-  gD3d.deferred_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-  gD3d.deferred_context->IASetIndexBuffer(gD3d.index_buffer.rect, DXGI_FORMAT_R32_UINT, 0);
-  gD3d.deferred_context->IASetInputLayout(gD3d.rect.input_layout);
-
-  gD3d.deferred_context->VSSetShader(gD3d.rect.vs, 0, 0);
-  gD3d.deferred_context->VSSetConstantBuffers(0, 1, &(gD3d.common_constants.buffer));
-
-  gD3d.deferred_context->PSSetShader(gD3d.rect.ps, 0, 0);
-
-  // @ToDo: Handle zoom and offsets!
-  //
-  D3D11_VIEWPORT vp = {
-      .TopLeftX = 0,
-      .TopLeftY = 0,
-      .Width    = batch->viewport.sz.width,
-      .Height   = batch->viewport.sz.height,
-  };
-
-  gD3d.deferred_context->RSSetViewports(1, &vp);
-  gD3d.deferred_context->RSSetState(gD3d.rasterizer_state);
-
-  gD3d.deferred_context->OMSetBlendState(gD3d.blend_state, 0, 0xffffffff);
-  gD3d.deferred_context->OMSetRenderTargets(1, &rt_view, 0);
-
-  gD3d.deferred_context->DrawIndexedInstanced(6, (UINT)batch->objects.sz, 0, 0, 0);
 }
 
 must_use internal GFX_Image
