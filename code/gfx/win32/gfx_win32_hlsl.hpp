@@ -136,28 +136,20 @@ Vertex2Pixel
 vs_main(Cpu2Vertex input) {
   // Determine the local vertex position based on the vertexID
   float2 pos;
-  switch (input.vertex_id % 4) {
-    case 0: pos = float2(0.0, 1.0); break; // Top-left
-    case 1: pos = float2(0.0, 0.0); break; // Bottom-left
-    case 2: pos = float2(1.0, 1.0); break; // Top-right
-    case 3: pos = float2(1.0, 0.0); break; // Bottom-right
-  }
-
   float2 uv;
-  uint id = input.vertex_id;
-  uv = float2(id & 2, (((id | (id >> 1)) & 1) ^ 1) << 1);
+  switch (input.vertex_id % 4) {
+    case 0: pos = float2(0.0, 1.0); uv = float2(0,0); break; // Top-left
+    case 1: pos = float2(0.0, 0.0); uv = float2(0,1); break; // Bottom-left
+    case 2: pos = float2(1.0, 1.0); uv = float2(1,0); break; // Top-right
+    case 3: pos = float2(1.0, 0.0); uv = float2(1,1); break; // Bottom-right
+  }
 
   float tex_w, tex_h;
   tex.GetDimensions(tex_w, tex_h);
-  float4 tex_rect_x = input.tex_rect.x;
-  float4 tex_rect_y = input.tex_rect.y;
-  float4 tex_rect_w = input.tex_rect.z;
-  float4 tex_rect_h = input.tex_rect.w;
-
-  tex_rect_x /= tex_w;
-  tex_rect_w /= tex_w;
-  tex_rect_y /= tex_h;
-  tex_rect_h /= tex_h;
+  float tex_rect_x = input.tex_rect.x / tex_w;
+  float tex_rect_y = input.tex_rect.y / tex_h;
+  float tex_rect_w = input.tex_rect.z / tex_w;
+  float tex_rect_h = input.tex_rect.w / tex_h;
 
   // Scale
   uv.x *= tex_rect_w;
@@ -172,6 +164,7 @@ vs_main(Cpu2Vertex input) {
   //
 
   pos *= input.scale;
+  
   float s = sin(input.rot);
   float c = cos(input.rot);
   float2 rotated_pos = float2(
