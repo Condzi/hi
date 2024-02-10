@@ -140,8 +140,6 @@ enum GFX_Post_Fx_Type {
 
   GFX_PostFXType_Blur,
   GFX_PostFXType_Vignette,
-  GFX_PostFxType_VHS,
-  GFX_PostFxType_CRT,
 
   GFX_PostFxType__count,
 };

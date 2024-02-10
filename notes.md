@@ -98,18 +98,6 @@
     We need textures and noise:
     https://www.youtube.com/watch?v=wvK6MNlmCCE
 
-### Render Graphs / Commands queues
-
-- Resource creation and gpu commands should be separate?
-- How to keep track of resources, exactly?
-- We can have multiple queues. In the end, they are combined into one queue.
-- Each command is identified and sorted by ID.
-
-### Misc notes
-
-- SRV are read only, UAV are read/write but a bit more expensive
-- there need to be different levels of the api, from low (resource creation) to high (render graph???)
-
 ## Key Bindings
 
     Checks input events and updates the binding status accordingly.
