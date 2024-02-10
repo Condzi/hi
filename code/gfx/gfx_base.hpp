@@ -19,7 +19,7 @@ union GFX_Color {
   };
 };
 
-struct GFX_Tex_Coords {
+struct GFX_Tex_Rect {
   u16 x = {};
   u16 y = {};
   u16 w = {};
@@ -83,8 +83,8 @@ struct GFX_Material {
       GFX_Color color;
     } rect = {};
     struct {
-      GFX_Tex_Coords tex_coords;
-      GFX_Color      color;
+      GFX_Tex_Rect tex_rect;
+      GFX_Color    color;
     } sprite;
   };
 };

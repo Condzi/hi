@@ -42,31 +42,26 @@ main(int argc, char const *argv[]) {
   u32 const  width   = (u32)batch_a->viewport.sz.width;
   u32 const  height  = (u32)batch_a->viewport.sz.height;
 
-  GFX_Image background   = gfx_make_image(gfx_checkerboard(8, 16, 16), 16 * 8, 16 * 8);
   GFX_Image target_a     = gfx_make_image(0, width, height);
   GFX_Image target_b     = gfx_make_image(0, width, height);
   GFX_Image target_ab    = gfx_make_image(0, width, height);
-  GFX_Image target_final = gfx_make_image(0, width, height);
 
   GFX_Render_Graph *rg            = gfx_make_render_graph();
-  GFX_RG_Node      *root          = gfx_rg_add_root(rg);
+  GFX_RG_Node      *root_1          = gfx_rg_add_root(rg);
   GFX_RG_Node      *draw_a        = gfx_rg_make_node(rg);
   GFX_RG_Node      *draw_b        = gfx_rg_make_node(rg);
   GFX_RG_Node      *combine_ab    = gfx_rg_make_node(rg);
-  GFX_RG_Node      *combine_ab_bg = gfx_rg_make_node(rg);
 
-  gfx_rg_attach_node_to_parent(root, draw_a);
-  gfx_rg_attach_node_to_parent(root, draw_b);
+  gfx_rg_attach_node_to_parent(root_1, draw_a);
+  gfx_rg_attach_node_to_parent(root_1, draw_b);
   gfx_rg_attach_node_to_parent(draw_a, combine_ab);
   gfx_rg_attach_node_to_parent(draw_b, combine_ab);
-  gfx_rg_attach_node_to_parent(combine_ab, combine_ab_bg);
 
-  root->op.type = GFX_RG_OpType_ClearRenderTargets;
-  root->op.input.clear.num_targets = 4;
-  root->op.input.clear.targets[0]  = &target_a;
-  root->op.input.clear.targets[1]  = &target_b;
-  root->op.input.clear.targets[2]  = &target_ab;
-  root->op.input.clear.targets[3]  = &target_final;
+  root_1->op.type                    = GFX_RG_OpType_ClearRenderTargets;
+  root_1->op.input.clear.num_targets = 3;
+  root_1->op.input.clear.targets[0]  = &target_a;
+  root_1->op.input.clear.targets[1]  = &target_b;
+  root_1->op.input.clear.targets[2]  = &target_ab;
 
   draw_a->op.type              = GFX_RG_OpType_Batch;
   draw_a->op.input.batch.batch = batch_a;
@@ -81,10 +76,48 @@ main(int argc, char const *argv[]) {
   combine_ab->op.input.combine_images.b = target_a;
   combine_ab->op.out                    = target_ab;
 
+  GFX_Object bg_obj = {
+      .pos = {(f32)width / 2, (f32)height / 2},
+      .sz  = {200.f, 200.f},
+      .material =
+          {
+              .type = GFX_MaterialType_Sprite,
+              .sprite =
+                  {
+                      .tex_rect = {.x = 0, .y = 0, .w = (u16)width, .h = (u16)height},
+                      .color    = {.v = 0xFFFFFFFF},
+                  },
+          },
+  };
+
+  GFX_Image bg_img       = gfx_make_image(gfx_checkerboard(64, 16, 16), 16 * 64, 16 * 64);
+  GFX_Image target_bg    = gfx_make_image(0, width, height);
+  GFX_Image target_ab_bg = gfx_make_image(0, width, height);
+
+  GFX_Batch *batch_bg           = gfx_make_batch(GFX_MaterialType_Sprite);
+  batch_bg->data.sprite.texture = bg_img;
+
+  GFX_RG_Node *root_2        = gfx_rg_add_root(rg);
+  GFX_RG_Node *draw_bg       = gfx_rg_make_node(rg);
+  GFX_RG_Node *combine_ab_bg = gfx_rg_make_node(rg);
+
+  gfx_rg_attach_node_to_parent(root_2, draw_bg);
+  gfx_rg_attach_node_to_parent(draw_bg, combine_ab_bg);
+  gfx_rg_attach_node_to_parent(combine_ab, combine_ab_bg);
+
+  root_2->op.type                    = GFX_RG_OpType_ClearRenderTargets;
+  root_2->op.input.clear.num_targets = 2;
+  root_2->op.input.clear.targets[0]  = &target_bg;
+  root_2->op.input.clear.targets[1]  = &target_ab_bg;
+
+  draw_bg->op.type              = GFX_RG_OpType_Batch;
+  draw_bg->op.input.batch.batch = batch_bg;
+  draw_bg->op.out               = target_bg;
+
   combine_ab_bg->op.type                   = GFX_RG_OpType_CombineImages;
-  combine_ab_bg->op.input.combine_images.a = background;
+  combine_ab_bg->op.input.combine_images.a = target_bg;
   combine_ab_bg->op.input.combine_images.b = target_ab;
-  combine_ab_bg->op.out                    = target_final;
+  combine_ab_bg->op.out                    = target_ab_bg;
 
   u64 frame = 0;
   while (os_gfx_window_mode() != OS_WindowMode_Closed) {
@@ -101,6 +134,7 @@ main(int argc, char const *argv[]) {
 
     gfx_batch_push(batch_a, obj);
     gfx_batch_push(batch_b, obj2);
+    gfx_batch_push(batch_bg, bg_obj);
 
     GFX_Image graph_result = gfx_rg_evaluate(rg);
     gD3d.deferred_context->CopyResource(gD3d.framebuffer, (ID3D11Resource *)(graph_result.v[0]));
@@ -111,6 +145,7 @@ main(int argc, char const *argv[]) {
     //
     batch_a->objects.sz = 0;
     batch_b->objects.sz = 0;
+    batch_bg->objects.sz = 0;
 
     arena_clear(gContext.frame_arena);
 

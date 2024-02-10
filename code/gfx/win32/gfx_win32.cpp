@@ -703,10 +703,10 @@ gfx_batch_draw(GFX_Batch *batch, GFX_Image target) {
           .scale = object.sz,
           .tex_coords =
               {
-                  .x = (f32)object.material.sprite.tex_coords.x,
-                  .y = (f32)object.material.sprite.tex_coords.y,
-                  .z = (f32)object.material.sprite.tex_coords.w,
-                  .w = (f32)object.material.sprite.tex_coords.h,
+                  .x = (f32)object.material.sprite.tex_rect.x,
+                  .y = (f32)object.material.sprite.tex_rect.y,
+                  .z = (f32)object.material.sprite.tex_rect.w,
+                  .w = (f32)object.material.sprite.tex_rect.h,
               },
           .color = object.material.sprite.color.v,
           .rot   = object.rot,
@@ -735,6 +735,7 @@ gfx_batch_draw(GFX_Batch *batch, GFX_Image target) {
     };
 
     hr = gD3d.device->CreateShaderResourceView(tex, &srv_desc, &srv);
+    Defer{srv->Release();};
     ErrorIf(FAILED(hr), "Failed to create SRV for A. hr=0x%X."_s8, hr);
 
     // Draw the batch.
@@ -749,11 +750,13 @@ gfx_batch_draw(GFX_Batch *batch, GFX_Image target) {
     gD3d.deferred_context->IASetIndexBuffer(gD3d.index_buffer.rect, DXGI_FORMAT_R32_UINT, 0);
     gD3d.deferred_context->IASetInputLayout(gD3d.sprite.input_layout);
 
+    gD3d.deferred_context->VSSetShaderResources(0, 1, &srv);
     gD3d.deferred_context->VSSetShader(gD3d.sprite.vs, 0, 0);
     gD3d.deferred_context->VSSetConstantBuffers(0, 1, &(gD3d.common_constants.buffer));
 
     gD3d.deferred_context->PSSetShaderResources(0, 1, &srv);
     gD3d.deferred_context->PSSetShader(gD3d.sprite.ps, 0, 0);
+    gD3d.deferred_context->PSSetSamplers(0, 1, &(gD3d.linear_sampler));
 
     // @ToDo: Handle zoom and offsets!
     //

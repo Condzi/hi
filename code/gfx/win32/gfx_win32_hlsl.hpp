@@ -125,8 +125,8 @@ unpack_color(uint pack)
     return color;
 }
 
-Texture2D    tex : register(t0);
-SamplerState splr  : register(s0);
+Texture2D    tex  : register(t0);
+SamplerState splr : register(s0);
 
 
 // Vertex Shader
@@ -149,19 +149,23 @@ vs_main(Cpu2Vertex input) {
 
   float tex_w, tex_h;
   tex.GetDimensions(tex_w, tex_h);
-  float4 tex_rect = input.tex_rect;
-  tex_rect.x /= tex_w;
-  tex_rect.z /= tex_w;
-  tex_rect.y /= tex_h;
-  tex_rect.w /= tex_h;
+  float4 tex_rect_x = input.tex_rect.x;
+  float4 tex_rect_y = input.tex_rect.y;
+  float4 tex_rect_w = input.tex_rect.z;
+  float4 tex_rect_h = input.tex_rect.w;
+
+  tex_rect_x /= tex_w;
+  tex_rect_w /= tex_w;
+  tex_rect_y /= tex_h;
+  tex_rect_h /= tex_h;
 
   // Scale
-  uv.x *= tex_rect.z;
-  uv.y *= tex_rect.w;
+  uv.x *= tex_rect_w;
+  uv.y *= tex_rect_h;
 
   // Translate
-  uv.x += tex_rect.x;
-  uv.y += tex_rect.y;
+  uv.x += tex_rect_x;
+  uv.y += tex_rect_y;
 
 
   // Apply rotation about the center
