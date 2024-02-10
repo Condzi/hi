@@ -56,15 +56,25 @@ vs_main(Cpu2Vertex input) {
   // Apply rotation about the center
   //
 
+ // Assuming pos is initially the center of the rectangle pre-transformation.
   pos *= input.scale;
+
+  // Calculate sine and cosine for rotation
   float s = sin(input.rot);
   float c = cos(input.rot);
-  float2 rotated_pos = float2(
+
+  // Rotate the rectangle's center position
+  float2 rotated_center_pos = float2(
     (pos.x - 0.5*input.scale.x) * c - (pos.y - 0.5*input.scale.y) * s,
     (pos.x - 0.5*input.scale.x) * s + (pos.y - 0.5*input.scale.y) * c
   );
 
-  pos = rotated_pos + input.pos;
+  // Translate so that the rotated rectangle's center now aligns with input.pos.
+  // To position the top-left at input.pos, we calculate the adjustment required from the rotated center.
+  float2 adjustment_to_top_left = float2(0.5*input.scale.x, -0.5*input.scale.y);
+
+  // Calculate the correct translation, integrating both the rotation and adjustment
+  pos = rotated_center_pos + adjustment_to_top_left + input.pos;
 
   // @ToDo: View matrix here!
   //
@@ -163,16 +173,25 @@ vs_main(Cpu2Vertex input) {
   // Apply rotation about the center
   //
 
+  // Assuming pos is initially the center of the rectangle pre-transformation.
   pos *= input.scale;
-  
+
+  // Calculate sine and cosine for rotation
   float s = sin(input.rot);
   float c = cos(input.rot);
-  float2 rotated_pos = float2(
+
+  // Rotate the rectangle's center position
+  float2 rotated_center_pos = float2(
     (pos.x - 0.5*input.scale.x) * c - (pos.y - 0.5*input.scale.y) * s,
     (pos.x - 0.5*input.scale.x) * s + (pos.y - 0.5*input.scale.y) * c
   );
 
-  pos = rotated_pos + input.pos;
+  // Translate so that the rotated rectangle's center now aligns with input.pos.
+  // To position the top-left at input.pos, we calculate the adjustment required from the rotated center.
+  float2 adjustment_to_top_left = float2(0.5*input.scale.x, -0.5*input.scale.y);
+
+  // Calculate the correct translation, integrating both the rotation and adjustment
+  pos = rotated_center_pos + adjustment_to_top_left + input.pos;
 
   // @ToDo: View matrix here!
   //

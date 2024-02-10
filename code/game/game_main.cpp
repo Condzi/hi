@@ -77,8 +77,8 @@ main(int argc, char const *argv[]) {
   combine_ab->op.out                    = target_ab;
 
   GFX_Object bg_obj = {
-      .pos = {(f32)width / 2, (f32)height / 2},
-      .sz  = {200.f, 200.f},
+      .pos = {0, (f32)height},
+      .sz  = {(f32)width, (f32)height},
       .material =
           {
               .type = GFX_MaterialType_Sprite,
