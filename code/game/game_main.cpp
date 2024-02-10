@@ -90,7 +90,9 @@ main(int argc, char const *argv[]) {
           },
   };
 
-  GFX_Image bg_img       = gfx_make_image(gfx_checkerboard(64, 16, 16), 16 * 64, 16 * 64);
+
+  // GFX_Image bg_img       = gfx_make_image(gfx_checkerboard(64, 16, 16), 16 * 64, 16 * 64);
+  GFX_Image bg_img       = load_png("W:/hi/run_tree/tex/characters.png"_s8);
   GFX_Image target_bg    = gfx_make_image(0, width, height);
   GFX_Image target_ab_bg = gfx_make_image(0, width, height);
 

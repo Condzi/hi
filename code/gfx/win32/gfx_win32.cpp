@@ -1,6 +1,10 @@
 #pragma once
 #include "all_inc.hpp"
-#include <d3d11.h>
+
+#define STB_IMAGE_IMPLEMENTATION
+#define STBI_ONLY_PNG
+//#define STBI_ASSERT(x) ErrorIf(!(x), "Error in STBI"_s8)
+#include <stb/stb_image.h>
 
 must_use internal HRESULT
 compile_shader(Str8       src,
@@ -32,6 +36,23 @@ compile_shader(Str8       src,
   }
 
   return hr;
+}
+
+must_use GFX_Image
+load_png(Str8 src) {
+  ErrorContext("src=%s"_s8, src.v);
+
+  stbi_set_flip_vertically_on_load(1);
+  int x        = 0;
+  int y        = 0;
+  int ch       = 0;
+  // @ToDo: use own functions for file loading
+  //
+  u8 *img_data = stbi_load((char const *)src.v, &x, &y, &ch, 4);
+  Defer { stbi_image_free(img_data); };
+
+  GFX_Image result = gfx_make_image(img_data, (u32)x, (u32)y);
+  return result;
 }
 
 // Input Element Tables

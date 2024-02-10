@@ -96,3 +96,6 @@ compile_shader(Str8       src,
                Str8       entry_point, // vs_main, ps_main
                Str8       profile,     // vs_5_0, ps_5_0
                ID3DBlob **blob);
+
+must_use GFX_Image
+load_png(Str8 src);
