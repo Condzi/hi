@@ -357,3 +357,67 @@ ps_main(Vertex2Pixel input) : SV_TARGET {
     return float4(color);
 }
 )";
+
+internal char const GFX_VIGNETTE_SHADER[] = R"(
+// Structures
+//
+
+struct Cpu2Vertex {
+  uint vertex_id : SV_VertexID;
+};
+
+struct Vertex2Pixel {
+  float4 pos : SV_POSITION;
+  float2 uv  : TEXCOORD0;
+};
+
+// Vertex Shader
+//
+
+Vertex2Pixel
+vs_main(Cpu2Vertex input) {
+  float4 pos;
+  float2 uv;
+  uint id = input.vertex_id;
+
+  // https://github.com/medranSolus/ZenithEngine/blob/master/Engine/Shader/VS/FullscreenVS.hlsl
+  //
+  uv = float2(id & 2, (((id | (id >> 1)) & 1) ^ 1) << 1);
+	const float2 offset = uv * 2.0f;
+	pos = float4(-1.0f + offset.x, 1.0f - offset.y, 0.0f, 1.0f);
+
+  Vertex2Pixel output;
+  output.pos = pos;
+  output.uv  = uv;
+  return output;
+}
+
+// Pixel Shader
+//
+
+// Globals
+//
+
+Texture2D      tex : register(t0);
+SamplerState splr  : register(s0);
+
+cbuffer Globals : register(b0)
+{
+  // width, height, time, quality
+  float4 globals_packed;
+};
+
+float4 
+ps_main(Vertex2Pixel input) : SV_TARGET {
+    // Misc constants
+    //
+    const float2 cUv = input.uv;
+
+    float vignette = cUv.x * cUv.y * ( 1.0 - cUv.x ) * ( 1.0 - cUv.y );
+    vignette = clamp( pow( 16.0 * vignette, 0.2 ), 0.0, 1.0 );
+
+    float4 color = tex.Sample(splr, cUv);
+    color *= vignette;
+    return color;
+}
+)";

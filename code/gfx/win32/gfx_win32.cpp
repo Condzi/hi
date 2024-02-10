@@ -433,6 +433,31 @@ gfx_init(GFX_Opts const &opts) {
     Defer { ps_blob->Release(); };
   }
 
+  {
+    ErrorContext("Compiling GFX_VIGNETTE_SHADER"_s8);
+    hr = compile_shader(str8_cstr(GFX_VIGNETTE_SHADER), "vs_main"_s8, "vs_5_0"_s8, &vs_blob);
+
+    ErrorIf(FAILED(hr),
+            "Failed to compile vertex shader: %s"_s8,
+            (char const *)vs_blob->GetBufferPointer());
+
+    hr = compile_shader(str8_cstr(GFX_VIGNETTE_SHADER), "ps_main"_s8, "ps_5_0"_s8, &ps_blob);
+
+    ErrorIf(FAILED(hr),
+            "Failed to compile pixel shader: %s"_s8,
+            (char const *)ps_blob->GetBufferPointer());
+
+    hr = gD3d.device->CreateVertexShader(
+        vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), 0, &(gD3d.post_fx.vignette.vs));
+    ErrorIf(FAILED(hr), "Failed to create vertex shader. hr=0x%X"_s8, hr);
+    Defer { vs_blob->Release(); };
+
+    hr = gD3d.device->CreatePixelShader(
+        ps_blob->GetBufferPointer(), ps_blob->GetBufferSize(), 0, &(gD3d.post_fx.vignette.ps));
+    ErrorIf(FAILED(hr), "Failed to create pixel shader. hr=0x%X"_s8, hr);
+    Defer { ps_blob->Release(); };
+  }
+
   // Create samplers
   //
 
@@ -1055,7 +1080,12 @@ gfx_apply_post_fx(GFX_Fx fx, GFX_Image src, GFX_Image target) {
     case GFX_PostFXType_Blur: {
       gD3d.deferred_context->VSSetShader(gD3d.post_fx.blur.vs, 0, 0);
       gD3d.deferred_context->PSSetShader(gD3d.post_fx.blur.ps, 0, 0);
-    }
+    } break;
+
+    case GFX_PostFXType_Vignette: {
+      gD3d.deferred_context->VSSetShader(gD3d.post_fx.vignette.vs, 0, 0);
+      gD3d.deferred_context->PSSetShader(gD3d.post_fx.vignette.ps, 0, 0);
+    } break;
   }
 
   gD3d.deferred_context->PSSetConstantBuffers(0, 1, &(gD3d.post_fx_constants.buffer));

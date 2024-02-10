@@ -117,6 +117,7 @@ main(int argc, char const *argv[]) {
   GFX_Image bg_img       = gfx_checkerboard_image(64, 16, 16);
   GFX_Image target_bg    = gfx_make_image(0, width, height);
   GFX_Image target_ab_bg = gfx_make_image(0, width, height);
+  GFX_Image target_vignette = gfx_make_image(0, width, height);
 
   GFX_Batch *batch_bg           = gfx_make_batch(GFX_MaterialType_Sprite);
   batch_bg->data.sprite.texture = bg_img;
@@ -124,15 +125,18 @@ main(int argc, char const *argv[]) {
   GFX_RG_Node *root_2        = gfx_rg_add_root(rg);
   GFX_RG_Node *draw_bg       = gfx_rg_make_node(rg);
   GFX_RG_Node *combine_ab_bg = gfx_rg_make_node(rg);
+  GFX_RG_Node *vignette      = gfx_rg_make_node(rg);
 
   gfx_rg_attach_node_to_parent(root_2, draw_bg);
   gfx_rg_attach_node_to_parent(draw_bg, combine_ab_bg);
   gfx_rg_attach_node_to_parent(combine_ab, combine_ab_bg);
+  gfx_rg_attach_node_to_parent(combine_ab_bg, vignette);
 
   root_2->op.type                    = GFX_RG_OpType_ClearRenderTargets;
-  root_2->op.input.clear.num_targets = 2;
+  root_2->op.input.clear.num_targets = 3;
   root_2->op.input.clear.targets[0]  = &target_bg;
   root_2->op.input.clear.targets[1]  = &target_ab_bg;
+  root_2->op.input.clear.targets[2]  = &target_vignette;
 
   draw_bg->op.type              = GFX_RG_OpType_Batch;
   draw_bg->op.input.batch.batch = batch_bg;
@@ -142,6 +146,11 @@ main(int argc, char const *argv[]) {
   combine_ab_bg->op.input.combine_images.a = target_bg;
   combine_ab_bg->op.input.combine_images.b = target_ab;
   combine_ab_bg->op.out                    = target_ab_bg;
+
+  vignette->op.type                  = GFX_RG_OpType_PostFx;
+  vignette->op.input.post_fx.fx.type = GFX_PostFXType_Vignette;
+  vignette->op.input.post_fx.src     = target_ab_bg;
+  vignette->op.out                   = target_vignette;
 
   u64 frame = 0;
   while (os_gfx_window_mode() != OS_WindowMode_Closed) {

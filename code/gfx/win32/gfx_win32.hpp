@@ -92,6 +92,11 @@ struct D3d {
       ID3D11VertexShader *vs;
       ID3D11PixelShader  *ps;
     } blur;
+
+    struct {
+      ID3D11VertexShader *vs;
+      ID3D11PixelShader  *ps;
+    } vignette;
   } post_fx;
 
 } global gD3d;
