@@ -36,23 +36,23 @@ struct GFX_RG_Operation {
     } batch;
 
     struct {
-      GFX_Image src;
+      GFX_Image* src;
       GFX_Fx    fx;
     } post_fx;
 
     struct {
       // Assume a and b are the same size and type!
       //
-      GFX_Image a;
-      GFX_Image b;
+      GFX_Image* a;
+      GFX_Image* b;
     } combine_images;
 
     struct {
-      GFX_Image src;
+      GFX_Image* src;
     } framebuffer;
   } input;
 
-  GFX_Image out;
+  GFX_Image* out;
 };
 
 // Random values for now. I think it should be enough.

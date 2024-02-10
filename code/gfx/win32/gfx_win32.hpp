@@ -34,6 +34,11 @@ struct D3d_Post_Fx_Constants {
   f32   quality = 0;
 };
 
+struct D3d_Image_Node {
+  D3d_Image_Node *next;
+  GFX_Image      *img;
+};
+
 struct D3d {
   IDXGIFactory6   *dxgi_factory;
   IDXGISwapChain1 *dxgi_swapchain;
@@ -99,6 +104,7 @@ struct D3d {
     } vignette;
   } post_fx;
 
+  D3d_Image_Node *fb_images;
 } global gD3d;
 
 struct GFX_Rect_Instance {

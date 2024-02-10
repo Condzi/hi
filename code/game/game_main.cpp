@@ -62,6 +62,11 @@ main(int argc, char const *argv[]) {
   GFX_Image target_b     = gfx_make_image(0, width, height);
   GFX_Image target_ab    = gfx_make_image(0, width, height);
 
+  gfx_resize_image_with_framebuffer(&target_a);
+  gfx_resize_image_with_framebuffer(&target_a_blurred);
+  gfx_resize_image_with_framebuffer(&target_b);
+  gfx_resize_image_with_framebuffer(&target_ab);
+
   GFX_Render_Graph *rg            = gfx_make_render_graph();
   GFX_RG_Node      *root_1        = gfx_rg_add_root(rg);
   GFX_RG_Node      *draw_a        = gfx_rg_make_node(rg);
@@ -84,21 +89,21 @@ main(int argc, char const *argv[]) {
 
   draw_a->op.type              = GFX_RG_OpType_Batch;
   draw_a->op.input.batch.batch = batch_a;
-  draw_a->op.out               = target_a;
+  draw_a->op.out               = &target_a;
 
   blur_a->op.type                  = GFX_RG_OpType_PostFx;
   blur_a->op.input.post_fx.fx.type = GFX_PostFXType_Blur;
-  blur_a->op.input.post_fx.src     = target_a;
-  blur_a->op.out                   = target_a_blurred;
+  blur_a->op.input.post_fx.src     = &target_a;
+  blur_a->op.out                   = &target_a_blurred;
 
   draw_b->op.type              = GFX_RG_OpType_Batch;
   draw_b->op.input.batch.batch = batch_b;
-  draw_b->op.out               = target_b;
+  draw_b->op.out               = &target_b;
 
   combine_ab->op.type                   = GFX_RG_OpType_CombineImages;
-  combine_ab->op.input.combine_images.a = target_b;
-  combine_ab->op.input.combine_images.b = target_a_blurred;
-  combine_ab->op.out                    = target_ab;
+  combine_ab->op.input.combine_images.a = &target_b;
+  combine_ab->op.input.combine_images.b = &target_a_blurred;
+  combine_ab->op.out                    = &target_ab;
 
   GFX_Object bg_obj = {
       .pos = {0, (f32)height},
@@ -118,6 +123,11 @@ main(int argc, char const *argv[]) {
   GFX_Image target_bg    = gfx_make_image(0, width, height);
   GFX_Image target_ab_bg = gfx_make_image(0, width, height);
   GFX_Image target_vignette = gfx_make_image(0, width, height);
+
+  gfx_resize_image_with_framebuffer(&target_bg);
+  gfx_resize_image_with_framebuffer(&target_ab_bg);
+  gfx_resize_image_with_framebuffer(&target_vignette);
+
 
   GFX_Batch *batch_bg           = gfx_make_batch(GFX_MaterialType_Sprite);
   batch_bg->data.sprite.texture = bg_img;
@@ -140,17 +150,17 @@ main(int argc, char const *argv[]) {
 
   draw_bg->op.type              = GFX_RG_OpType_Batch;
   draw_bg->op.input.batch.batch = batch_bg;
-  draw_bg->op.out               = target_bg;
+  draw_bg->op.out               = &target_bg;
 
   combine_ab_bg->op.type                   = GFX_RG_OpType_CombineImages;
-  combine_ab_bg->op.input.combine_images.a = target_bg;
-  combine_ab_bg->op.input.combine_images.b = target_ab;
-  combine_ab_bg->op.out                    = target_ab_bg;
+  combine_ab_bg->op.input.combine_images.a = &target_bg;
+  combine_ab_bg->op.input.combine_images.b = &target_ab;
+  combine_ab_bg->op.out                    = &target_ab_bg;
 
   vignette->op.type                  = GFX_RG_OpType_PostFx;
   vignette->op.input.post_fx.fx.type = GFX_PostFXType_Vignette;
-  vignette->op.input.post_fx.src     = target_ab_bg;
-  vignette->op.out                   = target_vignette;
+  vignette->op.input.post_fx.src     = &target_ab_bg;
+  vignette->op.out                   = &target_vignette;
 
   u64 frame = 0;
   while (os_gfx_window_mode() != OS_WindowMode_Closed) {

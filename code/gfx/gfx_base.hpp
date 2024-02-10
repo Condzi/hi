@@ -157,3 +157,6 @@ gfx_checkerboard_image(u32 square_size, u32 width_squares, u32 height_squares);
 
 global void
 gfx_apply_post_fx(GFX_Fx fx, GFX_Image src, GFX_Image target);
+
+global void
+gfx_resize_image_with_framebuffer(GFX_Image* img);

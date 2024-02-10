@@ -2,10 +2,6 @@
 
 global Arena *gfx_arena;
 
-struct GFX_Cmd_List {
-  u64 v[1];
-};
-
 struct GFX_Opts {
   u32  vp_width;
   u32  vp_height;

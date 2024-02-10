@@ -6,6 +6,13 @@
 //#define STBI_ASSERT(x) ErrorIf(!(x), "Error in STBI"_s8)
 #include <stb/stb_image.h>
 
+global void
+gfx_resize_image_with_framebuffer(GFX_Image *img) {
+  D3d_Image_Node *new_node = arena_alloc<D3d_Image_Node>(gfx_arena);
+  new_node->img            = img;
+  SLL_insert(gD3d.fb_images, new_node);
+}
+
 must_use internal HRESULT
 compile_shader(Str8       src,
                Str8       entry_point, // vs_main, ps_main
@@ -570,6 +577,40 @@ gfx_resize(u32 new_width, u32 new_height) {
       gD3d.common_constants.buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_consts);
   MemoryCopy(mapped_consts.pData, &gD3d.common_constants.data, sizeof(D3d_Common_Constants));
   gD3d.deferred_context->Unmap(gD3d.common_constants.buffer, 0);
+
+  // Update textures that are the size of framebuffer
+  //
+  for (D3d_Image_Node *it = gD3d.fb_images; it; it = it->next) {
+    ID3D11Texture2D *old_tex = (ID3D11Texture2D *)U64ToPtr(it->img->v[0]);
+
+    D3D11_TEXTURE2D_DESC desc;
+    old_tex->GetDesc(&desc);
+
+    // We need this for copying the old texture into new one.
+    //
+    u32 const old_width  = desc.Width;
+    u32 const old_height = desc.Height;
+
+    desc.Width  = new_width;
+    desc.Height = new_height;
+
+    // Create the new texture
+    ID3D11Texture2D *new_tex = 0; // The new texture
+    hr                       = gD3d.device->CreateTexture2D(&desc, 0, &new_tex);
+    ErrorIf(FAILED(hr), "Failed to recreate some texture!"_s8);
+
+    // Copy the old texture into the new one (do we need it?)
+    //
+    D3D11_BOX region = {
+        .right  = Min(new_width, old_width),
+        .bottom = Min(new_height, old_height),
+        .back   = 1,
+    };
+    gD3d.deferred_context->CopySubresourceRegion(new_tex, 0, 0, 0, 0, old_tex, 0, &region);
+
+    old_tex->Release();
+    it->img->v[0] = PtrToU64(new_tex);
+  }
 }
 
 global void
@@ -779,11 +820,11 @@ gfx_batch_draw(GFX_Batch *batch, GFX_Image target) {
 
     // @ToDo: Handle zoom and offsets!
     //
+    D3D11_TEXTURE2D_DESC rt_desc;
+    rt_texture->GetDesc(&rt_desc);
     D3D11_VIEWPORT vp = {
-        .TopLeftX = 0,
-        .TopLeftY = 0,
-        .Width    = batch->viewport.sz.width,
-        .Height   = batch->viewport.sz.height,
+        .Width  = (f32)rt_desc.Width,
+        .Height = (f32)rt_desc.Height,
     };
 
     gD3d.deferred_context->RSSetViewports(1, &vp);
@@ -863,11 +904,11 @@ gfx_batch_draw(GFX_Batch *batch, GFX_Image target) {
 
     // @ToDo: Handle zoom and offsets!
     //
+    D3D11_TEXTURE2D_DESC rt_desc;
+    rt_texture->GetDesc(&rt_desc);
     D3D11_VIEWPORT vp = {
-        .TopLeftX = 0,
-        .TopLeftY = 0,
-        .Width    = batch->viewport.sz.width,
-        .Height   = batch->viewport.sz.height,
+        .Width  = (f32)rt_desc.Width,
+        .Height = (f32)rt_desc.Height,
     };
 
     gD3d.deferred_context->RSSetViewports(1, &vp);
@@ -920,22 +961,22 @@ gfx_rg_execute_operations(GFX_RG_Operation *operations, u32 count) {
       } break;
 
       case GFX_RG_OpType_Batch: {
-        gfx_batch_draw(op.input.batch.batch, op.out);
+        gfx_batch_draw(op.input.batch.batch, *op.out);
       } break;
 
       case GFX_RG_OpType_PostFx: {
-        gfx_apply_post_fx(op.input.post_fx.fx, op.input.post_fx.src, op.out);
+        gfx_apply_post_fx(op.input.post_fx.fx, *op.input.post_fx.src, *op.out);
       } break;
 
       case GFX_RG_OpType_CombineImages: {
-        gfx_combine_images(op.input.combine_images.a, op.input.combine_images.b, op.out);
+        gfx_combine_images(*op.input.combine_images.a, *op.input.combine_images.b, *op.out);
       } break;
     }
   }
 
   // Assuming that last operation result is the final image to render.
   //
-  GFX_Image graph_result = operations[count - 1].out;
+  GFX_Image graph_result = *operations[count - 1].out;
   return graph_result;
 }
 
@@ -996,11 +1037,11 @@ gfx_combine_images(GFX_Image a, GFX_Image b, GFX_Image target) {
   gD3d.deferred_context->PSSetSamplers(0, 1, &(gD3d.linear_sampler));
 
   // @Robustness: what should be the viewport here?
+  D3D11_TEXTURE2D_DESC rt_desc;
+  rt_texture->GetDesc(&rt_desc);
   D3D11_VIEWPORT vp = {
-      .TopLeftX = 0,
-      .TopLeftY = 0,
-      .Width    = (f32)os_gfx_surface_width(),
-      .Height   = (f32)os_gfx_surface_height(),
+      .Width  = (f32)rt_desc.Width,
+      .Height = (f32)rt_desc.Height,
   };
 
   gD3d.deferred_context->RSSetViewports(1, &vp);
@@ -1094,11 +1135,11 @@ gfx_apply_post_fx(GFX_Fx fx, GFX_Image src, GFX_Image target) {
   gD3d.deferred_context->PSSetSamplers(0, 1, &(gD3d.linear_sampler));
 
   // @Robustness: what should be the viewport here?
+  D3D11_TEXTURE2D_DESC rt_desc;
+  rt_texture->GetDesc(&rt_desc);
   D3D11_VIEWPORT vp = {
-      .TopLeftX = 0,
-      .TopLeftY = 0,
-      .Width    = (f32)os_gfx_surface_width(),
-      .Height   = (f32)os_gfx_surface_height(),
+      .Width  = (f32)rt_desc.Width,
+      .Height = (f32)rt_desc.Height,
   };
 
   gD3d.deferred_context->RSSetViewports(1, &vp);
