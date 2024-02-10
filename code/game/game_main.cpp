@@ -58,29 +58,38 @@ main(int argc, char const *argv[]) {
   u32 const  height  = (u32)batch_a->viewport.sz.height;
 
   GFX_Image target_a     = gfx_make_image(0, width, height);
+  GFX_Image target_a_blurred = gfx_make_image(0, width, height);
   GFX_Image target_b     = gfx_make_image(0, width, height);
   GFX_Image target_ab    = gfx_make_image(0, width, height);
 
   GFX_Render_Graph *rg            = gfx_make_render_graph();
   GFX_RG_Node      *root_1        = gfx_rg_add_root(rg);
   GFX_RG_Node      *draw_a        = gfx_rg_make_node(rg);
+  GFX_RG_Node      *blur_a        = gfx_rg_make_node(rg);
   GFX_RG_Node      *draw_b        = gfx_rg_make_node(rg);
   GFX_RG_Node      *combine_ab    = gfx_rg_make_node(rg);
 
   gfx_rg_attach_node_to_parent(root_1, draw_a);
   gfx_rg_attach_node_to_parent(root_1, draw_b);
-  gfx_rg_attach_node_to_parent(draw_a, combine_ab);
+  gfx_rg_attach_node_to_parent(draw_a, blur_a);
+  gfx_rg_attach_node_to_parent(blur_a, combine_ab);
   gfx_rg_attach_node_to_parent(draw_b, combine_ab);
 
   root_1->op.type                    = GFX_RG_OpType_ClearRenderTargets;
-  root_1->op.input.clear.num_targets = 3;
+  root_1->op.input.clear.num_targets = 4;
   root_1->op.input.clear.targets[0]  = &target_a;
   root_1->op.input.clear.targets[1]  = &target_b;
   root_1->op.input.clear.targets[2]  = &target_ab;
+  root_1->op.input.clear.targets[3]  = &target_a_blurred;
 
   draw_a->op.type              = GFX_RG_OpType_Batch;
   draw_a->op.input.batch.batch = batch_a;
   draw_a->op.out               = target_a;
+
+  blur_a->op.type                  = GFX_RG_OpType_PostFx;
+  blur_a->op.input.post_fx.fx.type = GFX_PostFXType_Blur;
+  blur_a->op.input.post_fx.src     = target_a;
+  blur_a->op.out                   = target_a_blurred;
 
   draw_b->op.type              = GFX_RG_OpType_Batch;
   draw_b->op.input.batch.batch = batch_b;
@@ -88,7 +97,7 @@ main(int argc, char const *argv[]) {
 
   combine_ab->op.type                   = GFX_RG_OpType_CombineImages;
   combine_ab->op.input.combine_images.a = target_b;
-  combine_ab->op.input.combine_images.b = target_a;
+  combine_ab->op.input.combine_images.b = target_a_blurred;
   combine_ab->op.out                    = target_ab;
 
   GFX_Object bg_obj = {

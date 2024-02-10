@@ -333,7 +333,7 @@ ps_main(Vertex2Pixel input) : SV_TARGET {
     // GAUSSIAN BLUR SETTINGS {{{
     const float cDirections = 16.0; // BLUR DIRECTIONS (Default 16.0 - More is better but slower)
     const float cQuality    = 4.0;  // BLUR QUALITY (Default 4.0 - More is better but slower)
-    const float cSize       = 1.2;  // BLUR SIZE (Radius)
+    const float cSize       = 10.0;  // BLUR SIZE (Radius)
     // GAUSSIAN BLUR SETTINGS }}}
        
     // Blur constants
@@ -345,15 +345,15 @@ ps_main(Vertex2Pixel input) : SV_TARGET {
 
     // Blur calculation
     //
-    float3 color = tex.Sample(splr, cUv).rgb;
+    float4 color = tex.Sample(splr, cUv).rgba;
     for (float d=0.0; d < cTwo_Pi; d += cDirStep) {
       const float2 cUvOffset = float2(cos(d), sin(d)) * cRadius;
       for (float i = 1.0/cQuality; i < 1.001; i += cQualityStep) {
-        color += tex.Sample(splr, cUv + cUvOffset*i).rgba; // Why not .rgb?
+        color += tex.Sample(splr, cUv + cUvOffset*i).rgba; 
       }
     }
     
     color /= cQuality*cDirections + 1.0;
-    return float4(color, 1.0);
+    return float4(color);
 }
 )";

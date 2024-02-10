@@ -1058,6 +1058,7 @@ gfx_apply_post_fx(GFX_Fx fx, GFX_Image src, GFX_Image target) {
     }
   }
 
+  gD3d.deferred_context->PSSetConstantBuffers(0, 1, &(gD3d.post_fx_constants.buffer));
   gD3d.deferred_context->PSSetShaderResources(0, 1, &srv);
 
   gD3d.deferred_context->PSSetSamplers(0, 1, &(gD3d.linear_sampler));
