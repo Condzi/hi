@@ -147,7 +147,7 @@ enum GFX_Post_Fx_Type {
 
 struct GFX_Fx {
   GFX_Post_Fx_Type type = {};
-  f32              strength;
+  f32              strength = 0;
 };
 
 global void
@@ -155,3 +155,6 @@ gfx_combine_images(GFX_Image a, GFX_Image b, GFX_Image target);
 
 must_use global GFX_Image
 gfx_checkerboard_image(u32 square_size, u32 width_squares, u32 height_squares);
+
+global void
+gfx_apply_post_fx(GFX_Fx fx, GFX_Image src, GFX_Image target);

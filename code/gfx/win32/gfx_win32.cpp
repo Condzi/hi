@@ -899,9 +899,7 @@ gfx_rg_execute_operations(GFX_RG_Operation *operations, u32 count) {
       } break;
 
       case GFX_RG_OpType_PostFx: {
-        // @ToDo: add postfx to render graph
-        //
-        InvalidPath;
+        gfx_apply_post_fx(op.input.post_fx.fx, op.input.post_fx.src, op.out);
       } break;
 
       case GFX_RG_OpType_CombineImages: {
@@ -984,6 +982,97 @@ gfx_combine_images(GFX_Image a, GFX_Image b, GFX_Image target) {
   gD3d.deferred_context->RSSetState(gD3d.rasterizer_state);
 
   // gD3d.deferred_context->OMSetBlendState(gD3d.blend_state, 0, 0xffffffff);
+  gD3d.deferred_context->OMSetRenderTargets(1, &rt_view, 0);
+
+  gD3d.deferred_context->DrawIndexed(6, 0, 0);
+}
+
+void
+gfx_apply_post_fx(GFX_Fx fx, GFX_Image src, GFX_Image target) {
+  ErrorContext("fx.type = %d"_s8, (int)fx.type);
+  ErrorIf(!src.v[0], "Src not set!"_s8);
+  ErrorIf(!target.v[0], "Target not set!"_s8);
+
+  // Create render target view.
+  //
+  ID3D11Texture2D              *rt_texture = (ID3D11Texture2D *)U64ToPtr(target.v[0]);
+  ID3D11RenderTargetView       *rt_view    = 0;
+  D3D11_RENDER_TARGET_VIEW_DESC desc       = {
+            .Format        = DXGI_FORMAT_R8G8B8A8_UNORM, // Same as texture!
+            .ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D,
+            .Texture2D     = {.MipSlice = 0},
+  };
+
+  HRESULT hr = 0;
+  hr         = gD3d.device->CreateRenderTargetView(rt_texture, &desc, &rt_view);
+  ErrorIf(FAILED(hr), "Failed to create render target view. hr=0x%X."_s8, hr);
+  Defer { rt_view->Release(); };
+
+  // Create the SRVs for images a and b.
+  //
+  ID3D11Texture2D          *tex = (ID3D11Texture2D *)U64ToPtr(src.v[0]);
+  ID3D11ShaderResourceView *srv = 0;
+
+  ::D3D11_SHADER_RESOURCE_VIEW_DESC const srv_desc = {
+      .Format        = DXGI_FORMAT_R8G8B8A8_UNORM,
+      .ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D,
+      .Texture2D     = {.MipLevels = 1},
+  };
+
+  hr = gD3d.device->CreateShaderResourceView(tex, &srv_desc, &srv);
+  ErrorIf(FAILED(hr), "Failed to create SRV. hr=0x%X."_s8, hr);
+  Defer { srv->Release(); };
+
+  // Update Post FX constants
+  //
+  gD3d.post_fx_constants.data = {
+      .resolution =
+          {
+              .width  = (f32)os_gfx_surface_width(), // @ToDo: this should be the src texture size?
+              .height = (f32)os_gfx_surface_height(),
+          },
+      .time    = os_seconds_since_startup(),
+      .quality = fx.strength,
+  };
+  ::D3D11_MAPPED_SUBRESOURCE mapped_consts;
+  gD3d.deferred_context->Map(
+      gD3d.post_fx_constants.buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_consts);
+  MemoryCopy(mapped_consts.pData, &gD3d.post_fx_constants.data, sizeof(D3d_Post_Fx_Constants));
+  gD3d.deferred_context->Unmap(gD3d.post_fx_constants.buffer, 0);
+
+  gD3d.deferred_context->ClearState();
+  gD3d.deferred_context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+  gD3d.deferred_context->IASetIndexBuffer(gD3d.index_buffer.rect, DXGI_FORMAT_R32_UINT, 0);
+  gD3d.deferred_context->IASetInputLayout(0);
+
+  // Bind correct shaders
+  //
+
+  switch (fx.type) {
+    default: {
+      InvalidPath;
+    } break;
+    case GFX_PostFXType_Blur: {
+      gD3d.deferred_context->VSSetShader(gD3d.post_fx.blur.vs, 0, 0);
+      gD3d.deferred_context->PSSetShader(gD3d.post_fx.blur.ps, 0, 0);
+    }
+  }
+
+  gD3d.deferred_context->PSSetShaderResources(0, 1, &srv);
+
+  gD3d.deferred_context->PSSetSamplers(0, 1, &(gD3d.linear_sampler));
+
+  // @Robustness: what should be the viewport here?
+  D3D11_VIEWPORT vp = {
+      .TopLeftX = 0,
+      .TopLeftY = 0,
+      .Width    = (f32)os_gfx_surface_width(),
+      .Height   = (f32)os_gfx_surface_height(),
+  };
+
+  gD3d.deferred_context->RSSetViewports(1, &vp);
+  gD3d.deferred_context->RSSetState(gD3d.rasterizer_state);
+
   gD3d.deferred_context->OMSetRenderTargets(1, &rt_view, 0);
 
   gD3d.deferred_context->DrawIndexed(6, 0, 0);

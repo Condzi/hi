@@ -32,7 +32,8 @@
     "--clang-tidy",
     "--background-index",
     "--background-index-priority=low",
-    "-j=4"
+    "-j=4",
+    "--pch-storage=memory"
   ],
   "clangd.checkUpdates": true,
 }
