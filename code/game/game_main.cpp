@@ -26,6 +26,20 @@ main(int argc, char const *argv[]) {
 
   GFX_Object obj = {
       .pos = {200, 200},
+      .sz  = fvec2 {54.f, 43.f} * 3,
+      .material =
+          {
+              .type = GFX_MaterialType_Sprite,
+              .sprite =
+                  {
+                      .tex_rect = {.x = 263, .y = 132, .w = 49, .h = 43},
+                      .color    = {.v = 0xFFFFFFFF},
+                  },
+          },
+  };
+
+  GFX_Object obj2 = {
+      .pos = {200, 200},
       .sz  = {50.f, 50.f},
       .material =
           {
@@ -34,10 +48,11 @@ main(int argc, char const *argv[]) {
           },
   };
 
-  GFX_Object obj2 = obj;
-  obj2.material.rect.color.v = 0x00FF00FF;
+  GFX_Image characters_img = load_png("W:/hi/run_tree/tex/characters.png"_s8);
 
-  GFX_Batch *batch_a = gfx_make_batch(GFX_MaterialType_Rect);
+  GFX_Batch *batch_a           = gfx_make_batch(GFX_MaterialType_Sprite);
+  batch_a->data.sprite.texture = characters_img;
+
   GFX_Batch *batch_b = gfx_make_batch(GFX_MaterialType_Rect);
   u32 const  width   = (u32)batch_a->viewport.sz.width;
   u32 const  height  = (u32)batch_a->viewport.sz.height;
@@ -47,7 +62,7 @@ main(int argc, char const *argv[]) {
   GFX_Image target_ab    = gfx_make_image(0, width, height);
 
   GFX_Render_Graph *rg            = gfx_make_render_graph();
-  GFX_RG_Node      *root_1          = gfx_rg_add_root(rg);
+  GFX_RG_Node      *root_1        = gfx_rg_add_root(rg);
   GFX_RG_Node      *draw_a        = gfx_rg_make_node(rg);
   GFX_RG_Node      *draw_b        = gfx_rg_make_node(rg);
   GFX_RG_Node      *combine_ab    = gfx_rg_make_node(rg);
@@ -90,9 +105,7 @@ main(int argc, char const *argv[]) {
           },
   };
 
-
-  // GFX_Image bg_img       = gfx_make_image(gfx_checkerboard(64, 16, 16), 16 * 64, 16 * 64);
-  GFX_Image bg_img       = load_png("W:/hi/run_tree/tex/characters.png"_s8);
+  GFX_Image bg_img       = gfx_checkerboard_image(64, 16, 16);
   GFX_Image target_bg    = gfx_make_image(0, width, height);
   GFX_Image target_ab_bg = gfx_make_image(0, width, height);
 
@@ -127,12 +140,12 @@ main(int argc, char const *argv[]) {
     OS_Window_Event *events = os_gfx_event_pump(gContext.frame_arena);
     Unused(events);
 
-    obj.pos.x += 0.5f;
+    //obj.pos.x += 0.5f;
     obj2.pos.y += 0.5f;
-    //obj.material.rect.color.a += 1;
-    //obj2.material.rect.color.a += 1;
-    obj.rot -= 0.1f;
-    obj2.rot += 0.1f;
+    // obj.material.rect.color.a += 1;
+    // obj2.material.rect.color.a += 1;
+    obj.rot -= 0.01f;
+    obj2.rot += 0.01f;
 
     gfx_batch_push(batch_a, obj);
     gfx_batch_push(batch_b, obj2);

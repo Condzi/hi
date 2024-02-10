@@ -4,8 +4,8 @@
 read_only internal u32 GFX_CHK_LIGHT = 0xFFC3C3C3;
 read_only internal u32 GFX_CHK_DARK  = 0xFF7F7F7F;
 
-must_use global u8 *
-gfx_checkerboard(u32 square_size, u32 width_squares, u32 height_squares) {
+must_use global GFX_Image
+gfx_checkerboard_image(u32 square_size, u32 width_squares, u32 height_squares) {
   u32 const width_px  = width_squares * square_size;
   u32 const height_px = height_squares * square_size;
   u32      *tex       = arena_alloc_array<u32>(gContext.frame_arena, (u64)width_px * height_px);
@@ -18,5 +18,5 @@ gfx_checkerboard(u32 square_size, u32 width_squares, u32 height_squares) {
     }
   }
 
-  return (u8 *)tex;
+  return gfx_make_image((u8*)tex, width_px, height_px);
 }

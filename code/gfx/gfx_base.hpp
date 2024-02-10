@@ -163,5 +163,5 @@ struct GFX_Fx {
 global void
 gfx_combine_images(GFX_Image a, GFX_Image b, GFX_Image target);
 
-must_use global u8*
-gfx_checkerboard(u32 square_size, u32 width_squares, u32 height_squares);
+must_use global GFX_Image
+gfx_checkerboard_image(u32 square_size, u32 width_squares, u32 height_squares);

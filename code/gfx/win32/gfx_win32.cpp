@@ -42,7 +42,7 @@ must_use GFX_Image
 load_png(Str8 src) {
   ErrorContext("src=%s"_s8, src.v);
 
-  stbi_set_flip_vertically_on_load(1);
+  stbi_set_flip_vertically_on_load(0);
   int x        = 0;
   int y        = 0;
   int ch       = 0;
