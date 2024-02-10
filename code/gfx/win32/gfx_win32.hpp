@@ -28,6 +28,12 @@ struct D3d_Common_Constants {
   fmat4 projection;
 };
 
+struct D3d_Post_Fx_Constants {
+  fvec2 resolution;
+  f32   time    = 0;
+  f32   quality = 0;
+};
+
 struct D3d {
   IDXGIFactory6   *dxgi_factory;
   IDXGISwapChain1 *dxgi_swapchain;
@@ -39,8 +45,13 @@ struct D3d {
   ID3D11Texture2D        *framebuffer;
   ID3D11RenderTargetView *framebuffer_rtv;
 
+  // @ToDo: different blend states!
+  //
   ID3D11BlendState      *blend_state;
   ID3D11RasterizerState *rasterizer_state;
+
+  // @ToDo: different sampler types!
+  //
   ID3D11SamplerState    *linear_sampler;
 
   struct {
@@ -68,6 +79,20 @@ struct D3d {
     D3d_Common_Constants data;
     ID3D11Buffer        *buffer;
   } common_constants;
+
+  struct {
+    D3d_Post_Fx_Constants data;
+    ID3D11Buffer         *buffer;
+  } post_fx_constants;
+
+  // @ToDo: all PostFX have the same vertex shader!
+  //
+  struct {
+    struct {
+      ID3D11VertexShader *vs;
+      ID3D11PixelShader  *ps;
+    } blur;
+  } post_fx;
 
 } global gD3d;
 

@@ -21,6 +21,12 @@ os_free(void *ptr, u64 sz);
 must_use global u64
 os_now_us();
 
+must_use global u64
+os_us_since_startup();
+
+must_use global f32
+os_seconds_since_startup();
+
 // System Information
 //
 

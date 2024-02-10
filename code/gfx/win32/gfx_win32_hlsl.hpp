@@ -96,7 +96,6 @@ ps_main(Vertex2Pixel input) : SV_TARGET {
 
 // Sprite shader
 //
-
 internal char const GFX_SPRITE_SHADER[] = R"(
 // Globals
 //
@@ -266,5 +265,95 @@ ps_main(Vertex2Pixel input) : SV_TARGET {
   float4 col_b = tex_b.Sample(splr, input.uv);
 
   return lerp(col_a, col_b, col_b.a);
+}
+)";
+
+// Post-FX shaders
+//
+
+// Blur shader
+//
+
+internal char const GFX_BLUR_SHADER[] = R"(
+// Structures
+//
+
+struct Cpu2Vertex {
+  uint vertex_id : SV_VertexID;
+};
+
+struct Vertex2Pixel {
+  float4 pos : SV_POSITION;
+  float2 uv  : TEXCOORD0;
+};
+
+// Vertex Shader
+//
+
+Vertex2Pixel
+vs_main(Cpu2Vertex input) {
+  float4 pos;
+  float2 uv;
+  uint id = input.vertex_id;
+
+  // https://github.com/medranSolus/ZenithEngine/blob/master/Engine/Shader/VS/FullscreenVS.hlsl
+  //
+  uv = float2(id & 2, (((id | (id >> 1)) & 1) ^ 1) << 1);
+	const float2 offset = uv * 2.0f;
+	pos = float4(-1.0f + offset.x, 1.0f - offset.y, 0.0f, 1.0f);
+
+  Vertex2Pixel output;
+  output.pos = pos;
+  output.uv  = uv;
+  return output;
+}
+
+// Pixel Shader
+//
+
+// Globals
+//
+
+Texture2D      tex : register(t0);
+SamplerState splr  : register(s0);
+
+cbuffer Globals : register(b0)
+{
+  // width, height, time, quality
+  float4 globals_packed;
+};
+
+float4 
+ps_main(Vertex2Pixel input) : SV_TARGET {
+    // Misc constants
+    //
+    const float2 cResolution = globals_packed.xy;
+    const float  cTwo_Pi     = 6.28318530718; // Pi*2
+    
+    // GAUSSIAN BLUR SETTINGS {{{
+    const float cDirections = 16.0; // BLUR DIRECTIONS (Default 16.0 - More is better but slower)
+    const float cQuality    = 4.0;  // BLUR QUALITY (Default 4.0 - More is better but slower)
+    const float cSize       = 1.2;  // BLUR SIZE (Radius)
+    // GAUSSIAN BLUR SETTINGS }}}
+       
+    // Blur constants
+    //
+    const float2 cRadius      = cSize/cResolution;
+    const float2 cUv          = input.uv;
+    const float  cDirStep     = cTwo_Pi/cDirections;
+    const float  cQualityStep = 1.0/cQuality;
+
+    // Blur calculation
+    //
+    float3 color = tex.Sample(splr, cUv).rgb;
+    for (float d=0.0; d < cTwo_Pi; d += cDirStep) {
+      const float2 cUvOffset = float2(cos(d), sin(d)) * cRadius;
+      for (float i = 1.0/cQuality; i < 1.001; i += cQualityStep) {
+        color += tex.Sample(splr, cUv + cUvOffset*i).rgba; // Why not .rgb?
+      }
+    }
+    
+    color /= cQuality*cDirections + 1.0;
+    return float4(color, 1.0);
 }
 )";

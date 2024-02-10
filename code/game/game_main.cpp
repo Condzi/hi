@@ -39,7 +39,7 @@ main(int argc, char const *argv[]) {
   };
 
   GFX_Object obj2 = {
-      .pos = {200, 200},
+      .pos = {600, 200},
       .sz  = {50.f, 50.f},
       .material =
           {
@@ -140,12 +140,12 @@ main(int argc, char const *argv[]) {
     OS_Window_Event *events = os_gfx_event_pump(gContext.frame_arena);
     Unused(events);
 
-    //obj.pos.x += 0.5f;
-    obj2.pos.y += 0.5f;
-    // obj.material.rect.color.a += 1;
-    // obj2.material.rect.color.a += 1;
+    // obj.pos.x += 0.5f;
+    // obj2.pos.y += 0.5f;
+    //  obj.material.rect.color.a += 1;
+    //  obj2.material.rect.color.a += 1;
     obj.rot -= 0.01f;
-    obj2.rot += 0.01f;
+    obj2.rot += 0.1f;
 
     gfx_batch_push(batch_a, obj);
     gfx_batch_push(batch_b, obj2);

@@ -138,26 +138,16 @@ gfx_batch_draw(GFX_Batch *batch, GFX_Image target);
 enum GFX_Post_Fx_Type {
   GFX_PostFxType_None,
 
-  GFX_PostFxType_Vignette,
+  GFX_PostFXType_Blur,
+  GFX_PostFxType_VHS,
   GFX_PostFxType_CRT,
 
   GFX_PostFxType__count,
 };
 
-struct GFX_Post_Fx_Vignette_Opts {
-  u32 strength;
-};
-
-struct GFX_Post_Fx_CRT_Opts {
-  u32 strength;
-};
-
 struct GFX_Fx {
   GFX_Post_Fx_Type type = {};
-  union {
-    GFX_Post_Fx_Vignette_Opts vignette = {};
-    GFX_Post_Fx_CRT_Opts      crt;
-  } data;
+  f32              strength;
 };
 
 global void

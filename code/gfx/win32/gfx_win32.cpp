@@ -408,6 +408,31 @@ gfx_init(GFX_Opts const &opts) {
     Defer { ps_blob->Release(); };
   }
 
+  {
+    ErrorContext("Compiling GFX_BLUR_SHADER"_s8);
+    hr = compile_shader(str8_cstr(GFX_BLUR_SHADER), "vs_main"_s8, "vs_5_0"_s8, &vs_blob);
+
+    ErrorIf(FAILED(hr),
+            "Failed to compile vertex shader: %s"_s8,
+            (char const *)vs_blob->GetBufferPointer());
+
+    hr = compile_shader(str8_cstr(GFX_BLUR_SHADER), "ps_main"_s8, "ps_5_0"_s8, &ps_blob);
+
+    ErrorIf(FAILED(hr),
+            "Failed to compile pixel shader: %s"_s8,
+            (char const *)ps_blob->GetBufferPointer());
+
+    hr = gD3d.device->CreateVertexShader(
+        vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), 0, &(gD3d.post_fx.blur.vs));
+    ErrorIf(FAILED(hr), "Failed to create vertex shader. hr=0x%X"_s8, hr);
+    Defer { vs_blob->Release(); };
+
+    hr = gD3d.device->CreatePixelShader(
+        ps_blob->GetBufferPointer(), ps_blob->GetBufferSize(), 0, &(gD3d.post_fx.blur.ps));
+    ErrorIf(FAILED(hr), "Failed to create pixel shader. hr=0x%X"_s8, hr);
+    Defer { ps_blob->Release(); };
+  }
+
   // Create samplers
   //
 
@@ -450,6 +475,38 @@ gfx_init(GFX_Opts const &opts) {
     };
 
     hr = gD3d.device->CreateBuffer(&desc, &data, &(gD3d.common_constants.buffer));
+    ErrorIf(FAILED(hr), "CreateBuffer failed. hr=0x%X."_s8, hr);
+  }
+
+  {
+    ErrorContext("Create post fx constants buffer"_s8);
+
+    // Create common constants
+    //
+    gD3d.post_fx_constants.data = {
+        .resolution =
+            {
+                .width  = (f32)os_gfx_surface_width(),
+                .height = (f32)os_gfx_surface_height(),
+            },
+        .time    = os_seconds_since_startup(),
+        .quality = 1,
+    };
+
+    // Upload common constants to GPU
+    //
+    ::D3D11_BUFFER_DESC desc = {
+        .ByteWidth      = sizeof(D3d_Post_Fx_Constants),
+        .Usage          = D3D11_USAGE_DYNAMIC,
+        .BindFlags      = D3D11_BIND_CONSTANT_BUFFER,
+        .CPUAccessFlags = D3D11_CPU_ACCESS_WRITE,
+    };
+
+    D3D11_SUBRESOURCE_DATA data = {
+        .pSysMem = &gD3d.post_fx_constants.data,
+    };
+
+    hr = gD3d.device->CreateBuffer(&desc, &data, &(gD3d.post_fx_constants.buffer));
     ErrorIf(FAILED(hr), "CreateBuffer failed. hr=0x%X."_s8, hr);
   }
 }

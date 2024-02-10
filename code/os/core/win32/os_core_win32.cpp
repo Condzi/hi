@@ -1,7 +1,6 @@
 #pragma once
 #include "all_inc.hpp"
 
-
 // Globals
 //
 
@@ -17,6 +16,8 @@ os_init(int argc, char const *argv[]) {
   LARGE_INTEGER large_int_resolution;
   AssertAlways(QueryPerformanceFrequency(&large_int_resolution));
   w32_us_res = (u64)large_int_resolution.QuadPart;
+
+  w32_startup_time = os_now_us();
 
   // Parse launch options, if any.
   //
@@ -34,11 +35,8 @@ os_init(int argc, char const *argv[]) {
 
 must_use global void *
 os_alloc(u64 sz, u64 base_addr) {
-  void *result = VirtualAllocEx(GetCurrentProcess(),
-                                (PVOID)base_addr,
-                                sz,
-                                MEM_RESERVE | MEM_COMMIT,
-                                PAGE_READWRITE);
+  void *result = VirtualAllocEx(
+      GetCurrentProcess(), (PVOID)base_addr, sz, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 
   return result;
 }
@@ -63,6 +61,11 @@ os_now_us() {
     res = (large_int_counter.QuadPart * (s64)Million(1)) / w32_us_res;
   }
   return res;
+}
+
+must_use global u64
+os_us_since_startup() {
+  return os_now_us() - w32_startup_time;
 }
 
 // System Information

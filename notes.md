@@ -68,21 +68,21 @@
 
     [X] Initialization
     [X] Debug device
-    [ ] Batch rendering for filled rects
+    [X] Batch rendering for filled rects
       [X] Vertex Input Layout -- only per-instance data!! Empty vertex buffer?
       [X] Creating Batches
       [X] Inserting objects into batches
       [X] Memory management
       [X] Image creation
       [X] Rendering from image to frame buffer
-      [ ] Figure out MVP matrix -- how exactly does it work in our 2D game?
-    [ ] Sprite pipeline
-      [ ] Load image from disk
-      [ ] Write shader
-      [ ] Implement batch_draw for sprites
+    [X] Sprite pipeline
+      [X] Load image from disk
+      [X] Write shader
+      [X] Implement batch_draw for sprites
     [ ] Handle resizing
 
     [ ] GPU info
+    [ ] Figure out MVP matrix -- how exactly does it work in our 2D game?
 
     - separate resource handling (tex, buffers) from rendering commands somehow?
       - it would be great if we could manage to handle sprite sheets in a way that we
