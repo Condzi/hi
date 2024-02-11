@@ -1,4 +1,7 @@
-# Layers (alphabetically)
+# Game Layers
+  
+  ![Game Layers](game_layers_1.png)
+
 
 ## Audio
 
@@ -9,21 +12,11 @@
 ## Assets
 
     List of textures and audio files...
-    [ ] stb_image integration
     [ ] list of resources that can be accessed with their IDs / handles?
 
 ## Base
 
-    [X] Basic Types
-    [X] Language Layer
-    [X] Allocators
-    [X] Strings (immutable!)
-    [X] Unicode support
-    [X] CMD Parsing
-    [X] stb_sprintf integration
-    [X] Math (vectors, matrices, functions)
     [ ] Rand (perlin noise, random range)
-    [X] Error context, Check(cnd, "Context")
 
 ## Debug Tools
 
@@ -64,36 +57,15 @@
 
 ## GFX
 
-  [!] Assume we always and only render rects?
+  [ ] Figure out common viewport sizes that we can render
+  [ ] Figure out MVP matrix -- how exactly does it work in our 2D game?
+  [ ] GPU info (memory, name...)
+  [ ] GPU render time
 
-    [X] Initialization
-    [X] Debug device
-    [X] Batch rendering for filled rects
-      [X] Vertex Input Layout -- only per-instance data!! Empty vertex buffer?
-      [X] Creating Batches
-      [X] Inserting objects into batches
-      [X] Memory management
-      [X] Image creation
-      [X] Rendering from image to frame buffer
-    [X] Sprite pipeline
-      [X] Load image from disk
-      [X] Write shader
-      [X] Implement batch_draw for sprites
-    [ ] Handle resizing
-
-    [ ] GPU info
-    [ ] Figure out MVP matrix -- how exactly does it work in our 2D game?
-
-    - separate resource handling (tex, buffers) from rendering commands somehow?
-      - it would be great if we could manage to handle sprite sheets in a way that we
-        can divide the sprite sheet into smaller textures logically and refer to them
-        not by indecies, but by names, from high level code.
     - variable refresh rate: https://walbourn.github.io/care-and-feeding-of-modern-swap-chains-3/
     and https://learn.microsoft.com/en-us/windows/win32/direct3ddxgi/variable-refresh-rate-displays
 
-### Use GPU for particle effects
-
-    - use this particle effect to create trail effect behind space ships
+  [ ] Particle effects
 
     We need textures and noise:
     https://www.youtube.com/watch?v=wvK6MNlmCCE
@@ -132,6 +104,11 @@
     [ ] Debugging stats?
     [ ] Static geometry
 
+## [new] Telemetry
+
+    Basically, use the microsends timer to time some functions in instrumented release-with-debug-info build.
+    Mainly we're interested in frame times and GPU render time
+
 ## [new] Text Rasterizing
 
     Use DirectDraw or freetype to render fonts?
@@ -169,8 +146,4 @@
 
 ## Misc
 
-    Add Open Source licenses (RAD, stb...)
 
-# Layers Dependencies
-
-  ![Game Layers](game_layers_1.png)
