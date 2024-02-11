@@ -164,7 +164,7 @@ main(int argc, char const *argv[]) {
 
   u64 frame = 0;
   while (os_gfx_window_mode() != OS_WindowMode_Closed) {
-    ErrorContext("frame=%zu"_s8, frame);
+    ErrorContext("frame=%zu", frame);
     OS_Window_Event *events = os_gfx_event_pump(gContext.frame_arena);
     Unused(events);
 

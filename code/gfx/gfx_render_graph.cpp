@@ -69,7 +69,7 @@ gfx_dsf(GFX_RG_Node *node, u8 visit_cookie, GFX_RG_Operation *op_arr, u32 &op_ar
 must_use global GFX_Image
 gfx_rg_evaluate(GFX_Render_Graph *rg) {
   Assert(rg);
-  ErrorContext("roots=%d, operations=%d, visit_counter=%d"_s8,
+  ErrorContext("roots=%d, operations=%d, visit_counter=%d",
                (int)rg->roots_count,
                (int)rg->operations_count,
                (int)rg->visit_counter);

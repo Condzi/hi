@@ -244,8 +244,7 @@ win32_os_hard_fail_dialog_callback(
     } else {
       // It's a hyperlink to a source file, so open it in VS Code.
       //
-      Str8 cmd8 =
-          str8_sprintf(gContext.frame_arena, "code --goto -r %s"_s8, hyperlink_s8.v);
+      Str8  cmd8  = str8_sprintf(gContext.frame_arena, "code --goto -r %S", hyperlink_s8);
       Str16 cmd16 = str16_from_8(gContext.frame_arena, cmd8);
       _wsystem((wchar_t const *)(cmd16.v));
     }
@@ -257,14 +256,18 @@ win32_os_hard_fail_dialog_callback(
 
 no_return void
 os_hard_fail(Str8 file, Str8 func, Str8 cnd, Str8 desc) {
-  Str8 const message_fmt = "Please, kindly send a screenshot of this message to <a "
-                           "href=\"mailto:conradkubacki+bugreport@gmail.com\">"
-                           "conradkubacki+bugreport@gmail.com</a>.\n"
-                           "You can use ⊞ Win + ⇧ Shift + S to take a screenshot.\n\n"
-                           "       %s\n"
-                           "       %s\n"
-                           "       (%s → <a href=\"%s\">%s</a>)\n"
-                           "\n%s"_s8;
+  // Constants 
+  //
+  local_persist char const message_fmt[] =
+      "Please, kindly send a screenshot of this message to <a "
+      "href=\"mailto:conradkubacki+bugreport@gmail.com\">"
+      "conradkubacki+bugreport@gmail.com</a>.\n"
+      "You can use ⊞ Win + ⇧ Shift + S to take a screenshot.\n\n"
+      "       %S\n"
+      "       %S\n"
+      "       (%S → <a href=\"%S\">%s</a>)\n"
+      "\n%S";
+  local_persist char const entry_fmt[] = "%S  %*s↪ %d. %S (%S → <a href=\"%S\">%s</a>)\n";
 
   Str8 err_ctx = "Error context is not available."_s8;
   if (gContext.error_context && gContext.error_context->first) {
@@ -274,14 +277,14 @@ os_hard_fail(Str8 file, Str8 func, Str8 cnd, Str8 desc) {
     s32 counter = 1;
     for (Error_Context_Node *node = gContext.error_context->first; node; node = node->next) {
       err_ctx = str8_sprintf(gContext.frame_arena,
-                             "%s  %*s↪ %d. %s (%s → <a href=\"%s\">%s</a>)\n"_s8,
-                             err_ctx.v,
+                             entry_fmt,
+                             err_ctx,
                              counter * 2,
                              "",
                              counter,
-                             node->desc.v,
-                             node->function.v,
-                             node->file.v,
+                             node->desc,
+                             node->function,
+                             node->file,
                              node->file.v + ArrayCount("W:\\hi\\code"));
       counter++;
     }
@@ -289,12 +292,12 @@ os_hard_fail(Str8 file, Str8 func, Str8 cnd, Str8 desc) {
 
   Str8  final_message    = str8_sprintf(gContext.frame_arena,
                                     message_fmt,
-                                    desc.v,
-                                    cnd.v,
-                                    func.v,
-                                    file.v,
+                                    desc,
+                                    cnd,
+                                    func,
+                                    file,
                                     file.v + ArrayCount("W:\\hi\\code"),
-                                    err_ctx.v);
+                                    err_ctx);
   Str16 final_message_16 = str16_from_8(gContext.frame_arena, final_message);
 
   TASKDIALOG_BUTTON debug_btn = {.nButtonID = 1001, .pszButtonText = L"Debug"};

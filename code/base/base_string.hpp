@@ -49,7 +49,7 @@ str8_has_prefix(Str8 str, Str8 prefix);
 
 template <typename... TArgs>
 must_use global Str8
-str8_sprintf(Arena *arena, Str8 format, TArgs... args);
+str8_sprintf(Arena *arena, char const* format, TArgs... args);
 
 // Unicode String Conversions
 // For legacy reasons, results are NULL-terminated.

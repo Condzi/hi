@@ -99,15 +99,15 @@ str8_has_prefix(Str8 str, Str8 prefix) {
 
 template <typename... TArgs>
 must_use global Str8
-str8_sprintf(Arena *arena, Str8 format, TArgs... args) {
-  int const isz = hi_snprintf(0, 0, (char const *)format.v, args...);
+str8_sprintf(Arena *arena, char const* format, TArgs... args) {
+  int const isz = hi_snprintf(0, 0, format, args...);
   if (isz <= 0) {
     return "<?>"_s8;
   }
 
   u64 const sz     = (u64)isz + 1;
   u8       *buffer = arena_alloc_array<u8>(arena, sz);
-  hi_snprintf((char *)buffer, isz + 1, (char const *)format.v, args...);
+  hi_snprintf((char *)buffer, isz + 1, format, args...);
 
   return {.v = buffer, .sz = sz};
 }
