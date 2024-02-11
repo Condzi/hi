@@ -2,7 +2,6 @@
   
   ![Game Layers](game_layers_1.png)
 
-
 ## Audio
 
     [ ] Enumerate available audio devices
@@ -50,6 +49,8 @@
     - pick ups system
 
     - all kind of debug subsystems? for some diagrams, drawing, debug UI
+
+    - Level of detail handling
 
 ## Game
 
@@ -104,26 +105,21 @@
     [ ] Debugging stats?
     [ ] Static geometry
 
-## [new] Telemetry
+## Telemetry
 
-    Basically, use the microsends timer to time some functions in instrumented release-with-debug-info build.
+    Basically, use the microseconds timer to time some functions in instrumented release-with-debug-info build.
     Mainly we're interested in frame times and GPU render time
 
-## [new] Text Rasterizing
+## Text Rasterizing
 
     Use DirectDraw or freetype to render fonts?
 
-## [new] LOD system?
-
-    Can this be a separate layer? Basically, determine if something is
-    off-screen and handle it with less detail? Or just apply this philosophy for existing systems?
-
-## [new] Logging system?
+## Logging
 
     Basically own layer for writing to a buffer. Multiple severities? Also, error boxes live here? Or what? 
     Handles logging to file...? And to console?
 
-## [new] Localization
+## Localization
 
     Have some special localized strings that are mapped to some string loaded from a 
     CSV. Only in UI I guess?
@@ -145,5 +141,3 @@
     [ ] Auto layout?
 
 ## Misc
-
-
