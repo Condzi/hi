@@ -14,8 +14,7 @@ struct Unicode_Decode {
 };
 
 read_only global u8 utf8_class[32] = {
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 3, 3, 4, 5,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 2, 3, 3, 4, 5,
 };
 
 internal Unicode_Decode
@@ -67,7 +66,7 @@ str16_range(u16 *beg, u16 *end) {
 must_use global Str16
 str16_cstr(wchar_t const *cstr) {
   u64 const len = wcslen(cstr);
-  return {.v = (u16*)cstr, .sz = len};
+  return {.v = (u16 *)cstr, .sz = len};
 }
 
 // String Operations
@@ -99,7 +98,7 @@ str8_has_prefix(Str8 str, Str8 prefix) {
 
 template <typename... TArgs>
 must_use global Str8
-str8_sprintf(Arena *arena, char const* format, TArgs... args) {
+str8_sprintf(Arena *arena, char const *format, TArgs... args) {
   int const isz = hi_snprintf(0, 0, format, args...);
   if (isz <= 0) {
     return "<?>"_s8;
@@ -109,7 +108,7 @@ str8_sprintf(Arena *arena, char const* format, TArgs... args) {
   u8       *buffer = arena_alloc_array<u8>(arena, sz);
   hi_snprintf((char *)buffer, isz + 1, format, args...);
 
-  return {.v = buffer, .sz = sz};
+  return {.v = buffer, .sz = sz - 1};
 }
 
 // Unicode String Conversions
@@ -117,11 +116,11 @@ str8_sprintf(Arena *arena, char const* format, TArgs... args) {
 
 must_use global Str8
 str8_from_16(Arena *arena, Str16 in) {
-  u64            cap  = in.sz * 3;
-  u8            *str  = arena_alloc_array<u8>(arena, cap + 1);
-  u16           *ptr  = in.v;
-  u16           *opl  = ptr + in.sz;
-  u64            size = 0;
+  u64            cap     = in.sz * 3;
+  u8            *str     = arena_alloc_array<u8>(arena, cap + 1);
+  u16           *ptr     = in.v;
+  u16           *opl     = ptr + in.sz;
+  u64            size    = 0;
   Unicode_Decode consume = {};
   for (; ptr < opl; ptr += (u16)consume.inc) {
     consume = utf16_decode(ptr, (u64)(opl - ptr));
@@ -133,11 +132,11 @@ str8_from_16(Arena *arena, Str16 in) {
 
 must_use global Str16
 str16_from_8(Arena *arena, Str8 in) {
-  u64            cap  = in.sz * 2;
-  u16           *str  = arena_alloc_array<u16>(arena, cap + 1);
-  u8            *ptr  = in.v;
-  u8            *opl  = ptr + in.sz;
-  u64            size = 0;
+  u64            cap     = in.sz * 2;
+  u16           *str     = arena_alloc_array<u16>(arena, cap + 1);
+  u8            *ptr     = in.v;
+  u8            *opl     = ptr + in.sz;
+  u64            size    = 0;
   Unicode_Decode consume = {};
 
   for (; ptr < opl; ptr += consume.inc) {
@@ -178,8 +177,7 @@ utf8_decode(u8 *str, u64 max) {
     case 3: {
       if (2 < max) {
         u8 cont_byte[2] = {str[1], str[2]};
-        if (utf8_class[cont_byte[0] >> 3] == 0 &&
-            utf8_class[cont_byte[1] >> 3] == 0) {
+        if (utf8_class[cont_byte[0] >> 3] == 0 && utf8_class[cont_byte[1] >> 3] == 0) {
           result.codepoint = (u32)((byte & 0x0000000f) << 12);
           result.codepoint |= ((cont_byte[0] & 0x0000003f) << 6);
           result.codepoint |= (cont_byte[1] & 0x0000003f);
@@ -190,8 +188,7 @@ utf8_decode(u8 *str, u64 max) {
     case 4: {
       if (3 < max) {
         u8 cont_byte[3] = {str[1], str[2], str[3]};
-        if (utf8_class[cont_byte[0] >> 3] == 0 &&
-            utf8_class[cont_byte[1] >> 3] == 0 &&
+        if (utf8_class[cont_byte[0] >> 3] == 0 && utf8_class[cont_byte[1] >> 3] == 0 &&
             utf8_class[cont_byte[2] >> 3] == 0) {
           result.codepoint = (u32)((byte & 0x00000007) << 18);
           result.codepoint |= ((cont_byte[0] & 0x0000003f) << 12);
@@ -210,8 +207,7 @@ utf16_decode(u16 *str, u64 max) {
   Unicode_Decode result = {1, MAX_U32};
   result.codepoint      = str[0];
   result.inc            = 1;
-  if (max > 1 && 0xD800 <= str[0] && str[0] < 0xDC00 && 0xDC00 <= str[1] &&
-      str[1] < 0xE000) {
+  if (max > 1 && 0xD800 <= str[0] && str[0] < 0xDC00 && 0xDC00 <= str[1] && str[1] < 0xE000) {
     result.codepoint = (u32)((str[0] - 0xD800) << 10) | (str[1] - 0xDC00);
     result.inc       = 2;
   }
