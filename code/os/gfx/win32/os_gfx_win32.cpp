@@ -162,7 +162,8 @@ win32_window_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
     case WM_SYSCOMMAND: {
       switch (wParam) {
-        default: break;
+        default:
+          break;
         case SC_MINIMIZE: {
           w32_mode = OS_WindowMode_Minimized;
         } break;
@@ -233,7 +234,6 @@ win32_os_hard_fail_dialog_callback(
     HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam, LONG_PTR data) {
   Unused(data);
   Unused(wparam);
-  Unused(hwnd);
 
   if (msg == TDN_HYPERLINK_CLICKED) {
     Str8 hyperlink_s8 = str8_from_16(gContext.frame_arena, str16_cstr((wchar_t const *)lparam));
@@ -256,9 +256,12 @@ win32_os_hard_fail_dialog_callback(
 
 no_return void
 os_hard_fail(Str8 file, Str8 func, Str8 cnd, Str8 desc) {
-  // Constants 
+  // Constants
   //
-  local_persist char const message_fmt[] =
+  local_persist wchar_t const dialog_title[]  = L"Fatal error :(";
+  local_persist wchar_t const dialog_header[] = L"Program encountered an error and will terminate.";
+  local_persist wchar_t const dialog_footer[] = L"" GAME_TITLE_LITERAL;
+  local_persist char const    message_fmt[] =
       "Please, kindly send a screenshot of this message to <a "
       "href=\"mailto:conradkubacki+bugreport@gmail.com\">"
       "conradkubacki+bugreport@gmail.com</a>.\n"
@@ -269,9 +272,30 @@ os_hard_fail(Str8 file, Str8 func, Str8 cnd, Str8 desc) {
       "\n%S";
   local_persist char const entry_fmt[] = "%S  %*s↪ %d. %S (%S → <a href=\"%S\">%s</a>)\n";
 
+  TASKDIALOGCONFIG dialog = {
+      .cbSize  = sizeof(dialog),
+      .dwFlags = TDF_SIZE_TO_CONTENT | TDF_ENABLE_HYPERLINKS | TDF_ALLOW_DIALOG_CANCELLATION,
+      .dwCommonButtons    = TDCBF_CLOSE_BUTTON,
+      .pszWindowTitle     = dialog_title,
+      .pszMainIcon        = TD_ERROR_ICON,
+      .pszMainInstruction = dialog_header,
+      .pszFooterIcon      = TD_INFORMATION_ICON,
+      .pszFooter          = dialog_footer,
+      .pfCallback         = &win32_os_hard_fail_dialog_callback,
+  };
+
+#if !defined(NDEBUG)
+  TASKDIALOG_BUTTON debug_btn = {.nButtonID = 1001, .pszButtonText = L"Debug"};
+  dialog.pButtons             = &debug_btn;
+  dialog.cButtons             = 1;
+#endif
+
+  // Task dialog assembly
+  //
+
   Str8 err_ctx = "Error context is not available."_s8;
   if (gContext.error_context && gContext.error_context->first) {
-    // Try to retrieve error context.
+    // Build error context.
     //
     err_ctx     = "\n"_s8;
     s32 counter = 1;
@@ -290,6 +314,8 @@ os_hard_fail(Str8 file, Str8 func, Str8 cnd, Str8 desc) {
     }
   }
 
+  // Assemble and set final content for the dialog.
+  //
   Str8  final_message    = str8_sprintf(gContext.frame_arena,
                                     message_fmt,
                                     desc,
@@ -299,32 +325,15 @@ os_hard_fail(Str8 file, Str8 func, Str8 cnd, Str8 desc) {
                                     file.v + ArrayCount("W:\\hi\\code"),
                                     err_ctx);
   Str16 final_message_16 = str16_from_8(gContext.frame_arena, final_message);
+  dialog.pszContent      = (LPCWSTR)final_message_16.v;
 
-  TASKDIALOG_BUTTON debug_btn = {.nButtonID = 1001, .pszButtonText = L"Debug"};
-  TASKDIALOGCONFIG  dialog    = {
-          .cbSize = sizeof(dialog),
-          .dwFlags =
-          TDF_SIZE_TO_CONTENT | TDF_ENABLE_HYPERLINKS | TDF_ALLOW_DIALOG_CANCELLATION,
-          .dwCommonButtons    = TDCBF_CLOSE_BUTTON,
-          .pszWindowTitle     = L"Fatal Error :(",
-          .pszMainIcon        = TD_ERROR_ICON,
-          .pszMainInstruction = L"Program encountered an error and terminated.",
-          .pszContent         = (LPCWSTR)final_message_16.v,
-          .pszFooterIcon      = TD_INFORMATION_ICON,
-          .pszFooter          = L"" GAME_TITLE_LITERAL,
-          .pfCallback         = &win32_os_hard_fail_dialog_callback,
-  };
-
-#if !defined(NDEBUG)
-  dialog.pButtons = &debug_btn;
-  dialog.cButtons = 1;
-#endif
-
+  // Task dialog logic
+  //
   int debug_btn_status = 0;
   TaskDialogIndirect(&dialog, &debug_btn_status, 0, 0);
-
   if (debug_btn_status == 1001) {
     Trap();
   }
+
   exit(0);
 }
