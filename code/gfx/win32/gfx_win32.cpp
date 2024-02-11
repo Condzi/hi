@@ -74,7 +74,7 @@ d3d_image_to_rtv(GFX_Image image) {
   };
 
   HRESULT hr = gD3d.device->CreateRenderTargetView(rt_texture, &desc, &rt_view);
-  ErrorIf(FAILED(hr), "Failed to create render target view. hr=0x%X."_s8, hr);
+  ErrorIf(FAILED(hr), "Failed to create render target view. %s"_s8, os_error_to_user_message(hr).v);
   return rt_view;
 }
 
@@ -179,7 +179,7 @@ gfx_init(GFX_Opts const &opts) {
   HRESULT hr = 0;
 
   hr = CreateDXGIFactory1(__uuidof(IDXGIFactory6), (void **)&gD3d.dxgi_factory);
-  ErrorIf(FAILED(hr), "CreateDXGIFactory1 returned 0x%X"_s8, hr);
+  ErrorIf(FAILED(hr), "CreateDXGIFactory1 failed. %s"_s8, os_error_to_user_message(hr).v);
 
   // Try to find dedicated GPU.
   //
@@ -240,7 +240,9 @@ gfx_init(GFX_Opts const &opts) {
     os_debug_message("Failed to create device on dedicated GPU. Fallback to WARP..\n"_s8);
   }
 
-  ErrorIf(FAILED(hr), "Unable to create a device (neither HW nor WARP). hr=0x%X"_s8, hr);
+  ErrorIf(FAILED(hr),
+          "Unable to create a device (neither HW nor WARP). %s"_s8,
+          os_error_to_user_message(hr).v);
 
 // Enable break-on-error.
 //
@@ -253,6 +255,7 @@ gfx_init(GFX_Opts const &opts) {
   } else {
     os_debug_message("Failed to enable dbug interface.\n"_s8);
   }
+  info->Release();
 #endif
 
   // Create swap chain.
@@ -268,18 +271,18 @@ gfx_init(GFX_Opts const &opts) {
   };
   hr = gD3d.dxgi_factory->CreateSwapChainForHwnd(
       gD3d.device, w32_hwnd, &sc_desc, 0, 0, &gD3d.dxgi_swapchain);
-  ErrorIf(FAILED(hr), "Unable to create the swapchain. hr=0x%X"_s8, hr);
+  ErrorIf(FAILED(hr), "Unable to create the swapchain. %s"_s8, os_error_to_user_message(hr).v);
 
   // Acquire the framebuffer.
   //
 
   hr = gD3d.dxgi_swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void **)&gD3d.framebuffer);
-  ErrorIf(FAILED(hr), "Failed to acquire the framebuffer. hr=0x%X."_s8, hr);
+  ErrorIf(FAILED(hr), "Failed to acquire the framebuffer. %s"_s8, os_error_to_user_message(hr).v);
 
   // Create deferred context.
   //
   hr = gD3d.device->CreateDeferredContext(0, &gD3d.deferred_context);
-  ErrorIf(FAILED(hr), "Failed to create deferred context. hr=0x%X"_s8, hr);
+  ErrorIf(FAILED(hr), "Failed to create deferred context. %s"_s8, os_error_to_user_message(hr).v);
 
   // Create blend state.
   //
@@ -298,7 +301,7 @@ gfx_init(GFX_Opts const &opts) {
       .RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL,
   };
   hr = gD3d.device->CreateBlendState(&bs_desc, &gD3d.blend_state);
-  ErrorIf(FAILED(hr), "Unable to create blend state. hr=0x%X."_s8, hr);
+  ErrorIf(FAILED(hr), "Unable to create blend state. %s"_s8, os_error_to_user_message(hr).v);
 
   // Create rasterizer state.
   //
@@ -309,7 +312,7 @@ gfx_init(GFX_Opts const &opts) {
   };
 
   hr = gD3d.device->CreateRasterizerState(&rasterizer_desc, &(gD3d.rasterizer_state));
-  ErrorIf(FAILED(hr), "Unable to create rasterizer state. hr=0x%X"_s8, hr);
+  ErrorIf(FAILED(hr), "Unable to create rasterizer state. %s"_s8, os_error_to_user_message(hr).v);
 
   // Create index buffer
   //
@@ -326,7 +329,7 @@ gfx_init(GFX_Opts const &opts) {
       .pSysMem = indices,
   };
   hr = gD3d.device->CreateBuffer(&ib_desc, &ib_data, &gD3d.index_buffer.rect);
-  ErrorIf(FAILED(hr), "Unable to create rect index buffer. hr=0x%X."_s8, hr);
+  ErrorIf(FAILED(hr), "Unable to create rect index buffer. %s"_s8, os_error_to_user_message(hr).v);
 
   // Load and compile shaders.
   //
@@ -352,12 +355,12 @@ gfx_init(GFX_Opts const &opts) {
 
     hr = gD3d.device->CreateVertexShader(
         vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), 0, &(gD3d.rect.vs));
-    ErrorIf(FAILED(hr), "Failed to create vertex shader. hr=0x%X"_s8, hr);
+    ErrorIf(FAILED(hr), "Failed to create vertex shader. %s"_s8, os_error_to_user_message(hr).v);
     Defer { vs_blob->Release(); };
 
     hr = gD3d.device->CreatePixelShader(
         ps_blob->GetBufferPointer(), ps_blob->GetBufferSize(), 0, &(gD3d.rect.ps));
-    ErrorIf(FAILED(hr), "Failed to create pixel shader. hr=0x%X"_s8, hr);
+    ErrorIf(FAILED(hr), "Failed to create pixel shader. %s"_s8, os_error_to_user_message(hr).v);
     Defer { ps_blob->Release(); };
 
     // Create input layout of the Vertex Shader.
@@ -367,7 +370,7 @@ gfx_init(GFX_Opts const &opts) {
                                         vs_blob->GetBufferPointer(),
                                         vs_blob->GetBufferSize(),
                                         &(gD3d.rect.input_layout));
-    ErrorIf(FAILED(hr), "Failed to create input layout. hr=0x%X"_s8, hr);
+    ErrorIf(FAILED(hr), "Failed to create input layout. %s"_s8, os_error_to_user_message(hr).v);
   }
 
   {
@@ -386,12 +389,12 @@ gfx_init(GFX_Opts const &opts) {
 
     hr = gD3d.device->CreateVertexShader(
         vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), 0, &(gD3d.sprite.vs));
-    ErrorIf(FAILED(hr), "Failed to create vertex shader. hr=0x%X"_s8, hr);
+    ErrorIf(FAILED(hr), "Failed to create vertex shader. %s"_s8, os_error_to_user_message(hr).v);
     Defer { vs_blob->Release(); };
 
     hr = gD3d.device->CreatePixelShader(
         ps_blob->GetBufferPointer(), ps_blob->GetBufferSize(), 0, &(gD3d.sprite.ps));
-    ErrorIf(FAILED(hr), "Failed to create pixel shader. hr=0x%X"_s8, hr);
+    ErrorIf(FAILED(hr), "Failed to create pixel shader. %s"_s8, os_error_to_user_message(hr).v);
     Defer { ps_blob->Release(); };
 
     // Create input layout of the Vertex Shader.
@@ -401,7 +404,7 @@ gfx_init(GFX_Opts const &opts) {
                                         vs_blob->GetBufferPointer(),
                                         vs_blob->GetBufferSize(),
                                         &(gD3d.sprite.input_layout));
-    ErrorIf(FAILED(hr), "Failed to create input layout. hr=0x%X"_s8, hr);
+    ErrorIf(FAILED(hr), "Failed to create input layout. %s"_s8, os_error_to_user_message(hr).v);
   }
 
   {
@@ -420,12 +423,12 @@ gfx_init(GFX_Opts const &opts) {
 
     hr = gD3d.device->CreateVertexShader(
         vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), 0, &(gD3d.combine.vs));
-    ErrorIf(FAILED(hr), "Failed to create vertex shader. hr=0x%X"_s8, hr);
+    ErrorIf(FAILED(hr), "Failed to create vertex shader. %s"_s8, os_error_to_user_message(hr).v);
     Defer { vs_blob->Release(); };
 
     hr = gD3d.device->CreatePixelShader(
         ps_blob->GetBufferPointer(), ps_blob->GetBufferSize(), 0, &(gD3d.combine.ps));
-    ErrorIf(FAILED(hr), "Failed to create pixel shader. hr=0x%X"_s8, hr);
+    ErrorIf(FAILED(hr), "Failed to create pixel shader. %s"_s8, os_error_to_user_message(hr).v);
     Defer { ps_blob->Release(); };
   }
 
@@ -445,12 +448,12 @@ gfx_init(GFX_Opts const &opts) {
 
     hr = gD3d.device->CreateVertexShader(
         vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), 0, &(gD3d.post_fx.blur.vs));
-    ErrorIf(FAILED(hr), "Failed to create vertex shader. hr=0x%X"_s8, hr);
+    ErrorIf(FAILED(hr), "Failed to create vertex shader. %s"_s8, os_error_to_user_message(hr).v);
     Defer { vs_blob->Release(); };
 
     hr = gD3d.device->CreatePixelShader(
         ps_blob->GetBufferPointer(), ps_blob->GetBufferSize(), 0, &(gD3d.post_fx.blur.ps));
-    ErrorIf(FAILED(hr), "Failed to create pixel shader. hr=0x%X"_s8, hr);
+    ErrorIf(FAILED(hr), "Failed to create pixel shader. %s"_s8, os_error_to_user_message(hr).v);
     Defer { ps_blob->Release(); };
   }
 
@@ -470,12 +473,12 @@ gfx_init(GFX_Opts const &opts) {
 
     hr = gD3d.device->CreateVertexShader(
         vs_blob->GetBufferPointer(), vs_blob->GetBufferSize(), 0, &(gD3d.post_fx.vignette.vs));
-    ErrorIf(FAILED(hr), "Failed to create vertex shader. hr=0x%X"_s8, hr);
+    ErrorIf(FAILED(hr), "Failed to create vertex shader. %s"_s8, os_error_to_user_message(hr).v);
     Defer { vs_blob->Release(); };
 
     hr = gD3d.device->CreatePixelShader(
         ps_blob->GetBufferPointer(), ps_blob->GetBufferSize(), 0, &(gD3d.post_fx.vignette.ps));
-    ErrorIf(FAILED(hr), "Failed to create pixel shader. hr=0x%X"_s8, hr);
+    ErrorIf(FAILED(hr), "Failed to create pixel shader. %s"_s8, os_error_to_user_message(hr).v);
     Defer { ps_blob->Release(); };
   }
 
@@ -496,7 +499,7 @@ gfx_init(GFX_Opts const &opts) {
     };
 
     hr = gD3d.device->CreateSamplerState(&desc, &(gD3d.linear_sampler));
-    ErrorIf(FAILED(hr), "hr=0x%X"_s8, hr);
+    ErrorIf(FAILED(hr), "%s"_s8, os_error_to_user_message(hr).v);
   }
 
   {
@@ -521,7 +524,7 @@ gfx_init(GFX_Opts const &opts) {
     };
 
     hr = gD3d.device->CreateBuffer(&desc, &data, &(gD3d.common_constants.buffer));
-    ErrorIf(FAILED(hr), "CreateBuffer failed. hr=0x%X."_s8, hr);
+    ErrorIf(FAILED(hr), "CreateBuffer failed. %s"_s8, os_error_to_user_message(hr).v);
   }
 
   {
@@ -553,7 +556,7 @@ gfx_init(GFX_Opts const &opts) {
     };
 
     hr = gD3d.device->CreateBuffer(&desc, &data, &(gD3d.post_fx_constants.buffer));
-    ErrorIf(FAILED(hr), "CreateBuffer failed. hr=0x%X."_s8, hr);
+    ErrorIf(FAILED(hr), "CreateBuffer failed. %s"_s8, os_error_to_user_message(hr).v);
   }
 }
 
@@ -561,20 +564,22 @@ global void
 gfx_resize(u32 new_width, u32 new_height) {
   ErrorContext("new_width=%u, new_height=%u"_s8, new_width, new_height);
 
+  HRESULT hr = 0;
   // Release all references to back buffers.
   //
   gD3d.framebuffer->Release();
 
   // Resize the swap chain buffers.
   //
-  HRESULT hr = 0;
-  hr = gD3d.dxgi_swapchain->ResizeBuffers(0, new_width, new_height, DXGI_FORMAT_UNKNOWN, 0);
-  ErrorIf(FAILED(hr), "ResizeBuffers failed. hr=0x%X."_s8, hr);
+  hr         = gD3d.dxgi_swapchain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
+  ErrorIf(FAILED(hr) && FAILED(gD3d.device->GetDeviceRemovedReason()),
+          "ResizeBuffers failed. %s"_s8,
+          os_error_to_user_message(hr).v);
 
   // Reacquire the framebuffer.
   //
-  hr = gD3d.dxgi_swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void **)&gD3d.framebuffer);
-  ErrorIf(FAILED(hr), "Failed to reacquire the framebuffer. hr=0x%X."_s8, hr);
+  hr = gD3d.dxgi_swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void **)&(gD3d.framebuffer));
+  ErrorIf(FAILED(hr), "Failed to reacquire the framebuffer. %s"_s8, os_error_to_user_message(hr).v);
 
   // Update projection matrix
   //
@@ -634,17 +639,17 @@ gfx_swap_buffers() {
 
   // Execute rendering commands
   //
+  gD3d.deferred_context->ClearState();
   ID3D11CommandList *command_list = 0;
   hr                              = gD3d.deferred_context->FinishCommandList(FALSE, &command_list);
-  gD3d.deferred_context->ClearState();
-  ErrorIf(FAILED(hr), "Failed to finish command list. hr=0x%X."_s8, hr);
+  ErrorIf(FAILED(hr), "Failed to finish command list. %s"_s8, os_error_to_user_message(hr).v);
   gD3d.immediate_context->ExecuteCommandList(command_list, FALSE);
   command_list->Release();
 
   // Swap buffers
   //
   hr = gD3d.dxgi_swapchain->Present(1, 0);
-  ErrorIf(FAILED(hr), "Call to Present failed. hr=0x%X"_s8, hr);
+  ErrorIf(FAILED(hr), "Call to Present failed. %s"_s8, os_error_to_user_message(hr).v);
 }
 
 must_use global GFX_Image
@@ -676,7 +681,8 @@ gfx_make_image(u8 *data, u32 width, u32 height) {
 
   HRESULT hr = 0;
   hr         = gD3d.device->CreateTexture2D(&desc, data ? (&initial_data) : 0, &tex);
-  ErrorIf(FAILED(hr), "Failed to create render target texture. hr=0x%X."_s8, hr);
+  ErrorIf(
+      FAILED(hr), "Failed to create render target texture. %s"_s8, os_error_to_user_message(hr).v);
 
   GFX_Image img;
   img.v[0] = PtrToU64(tex);
@@ -734,7 +740,7 @@ gfx_make_batch(GFX_Material_Type material) {
            .CPUAccessFlags = D3D11_CPU_ACCESS_WRITE,
   };
   HRESULT hr = gD3d.device->CreateBuffer(&desc, 0, &instances);
-  ErrorIf(FAILED(hr), "Failed to create instance buffer. hr=0x%X."_s8, hr);
+  ErrorIf(FAILED(hr), "Failed to create instance buffer. %s"_s8, os_error_to_user_message(hr).v);
   batch->instances.v[0] = PtrToU64(instances);
   return batch;
 }
@@ -886,7 +892,7 @@ gfx_batch_draw(GFX_Batch *batch, GFX_Image target) {
     HRESULT hr = 0;
     hr = gD3d.device->CreateShaderResourceView(tex, &srv_desc, &srv);
     Defer{srv->Release();};
-    ErrorIf(FAILED(hr), "Failed to create SRV for A. hr=0x%X."_s8, hr);
+    ErrorIf(FAILED(hr), "Failed to create SRV for A. %s"_s8, os_error_to_user_message(hr).v);
 
     // Draw the batch.
     //
@@ -1002,9 +1008,9 @@ gfx_combine_images(GFX_Image a, GFX_Image b, GFX_Image target) {
 
   HRESULT hr = 0;
   hr = gD3d.device->CreateShaderResourceView(tex_a, &srv_desc, &srv_a);
-  ErrorIf(FAILED(hr), "Failed to create SRV for A. hr=0x%X."_s8, hr);
+  ErrorIf(FAILED(hr), "Failed to create SRV for A. %s"_s8, os_error_to_user_message(hr).v);
   hr = gD3d.device->CreateShaderResourceView(tex_b, &srv_desc, &srv_b);
-  ErrorIf(FAILED(hr), "Failed to create SRV for B. hr=0x%X."_s8, hr);
+  ErrorIf(FAILED(hr), "Failed to create SRV for B. %s"_s8, os_error_to_user_message(hr).v);
 
   Defer { srv_a->Release(); };
   Defer { srv_b->Release(); };
@@ -1062,7 +1068,7 @@ gfx_apply_post_fx(GFX_Fx fx, GFX_Image src, GFX_Image target) {
 
   HRESULT hr = 0;
   hr = gD3d.device->CreateShaderResourceView(tex, &srv_desc, &srv);
-  ErrorIf(FAILED(hr), "Failed to create SRV. hr=0x%X."_s8, hr);
+  ErrorIf(FAILED(hr), "Failed to create SRV. %s"_s8, os_error_to_user_message(hr).v);
   Defer { srv->Release(); };
 
   // Update Post FX constants

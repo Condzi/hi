@@ -92,24 +92,28 @@ os_debug_message(Str8 msg) {
 
 must_use Str8
 os_error_to_user_message(s64 error) {
-  HRESULT const hr = (HRESULT)error;
+  HRESULT hr = (HRESULT)error;
 
   if (SUCCEEDED(hr)) {
     return "Success"_s8;
+  }
+
+  if (hr == DXGI_ERROR_DEVICE_REMOVED) {
+    hr = gD3d.device->GetDeviceRemovedReason();
   }
 
   LPWSTR buff = nullptr;
   DWORD  size = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
                                   FORMAT_MESSAGE_IGNORE_INSERTS,
                               0,
-                              hr,
+                              (DWORD)hr,
                               MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
                               (LPWSTR)&buff,
                               0,
                               0);
-  Defer {LocalFree(buff);};
+  Defer { LocalFree(buff); };
 
-  Str8 err8 = str8_from_16(gContext.frame_arena, str16((u16*)buff, size));
-  Str8 final = str8_sprintf(gContext.frame_arena, "0x%X: %.*s"_s8, err8.sz, err8.v);
+  Str8 err8  = str8_from_16(gContext.frame_arena, str16((u16 *)buff, size));
+  Str8 final = str8_sprintf(gContext.frame_arena, "0x%X: %.*s"_s8, hr, err8.sz, err8.v);
   return final;
 }

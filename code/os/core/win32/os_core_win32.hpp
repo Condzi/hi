@@ -34,7 +34,6 @@
 #include <debugapi.h>
 
 #include <winerror.h>
-#include <DXGItype.h>
 
 // MiniDump
 //
