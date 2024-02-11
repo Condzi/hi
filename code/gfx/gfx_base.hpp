@@ -42,6 +42,9 @@ gfx_make_image(u8 *data, u32 width, u32 height);
 global void
 gfx_release_image(GFX_Image img);
 
+must_use global fvec2 
+gfx_image_size(GFX_Image img);
+
 struct GFX_Buffer {
   u64 v[1] = {};
 };

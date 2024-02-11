@@ -48,7 +48,7 @@ main(int argc, char const *argv[]) {
           },
   };
 
-  GFX_Image characters_img = load_png("W:/hi/run_tree/tex/characters.png"_s8);
+  GFX_Image characters_img = d3d_load_png("W:/hi/run_tree/tex/characters.png"_s8);
 
   GFX_Batch *batch_a           = gfx_make_batch(GFX_MaterialType_Sprite);
   batch_a->data.sprite.texture = characters_img;

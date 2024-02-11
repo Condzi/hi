@@ -61,7 +61,7 @@ struct D3d {
 
   // @ToDo: different sampler types!
   //
-  ID3D11SamplerState    *linear_sampler;
+  ID3D11SamplerState *linear_sampler;
 
   struct {
     ID3D11Buffer *rect;
@@ -138,4 +138,7 @@ compile_shader(Str8       src,
                ID3DBlob **blob);
 
 must_use GFX_Image
-load_png(Str8 src);
+d3d_load_png(Str8 src);
+
+must_use ID3D11RenderTargetView*
+d3d_image_to_rtv(GFX_Image image);

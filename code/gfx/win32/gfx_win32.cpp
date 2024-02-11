@@ -46,7 +46,7 @@ compile_shader(Str8       src,
 }
 
 must_use GFX_Image
-load_png(Str8 src) {
+d3d_load_png(Str8 src) {
   ErrorContext("src=%s"_s8, src.v);
 
   stbi_set_flip_vertically_on_load(0);
@@ -60,6 +60,22 @@ load_png(Str8 src) {
 
   GFX_Image result = gfx_make_image(img_data, (u32)x, (u32)y);
   return result;
+}
+
+must_use ID3D11RenderTargetView *
+d3d_image_to_rtv(GFX_Image image) {
+  ErrorIf(!image.v[0], "Image for render target is not initialized"_s8);
+  ID3D11Texture2D              *rt_texture = (ID3D11Texture2D *)U64ToPtr(image.v[0]);
+  ID3D11RenderTargetView       *rt_view    = 0;
+  D3D11_RENDER_TARGET_VIEW_DESC desc       = {
+            .Format        = D3D_TEXTURE_FORMAT,
+            .ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D,
+            .Texture2D     = {.MipSlice = 0},
+  };
+
+  HRESULT hr = gD3d.device->CreateRenderTargetView(rt_texture, &desc, &rt_view);
+  ErrorIf(FAILED(hr), "Failed to create render target view. hr=0x%X."_s8, hr);
+  return rt_view;
 }
 
 // Input Element Tables
@@ -679,6 +695,14 @@ gfx_release_image(GFX_Image img) {
   tex->Release();
 }
 
+must_use global fvec2
+gfx_image_size(GFX_Image img) {
+  ID3D11Texture2D     *tex = (ID3D11Texture2D *)U64ToPtr(img.v[0]);
+  D3D11_TEXTURE2D_DESC desc;
+  tex->GetDesc(&desc);
+  return {.width = (f32)desc.Width, .height = (f32)desc.Height};
+}
+
 must_use global GFX_Batch *
 gfx_make_batch(GFX_Material_Type material) {
   ErrorContext("material=%d"_s8, (int)material);
@@ -734,7 +758,6 @@ gfx_batch_push(GFX_Batch *batch, GFX_Object object) {
     return;
   }
 
-  ErrorContext(""_s8);
   ErrorIf(batch->type != object.material.type,
           "Materials don't match. Batch material is %d, object material is %d."_s8,
           (int)batch->type,
@@ -754,18 +777,7 @@ gfx_batch_draw(GFX_Batch *batch, GFX_Image target) {
 
   // Create render target view.
   //
-
-  ID3D11Texture2D              *rt_texture = (ID3D11Texture2D *)U64ToPtr(target.v[0]);
-  ID3D11RenderTargetView       *rt_view    = 0;
-  D3D11_RENDER_TARGET_VIEW_DESC desc       = {
-            .Format        = D3D_TEXTURE_FORMAT,
-            .ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D,
-            .Texture2D     = {.MipSlice = 0},
-  };
-
-  HRESULT hr = 0;
-  hr         = gD3d.device->CreateRenderTargetView(rt_texture, &desc, &rt_view);
-  ErrorIf(FAILED(hr), "Failed to create render target view. hr=0x%X."_s8, hr);
+  ID3D11RenderTargetView *rt_view = d3d_image_to_rtv(target);
   Defer { rt_view->Release(); };
 
   // Copy the instance data to the instance buffer of appropiate layout.
@@ -820,11 +832,10 @@ gfx_batch_draw(GFX_Batch *batch, GFX_Image target) {
 
     // @ToDo: Handle zoom and offsets!
     //
-    D3D11_TEXTURE2D_DESC rt_desc;
-    rt_texture->GetDesc(&rt_desc);
-    D3D11_VIEWPORT vp = {
-        .Width  = (f32)rt_desc.Width,
-        .Height = (f32)rt_desc.Height,
+    fvec2 const    rt_size = gfx_image_size(target);
+    D3D11_VIEWPORT vp      = {
+             .Width  = rt_size.width,
+             .Height = rt_size.height,
     };
 
     gD3d.deferred_context->RSSetViewports(1, &vp);
@@ -878,6 +889,7 @@ gfx_batch_draw(GFX_Batch *batch, GFX_Image target) {
         .Texture2D     = {.MipLevels = 1},
     };
 
+    HRESULT hr = 0;
     hr = gD3d.device->CreateShaderResourceView(tex, &srv_desc, &srv);
     Defer{srv->Release();};
     ErrorIf(FAILED(hr), "Failed to create SRV for A. hr=0x%X."_s8, hr);
@@ -904,11 +916,10 @@ gfx_batch_draw(GFX_Batch *batch, GFX_Image target) {
 
     // @ToDo: Handle zoom and offsets!
     //
-    D3D11_TEXTURE2D_DESC rt_desc;
-    rt_texture->GetDesc(&rt_desc);
-    D3D11_VIEWPORT vp = {
-        .Width  = (f32)rt_desc.Width,
-        .Height = (f32)rt_desc.Height,
+    fvec2 const    rt_size = gfx_image_size(target);
+    D3D11_VIEWPORT vp      = {
+             .Width  = rt_size.width,
+             .Height = rt_size.height,
     };
 
     gD3d.deferred_context->RSSetViewports(1, &vp);
@@ -942,17 +953,7 @@ gfx_rg_execute_operations(GFX_RG_Operation *operations, u32 count) {
           //
           GFX_Image *target = op.input.clear.targets[j];
           ErrorIf(!target, "target is a NULL"_s8);
-          ID3D11Texture2D              *rt_texture = (ID3D11Texture2D *)U64ToPtr(target->v[0]);
-          ID3D11RenderTargetView       *rt_view    = 0;
-          D3D11_RENDER_TARGET_VIEW_DESC desc       = {
-                    .Format        = D3D_TEXTURE_FORMAT,
-                    .ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D,
-                    .Texture2D     = {.MipSlice = 0},
-          };
-
-          HRESULT hr = 0;
-          hr         = gD3d.device->CreateRenderTargetView(rt_texture, &desc, &rt_view);
-          ErrorIf(FAILED(hr), "Failed to create render target view. hr=0x%X."_s8, hr);
+          ID3D11RenderTargetView *rt_view = d3d_image_to_rtv(*target);
           Defer { rt_view->Release(); };
 
           local_persist const fvec4 clear_color = {.r = 0.0, .g = 0.0, .b = 0.0, .a = 0.0};
@@ -989,17 +990,7 @@ gfx_combine_images(GFX_Image a, GFX_Image b, GFX_Image target) {
 
   // Create render target view.
   //
-  ID3D11Texture2D              *rt_texture = (ID3D11Texture2D *)U64ToPtr(target.v[0]);
-  ID3D11RenderTargetView       *rt_view    = 0;
-  D3D11_RENDER_TARGET_VIEW_DESC desc       = {
-            .Format        = D3D_TEXTURE_FORMAT,
-            .ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D,
-            .Texture2D     = {.MipSlice = 0},
-  };
-
-  HRESULT hr = 0;
-  hr         = gD3d.device->CreateRenderTargetView(rt_texture, &desc, &rt_view);
-  ErrorIf(FAILED(hr), "Failed to create render target view. hr=0x%X."_s8, hr);
+  ID3D11RenderTargetView *rt_view = d3d_image_to_rtv(target);
   Defer { rt_view->Release(); };
 
   // Create the SRVs for images a and b.
@@ -1015,6 +1006,7 @@ gfx_combine_images(GFX_Image a, GFX_Image b, GFX_Image target) {
       .Texture2D     = {.MipLevels = 1},
   };
 
+  HRESULT hr = 0;
   hr = gD3d.device->CreateShaderResourceView(tex_a, &srv_desc, &srv_a);
   ErrorIf(FAILED(hr), "Failed to create SRV for A. hr=0x%X."_s8, hr);
   hr = gD3d.device->CreateShaderResourceView(tex_b, &srv_desc, &srv_b);
@@ -1037,11 +1029,10 @@ gfx_combine_images(GFX_Image a, GFX_Image b, GFX_Image target) {
   gD3d.deferred_context->PSSetSamplers(0, 1, &(gD3d.linear_sampler));
 
   // @Robustness: what should be the viewport here?
-  D3D11_TEXTURE2D_DESC rt_desc;
-  rt_texture->GetDesc(&rt_desc);
-  D3D11_VIEWPORT vp = {
-      .Width  = (f32)rt_desc.Width,
-      .Height = (f32)rt_desc.Height,
+  fvec2 const    rt_size = gfx_image_size(target);
+  D3D11_VIEWPORT vp      = {
+           .Width  = rt_size.width,
+           .Height = rt_size.height,
   };
 
   gD3d.deferred_context->RSSetViewports(1, &vp);
@@ -1061,17 +1052,7 @@ gfx_apply_post_fx(GFX_Fx fx, GFX_Image src, GFX_Image target) {
 
   // Create render target view.
   //
-  ID3D11Texture2D              *rt_texture = (ID3D11Texture2D *)U64ToPtr(target.v[0]);
-  ID3D11RenderTargetView       *rt_view    = 0;
-  D3D11_RENDER_TARGET_VIEW_DESC desc       = {
-            .Format        = D3D_TEXTURE_FORMAT,
-            .ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D,
-            .Texture2D     = {.MipSlice = 0},
-  };
-
-  HRESULT hr = 0;
-  hr         = gD3d.device->CreateRenderTargetView(rt_texture, &desc, &rt_view);
-  ErrorIf(FAILED(hr), "Failed to create render target view. hr=0x%X."_s8, hr);
+  ID3D11RenderTargetView *rt_view = d3d_image_to_rtv(target);
   Defer { rt_view->Release(); };
 
   // Create the SRVs for images a and b.
@@ -1085,6 +1066,7 @@ gfx_apply_post_fx(GFX_Fx fx, GFX_Image src, GFX_Image target) {
       .Texture2D     = {.MipLevels = 1},
   };
 
+  HRESULT hr = 0;
   hr = gD3d.device->CreateShaderResourceView(tex, &srv_desc, &srv);
   ErrorIf(FAILED(hr), "Failed to create SRV. hr=0x%X."_s8, hr);
   Defer { srv->Release(); };
@@ -1135,11 +1117,10 @@ gfx_apply_post_fx(GFX_Fx fx, GFX_Image src, GFX_Image target) {
   gD3d.deferred_context->PSSetSamplers(0, 1, &(gD3d.linear_sampler));
 
   // @Robustness: what should be the viewport here?
-  D3D11_TEXTURE2D_DESC rt_desc;
-  rt_texture->GetDesc(&rt_desc);
-  D3D11_VIEWPORT vp = {
-      .Width  = (f32)rt_desc.Width,
-      .Height = (f32)rt_desc.Height,
+  fvec2 const    rt_size = gfx_image_size(target);
+  D3D11_VIEWPORT vp      = {
+           .Width  = rt_size.width,
+           .Height = rt_size.height,
   };
 
   gD3d.deferred_context->RSSetViewports(1, &vp);
