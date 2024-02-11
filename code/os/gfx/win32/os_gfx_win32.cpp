@@ -179,6 +179,8 @@ win32_window_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
       win32_push_event(OS_EventType_WindowResized);
       // @ToDo: Move this to the os-independent event queue handling!
       //
+      // @ToDo: Handle WM_MINIMIZED or something like that. Pause the rendering when
+      // this happens.
       gfx_resize(os_gfx_surface_width(), os_gfx_surface_height());
       os_debug_message("WM_SIZE\n"_s8);
     } break;

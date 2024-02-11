@@ -52,7 +52,6 @@ struct D3d {
   ID3D11DeviceContext *deferred_context;
 
   ID3D11Texture2D        *framebuffer;
-  ID3D11RenderTargetView *framebuffer_rtv;
 
   // @ToDo: different blend states!
   //

@@ -275,8 +275,6 @@ gfx_init(GFX_Opts const &opts) {
 
   hr = gD3d.dxgi_swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void **)&gD3d.framebuffer);
   ErrorIf(FAILED(hr), "Failed to acquire the framebuffer. hr=0x%X."_s8, hr);
-  hr = gD3d.device->CreateRenderTargetView(gD3d.framebuffer, 0, &gD3d.framebuffer_rtv);
-  ErrorIf(FAILED(hr), "Failed to create rtv for framebuffer. hr=0x%X."_s8, hr);
 
   // Create deferred context.
   //
@@ -565,13 +563,11 @@ gfx_resize(u32 new_width, u32 new_height) {
 
   // Release all references to back buffers.
   //
-  gD3d.framebuffer_rtv->Release();
   gD3d.framebuffer->Release();
-
-  HRESULT hr = 0;
 
   // Resize the swap chain buffers.
   //
+  HRESULT hr = 0;
   hr = gD3d.dxgi_swapchain->ResizeBuffers(0, new_width, new_height, DXGI_FORMAT_UNKNOWN, 0);
   ErrorIf(FAILED(hr), "ResizeBuffers failed. hr=0x%X."_s8, hr);
 
@@ -579,8 +575,6 @@ gfx_resize(u32 new_width, u32 new_height) {
   //
   hr = gD3d.dxgi_swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void **)&gD3d.framebuffer);
   ErrorIf(FAILED(hr), "Failed to reacquire the framebuffer. hr=0x%X."_s8, hr);
-  hr = gD3d.device->CreateRenderTargetView(gD3d.framebuffer, 0, &gD3d.framebuffer_rtv);
-  ErrorIf(FAILED(hr), "Failed to recreate rtv for framebuffer. hr=0x%X."_s8, hr);
 
   // Update projection matrix
   //
