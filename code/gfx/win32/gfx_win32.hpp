@@ -19,6 +19,10 @@
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
 
+// Common constants used in the backend
+//
+global read_only DXGI_FORMAT D3D_TEXTURE_FORMAT = DXGI_FORMAT_R8G8B8A8_UNORM;
+
 // DirectX 11 backend state
 //
 

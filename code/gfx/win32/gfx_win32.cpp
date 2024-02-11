@@ -24,17 +24,17 @@ compile_shader(Str8       src,
 
   ID3DBlob *err_blob = 0;
   HRESULT   hr       = 0;
-  hr                 = ::D3DCompile(src.v,
-                    src.sz,
-                    0,
-                    0,
-                    D3D_COMPILE_STANDARD_FILE_INCLUDE,
-                    (LPCSTR)entry_point.v,
-                    (LPCSTR)profile.v,
-                    SHADER_FLAGS,
-                    0,
-                    blob,
-                    &err_blob);
+  hr                 = D3DCompile(src.v,
+                  src.sz,
+                  0,
+                  0,
+                  D3D_COMPILE_STANDARD_FILE_INCLUDE,
+                  (LPCSTR)entry_point.v,
+                  (LPCSTR)profile.v,
+                  SHADER_FLAGS,
+                  0,
+                  blob,
+                  &err_blob);
 
   // On failure, the error buffer to the output.
   //
@@ -244,7 +244,7 @@ gfx_init(GFX_Opts const &opts) {
   DXGI_SWAP_CHAIN_DESC1 const sc_desc = {
       .Width       = opts.vp_width,
       .Height      = opts.vp_height,
-      .Format      = DXGI_FORMAT_R8G8B8A8_UNORM,
+      .Format      = D3D_TEXTURE_FORMAT,
       .SampleDesc  = {.Count = 1, .Quality = 0},
       .BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT,
       .BufferCount = 2,
@@ -495,7 +495,7 @@ gfx_init(GFX_Opts const &opts) {
 
     // Upload common constants to GPU
     //
-    ::D3D11_BUFFER_DESC desc = {
+    D3D11_BUFFER_DESC desc = {
         .ByteWidth      = sizeof(D3d_Common_Constants),
         .Usage          = D3D11_USAGE_DYNAMIC,
         .BindFlags      = D3D11_BIND_CONSTANT_BUFFER,
@@ -527,7 +527,7 @@ gfx_init(GFX_Opts const &opts) {
 
     // Upload common constants to GPU
     //
-    ::D3D11_BUFFER_DESC desc = {
+    D3D11_BUFFER_DESC desc = {
         .ByteWidth      = sizeof(D3d_Post_Fx_Constants),
         .Usage          = D3D11_USAGE_DYNAMIC,
         .BindFlags      = D3D11_BIND_CONSTANT_BUFFER,
@@ -572,7 +572,7 @@ gfx_resize(u32 new_width, u32 new_height) {
 
   // Update common constants
   //
-  ::D3D11_MAPPED_SUBRESOURCE mapped_consts;
+  D3D11_MAPPED_SUBRESOURCE mapped_consts;
   gD3d.deferred_context->Map(
       gD3d.common_constants.buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_consts);
   MemoryCopy(mapped_consts.pData, &gD3d.common_constants.data, sizeof(D3d_Common_Constants));
@@ -651,7 +651,7 @@ gfx_make_image(u8 *data, u32 width, u32 height) {
       .Height     = height,
       .MipLevels  = 1,
       .ArraySize  = 1,
-      .Format     = DXGI_FORMAT_R8G8B8A8_UNORM,
+      .Format     = D3D_TEXTURE_FORMAT,
       .SampleDesc = {.Count = 1},
       .Usage      = D3D11_USAGE_DEFAULT,
       .BindFlags  = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE,
@@ -758,7 +758,7 @@ gfx_batch_draw(GFX_Batch *batch, GFX_Image target) {
   ID3D11Texture2D              *rt_texture = (ID3D11Texture2D *)U64ToPtr(target.v[0]);
   ID3D11RenderTargetView       *rt_view    = 0;
   D3D11_RENDER_TARGET_VIEW_DESC desc       = {
-            .Format        = DXGI_FORMAT_R8G8B8A8_UNORM, // Same as texture!
+            .Format        = D3D_TEXTURE_FORMAT,
             .ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D,
             .Texture2D     = {.MipSlice = 0},
   };
@@ -872,8 +872,8 @@ gfx_batch_draw(GFX_Batch *batch, GFX_Image target) {
     ID3D11Texture2D          *tex = (ID3D11Texture2D *)U64ToPtr(batch->data.sprite.texture.v[0]);
     ID3D11ShaderResourceView *srv = 0;
 
-    ::D3D11_SHADER_RESOURCE_VIEW_DESC const srv_desc = {
-        .Format        = DXGI_FORMAT_R8G8B8A8_UNORM,
+    D3D11_SHADER_RESOURCE_VIEW_DESC const srv_desc = {
+        .Format        = D3D_TEXTURE_FORMAT,
         .ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D,
         .Texture2D     = {.MipLevels = 1},
     };
@@ -945,7 +945,7 @@ gfx_rg_execute_operations(GFX_RG_Operation *operations, u32 count) {
           ID3D11Texture2D              *rt_texture = (ID3D11Texture2D *)U64ToPtr(target->v[0]);
           ID3D11RenderTargetView       *rt_view    = 0;
           D3D11_RENDER_TARGET_VIEW_DESC desc       = {
-                    .Format        = DXGI_FORMAT_R8G8B8A8_UNORM, // Same as texture!
+                    .Format        = D3D_TEXTURE_FORMAT,
                     .ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D,
                     .Texture2D     = {.MipSlice = 0},
           };
@@ -992,7 +992,7 @@ gfx_combine_images(GFX_Image a, GFX_Image b, GFX_Image target) {
   ID3D11Texture2D              *rt_texture = (ID3D11Texture2D *)U64ToPtr(target.v[0]);
   ID3D11RenderTargetView       *rt_view    = 0;
   D3D11_RENDER_TARGET_VIEW_DESC desc       = {
-            .Format        = DXGI_FORMAT_R8G8B8A8_UNORM, // Same as texture!
+            .Format        = D3D_TEXTURE_FORMAT,
             .ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D,
             .Texture2D     = {.MipSlice = 0},
   };
@@ -1009,8 +1009,8 @@ gfx_combine_images(GFX_Image a, GFX_Image b, GFX_Image target) {
   ID3D11ShaderResourceView *srv_a = 0;
   ID3D11ShaderResourceView *srv_b = 0;
 
-  ::D3D11_SHADER_RESOURCE_VIEW_DESC const srv_desc = {
-      .Format        = DXGI_FORMAT_R8G8B8A8_UNORM,
+  D3D11_SHADER_RESOURCE_VIEW_DESC const srv_desc = {
+      .Format        = D3D_TEXTURE_FORMAT,
       .ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D,
       .Texture2D     = {.MipLevels = 1},
   };
@@ -1064,7 +1064,7 @@ gfx_apply_post_fx(GFX_Fx fx, GFX_Image src, GFX_Image target) {
   ID3D11Texture2D              *rt_texture = (ID3D11Texture2D *)U64ToPtr(target.v[0]);
   ID3D11RenderTargetView       *rt_view    = 0;
   D3D11_RENDER_TARGET_VIEW_DESC desc       = {
-            .Format        = DXGI_FORMAT_R8G8B8A8_UNORM, // Same as texture!
+            .Format        = D3D_TEXTURE_FORMAT,
             .ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D,
             .Texture2D     = {.MipSlice = 0},
   };
@@ -1079,8 +1079,8 @@ gfx_apply_post_fx(GFX_Fx fx, GFX_Image src, GFX_Image target) {
   ID3D11Texture2D          *tex = (ID3D11Texture2D *)U64ToPtr(src.v[0]);
   ID3D11ShaderResourceView *srv = 0;
 
-  ::D3D11_SHADER_RESOURCE_VIEW_DESC const srv_desc = {
-      .Format        = DXGI_FORMAT_R8G8B8A8_UNORM,
+  D3D11_SHADER_RESOURCE_VIEW_DESC const srv_desc = {
+      .Format        = D3D_TEXTURE_FORMAT,
       .ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D,
       .Texture2D     = {.MipLevels = 1},
   };
@@ -1100,7 +1100,7 @@ gfx_apply_post_fx(GFX_Fx fx, GFX_Image src, GFX_Image target) {
       .time    = os_seconds_since_startup(),
       .quality = fx.strength,
   };
-  ::D3D11_MAPPED_SUBRESOURCE mapped_consts;
+  D3D11_MAPPED_SUBRESOURCE mapped_consts;
   gD3d.deferred_context->Map(
       gD3d.post_fx_constants.buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_consts);
   MemoryCopy(mapped_consts.pData, &gD3d.post_fx_constants.data, sizeof(D3d_Post_Fx_Constants));
