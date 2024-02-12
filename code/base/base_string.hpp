@@ -18,7 +18,7 @@ struct Str16 {
 //
 
 must_use Str8
-operator""_s8(char const* str, size_t len);
+operator""_s8(char const *str, size_t len);
 
 must_use global Str8
 str8(u8 *v, u64 sz);
@@ -36,7 +36,7 @@ must_use global Str16
 str16_range(u16 *beg, u16 *end);
 
 must_use global Str16
-str16_cstr(wchar_t const* cstr);
+str16_cstr(wchar_t const *cstr);
 
 // String Operations
 //
@@ -47,9 +47,21 @@ str8_compare(Str8 a, Str8 b);
 must_use global bool
 str8_has_prefix(Str8 str, Str8 prefix);
 
+#if defined(__has_attribute)
+#if __has_attribute(format)
+#define AttributeFormat(fmt, va) __attribute__((format(printf, fmt, va)))
+#endif
+#endif
+
+#ifndef AttributeFormat
+#define AttributeFormat(fmt, va)
+#endif
+
 template <typename... TArgs>
 must_use global Str8
-str8_sprintf(Arena *arena, char const* format, TArgs... args);
+str8_sprintf(Arena *arena, char const *format, TArgs... args) AttributeFormat(2, 3);
+
+#undef AttributeFormat
 
 // Unicode String Conversions
 // For legacy reasons, results are NULL-terminated.
