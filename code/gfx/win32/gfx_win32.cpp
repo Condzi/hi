@@ -761,13 +761,6 @@ gfx_make_batch(GFX_Material_Type material) {
 }
 
 global void
-gfx_release_batch(GFX_Batch *batch) {
-  // Not implemented
-  Unused(batch);
-  InvalidPath;
-}
-
-global void
 gfx_batch_push(GFX_Batch *batch, GFX_Object object) {
   if (!batch) {
     return;
