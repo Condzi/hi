@@ -58,6 +58,16 @@
 
 ## GFX
 
+  [ ] Camera Node for the render graph. It sets the view.
+  [ ] Batching & Layering
+
+    1. `GFX_Object`s submitted to a per-frame array
+    2. Objects are sorted by layer.
+    3. Objects are assigned to correct batches. For sprites, look for the same texture.
+      Rects are the simplest to batch, just combine all subsequent objects.
+    4. Depending on which batch is selected and in what order, dynamically construct
+      (re-arrange) render graph nodes.
+
   [ ] Figure out common viewport sizes that we can render
   [ ] Figure out MVP matrix -- how exactly does it work in our 2D game?
   [ ] GPU info (memory, name...)
