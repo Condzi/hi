@@ -728,8 +728,8 @@ gfx_make_batch(GFX_Material_Type material) {
 
   GFX_Batch *batch = arena_alloc<GFX_Batch>(gfx_arena);
   batch->type      = material;
-  batch->objects.v   = arena_alloc_array<GFX_Object>(gfx_arena, 64);
-  batch->objects.cap = 64;
+  batch->objects.v   = arena_alloc_array<GFX_Object>(gfx_arena, GFX_BATCH_MAX_INSTANCES);
+  batch->objects.cap = GFX_BATCH_MAX_INSTANCES;
 
   UINT byte_width = (UINT)batch->objects.cap;
   switch (material) {

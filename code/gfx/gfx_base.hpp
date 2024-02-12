@@ -110,6 +110,12 @@ struct GFX_Object_Array {
 // Batching
 //
 
+read_only global u64 GFX_BATCH_MAX_INSTANCES = 64;
+
+// Batches are specialized per-material type. They have hard limit on how many
+// objects they can render, because we have to allocate some known amount of space
+// on the gpu for the instances. The limit is set by GFX_BATCH_MAX_INSTANCES.
+//
 struct GFX_Batch {
   GFX_Buffer       instances;
   GFX_Object_Array objects;
@@ -165,53 +171,3 @@ gfx_apply_post_fx(GFX_Fx fx, GFX_Image src, GFX_Image target);
 
 global void
 gfx_resize_image_with_framebuffer(GFX_Image *img);
-
-// Render functions
-//
-
-struct {
-  GFX_Render_Graph *rg;
-  GFX_Batch_Node   *free_batches;
-  GFX_Batch_Node   *used_batches;
-
-  GFX_Object_Array objects_in_frame;         // Uses frame arena as storage!
-  bool             is_accepting_new_objects; // true if between begin/end frame calls.
-
-  // Batchers need to be added between these two nodes -- as children of "before" and the last one
-  // as parent of "after".
-  //
-  GFX_RG_Node *node_before_batchers;
-  GFX_RG_Node *node_after_batchers;
-} global gRen;
-
-global void
-gfx_renderer_init();
-
-global void
-gfx_renderer_begin_frame();
-
-global void
-gfx_renderer_end_frame();
-
-struct GFX_Sprite_Opts {
-  fvec2        pos;
-  fvec2        sz;
-  f32          rot = 0;
-  GFX_Image    tex;
-  GFX_Tex_Rect tex_rect;
-};
-
-global void
-gfx_draw_sprite(GFX_Layer layer, GFX_Sprite_Opts const &opts);
-
-global void
-gfx_draw_sprite_color(GFX_Layer layer, GFX_Sprite_Opts const &opts, GFX_Color color);
-
-struct GFX_Rect_Opts {
-  fvec2 pos;
-  fvec2 sz;
-  f32   rot = 0;
-};
-
-global void
-gfx_draw_rect_color(GFX_Layer layer, GFX_Rect_Opts const &opts, GFX_Color color);
