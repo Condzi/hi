@@ -42,7 +42,7 @@ gfx_make_image(u8 *data, u32 width, u32 height);
 global void
 gfx_release_image(GFX_Image img);
 
-must_use global fvec2 
+must_use global fvec2
 gfx_image_size(GFX_Image img);
 
 struct GFX_Buffer {
@@ -86,6 +86,7 @@ struct GFX_Material {
       GFX_Color color;
     } rect = {};
     struct {
+      GFX_Image    tex;
       GFX_Tex_Rect tex_rect;
       GFX_Color    color;
     } sprite;
@@ -147,7 +148,7 @@ enum GFX_Post_Fx_Type {
 };
 
 struct GFX_Fx {
-  GFX_Post_Fx_Type type = {};
+  GFX_Post_Fx_Type type     = {};
   f32              strength = 0;
 };
 
@@ -161,4 +162,4 @@ global void
 gfx_apply_post_fx(GFX_Fx fx, GFX_Image src, GFX_Image target);
 
 global void
-gfx_resize_image_with_framebuffer(GFX_Image* img);
+gfx_resize_image_with_framebuffer(GFX_Image *img);

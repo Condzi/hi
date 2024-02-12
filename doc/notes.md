@@ -63,8 +63,8 @@
 
     1. `GFX_Object`s submitted to a per-frame array
     2. Objects are sorted by layer.
-    3. Objects are assigned to correct batches. For sprites, look for the same texture.
-      Rects are the simplest to batch, just combine all subsequent objects.
+    3. Objects are assigned to batches. For sprites, look for the same texture. Rects are the simplest to batch, just combine all subsequent objects. Important aspect
+    is that batches are re-used and preallocated (start with 8 batches for sprites and 2 for rects).
     4. Depending on which batch is selected and in what order, dynamically construct
       (re-arrange) render graph nodes.
 

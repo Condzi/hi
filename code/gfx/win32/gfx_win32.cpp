@@ -564,10 +564,23 @@ global void
 gfx_resize(u32 new_width, u32 new_height) {
   ErrorContext("new_width=%u, new_height=%u", new_width, new_height);
 
+  new_width  = Clamp(1, new_width, 16384);
+  new_height = Clamp(1, new_height, 16384);
+
   HRESULT hr = 0;
   // Release all references to back buffers.
   //
-  gD3d.framebuffer->Release();
+  {
+    ErrorContext("Clear state");
+    gD3d.framebuffer->Release();
+
+    ID3D11CommandList *command_list = 0;
+    hr = gD3d.deferred_context->FinishCommandList(FALSE, &command_list);
+    ErrorIf(FAILED(hr), "Failed to finish command list. %S", os_error_to_user_message(hr));
+    command_list->Release();
+    gD3d.immediate_context->ClearState();
+    gD3d.deferred_context->ClearState();
+  }
 
   // Resize the swap chain buffers.
   //
@@ -626,6 +639,8 @@ gfx_resize(u32 new_width, u32 new_height) {
     old_tex->Release();
     it->img->v[0] = PtrToU64(new_tex);
   }
+
+  gD3d.dxgi_swapchain->Present(1, 0);
 }
 
 global void
