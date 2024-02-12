@@ -36,23 +36,23 @@ struct GFX_RG_Operation {
     } batch;
 
     struct {
-      GFX_Image* src;
-      GFX_Fx    fx;
+      GFX_Image *src;
+      GFX_Fx     fx;
     } post_fx;
 
     struct {
       // Assume a and b are the same size and type!
       //
-      GFX_Image* a;
-      GFX_Image* b;
+      GFX_Image *a;
+      GFX_Image *b;
     } combine_images;
 
     struct {
-      GFX_Image* src;
+      GFX_Image *src;
     } framebuffer;
   } input;
 
-  GFX_Image* out;
+  GFX_Image *out;
 };
 
 // Random values for now. I think it should be enough.
@@ -64,10 +64,10 @@ read_only global u64 GFX_RG_MAX_CHILDREN = 4;
 
 struct GFX_RG_Node {
   GFX_RG_Operation op;
-  GFX_RG_Node     *parents[GFX_RG_MAX_PARENTS]    = {};
+  GFX_RG_Node     *parents[GFX_RG_MAX_PARENTS]   = {};
   GFX_RG_Node     *children[GFX_RG_MAX_CHILDREN] = {};
 
-  u32 parents_count   = 0;
+  u32 parents_count  = 0;
   u32 children_count = 0;
   // We have some 8 bit counter incremented every time we
   // start to traverse the graph. If the visit_cookie != counter,

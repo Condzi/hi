@@ -1,12 +1,25 @@
 #pragma once
 
-// Render functions
+// Constants
 //
 
+read_only internal u32 GFX_RENDERER_SPRITE_BATCHES_COUNT = 8;
+read_only internal u32 GFX_RENDERER_RECT_BATCHES_COUNT   = 2;
+read_only internal u32 GFX_RENDERER_BATCHES_TOTAL =
+    GFX_RENDERER_SPRITE_BATCHES_COUNT + GFX_RENDERER_RECT_BATCHES_COUNT;
+
 struct {
-  GFX_Render_Graph *rg           = 0;
+  GFX_Render_Graph *rg = 0;
+
+  // Batches for reuse
+  //
   GFX_Batch_Node   *free_batches = 0;
   GFX_Batch_Node   *used_batches = 0;
+
+  // Nodes for reuse
+  //
+  GFX_RG_Node *free_nodes = 0;
+  GFX_RG_Node *used_nodes = 0;
 
   GFX_Object_Array objects_in_frame;         // Uses frame arena as storage!
   bool             is_accepting_new_objects = false; // true if between begin/end frame calls.
@@ -26,6 +39,9 @@ gfx_renderer_begin_frame();
 
 global void
 gfx_renderer_end_frame();
+
+// Drawing frontend
+//
 
 struct GFX_Sprite_Opts {
   fvec2        pos;

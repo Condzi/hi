@@ -96,7 +96,7 @@ struct GFX_Material {
 struct GFX_Object {
   fvec2        pos;
   fvec2        sz;
-  f32          rot;
+  f32          rot = 0;
   GFX_Layer    layer;
   GFX_Material material;
 };
