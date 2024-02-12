@@ -111,7 +111,6 @@ struct GFX_Object_Array {
 
 struct GFX_Batch {
   GFX_Buffer       instances;
-  GFX_Viewport     viewport; // At what exacly are we looking?
   GFX_Object_Array objects;
 
   // What is the material of the objects in this batch?

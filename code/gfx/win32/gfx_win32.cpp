@@ -571,7 +571,7 @@ gfx_resize(u32 new_width, u32 new_height) {
 
   // Resize the swap chain buffers.
   //
-  hr         = gD3d.dxgi_swapchain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
+  hr = gD3d.dxgi_swapchain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
   ErrorIf(FAILED(hr) && FAILED(gD3d.device->GetDeviceRemovedReason()),
           "ResizeBuffers failed. %S",
           os_error_to_user_message(hr));
@@ -713,10 +713,6 @@ gfx_make_batch(GFX_Material_Type material) {
 
   GFX_Batch *batch = arena_alloc<GFX_Batch>(gfx_arena);
   batch->type      = material;
-  batch->viewport  = {
-       .sz   = {.width = (f32)os_gfx_surface_width(), .height = (f32)os_gfx_surface_height()},
-       .zoom = 1,
-  };
   batch->objects.v   = arena_alloc_array<GFX_Object>(gfx_arena, 64);
   batch->objects.cap = 64;
 
