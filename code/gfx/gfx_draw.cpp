@@ -51,14 +51,60 @@ gfx_renderer_begin_frame() {
 
 global void
 gfx_renderer_end_frame() {
-  ErrorContext("objets_in_frame.sz=%zu", gRen.objects_in_frame.sz);
+  // Aliases
+  //
+  GFX_Object *objects    = gRen.objects_in_frame.v;
+  u64 const   objects_sz = gRen.objects_in_frame.sz;
+  ErrorContext("objects_count=%zu", objects_sz);
 
   gRen.is_accepting_new_objects = false;
   GFX_Image final_image;
 
-  if (gRen.objects_in_frame.sz) {
-    // Sort, assign objects to batches and attach batches RG nodes. Then attach nodes
-    // to each other and finally attach to render graph.
+  if (objects && objects_sz) {
+    // @Performance Bubble sort the objects by layer.
+    //
+    {
+      bool swapped = false;
+      for (u64 i = 0; i < objects_sz - 1; i++) {
+        GFX_Object &obj_i = objects[i];
+        swapped           = false;
+        for (u64 j = 0; j < objects_sz - i + 1; j++) {
+          GFX_Object &obj_j = objects[i];
+          if (obj_i.layer.v > obj_j.layer.v) {
+            Swap(obj_i, obj_j);
+            swapped = true;
+          }
+        }
+        if (!swapped) {
+          break;
+        }
+      }
+    }
+
+    // Look for subsequences of objects with compatible materials for batching.
+    // Immedietaly assign them to correct batches.
+    // Add these batches to "used" list. Every next batch will be added
+    // to the end of this list, which maintains the order.
+    //
+    {
+      GFX_Batch *current_batch = 0;
+      for (u64 i = 0; i < objects_sz; i++) {
+        GFX_Object const   &obj = objects[i];
+        GFX_Material const &mat = obj.material;
+
+        if (!current_batch || (current_batch->type != mat.type) ||
+            (current_batch->type == mat.type && mat.type == GFX_MaterialType_Sprite &&
+             current_batch->data.sprite.texture.v[0] != mat.sprite.tex.v[0])) {
+          // @ToDo Request new batch
+          InvalidPath;
+        } else {
+          gfx_batch_push(current_batch, obj);
+        }
+      }
+    }
+
+    // Attach gRen.used_batches to RG nodes. Then attach nodes to each other and finally attach 
+    // the beginning and end to corresponding nodes in gRen.XXX.
     //
   }
 
