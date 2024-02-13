@@ -59,6 +59,8 @@ enum GFX_Layer_Category {
   GFX_Layer_Foreground,
 };
 
+// Higher priority means its closer to the foreground.
+//
 union GFX_Layer {
   u8 v = {};
   struct {

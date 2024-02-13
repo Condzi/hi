@@ -39,14 +39,55 @@ gfx_renderer_init() {
 
 global void
 gfx_renderer_begin_frame() {
-  // prepare objects_in_frame (its using frame arena)
-  // reset free nodes/batches
-  // start accepting new objects again (Flag)
+  u64 const   obj_cap   = gRen.objects_in_frame.cap;
+  GFX_Object *obj       = arena_alloc_array<GFX_Object>(gContext.frame_arena, obj_cap);
+  gRen.objects_in_frame = {
+      .v   = obj,
+      .cap = obj_cap,
+  };
+
+  gRen.is_accepting_new_objects = true;
 }
 
 global void
 gfx_renderer_end_frame() {
-  // Sort, call render graph, swap buffers
+  ErrorContext("objets_in_frame.sz=%zu", gRen.objects_in_frame.sz);
+
+  gRen.is_accepting_new_objects = false;
+  GFX_Image final_image;
+
+  if (gRen.objects_in_frame.sz) {
+    // Sort, assign objects to batches and attach batches RG nodes. Then attach nodes
+    // to each other and finally attach to render graph.
+    //
+  }
+
+  // Render the image
+  //
+  final_image = gfx_rg_evaluate(gRen.rg);
+  gfx_swap_buffers(final_image);
+
+  // Reset the render graph nodes
+  //
+  gRen.node_before_batchers->children_count = 0;
+  gRen.node_after_batchers->parents_count   = 0;
+
+  // Walk through the used nodes and reset their parents/children.
+  //
+  for (GFX_RG_Node *node = gRen.used_nodes; node; node = node->next) {
+    node->children_count = 0;
+    node->parents_count  = 0;
+    SLL_insert(gRen.free_nodes, node);
+  }
+  gRen.used_nodes = 0;
+
+  // Same for batches.
+  //
+  for (GFX_Batch_Node *batch = gRen.used_batches; batch; batch = batch->next) {
+    batch->batch->objects.sz = 0;
+    SLL_insert(gRen.free_batches, batch);
+  }
+  gRen.used_batches = 0;
 }
 
 global void
@@ -101,8 +142,10 @@ gfx_renderer_init_reuseable_resources() {
   //
   for (u32 i = 0; i < GFX_RENDERER_BATCHES_TOTAL; i++) {
     GFX_RG_Node *node = gfx_rg_make_node(gRen.rg);
-    node->op.type     = GFX_RG_OpType_Batch;
-    node->op.out      = gRen.batch_render_target;
+    node->op          = {
+                 .type = GFX_RG_OpType_Batch,
+                 .out  = gRen.batch_render_target,
+    };
     SLL_insert(gRen.free_nodes, node);
   }
 
