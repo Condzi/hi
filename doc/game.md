@@ -28,12 +28,14 @@ Waves could have constant time, maybe 2mins? Then the wave remains until last zo
 
 # Trap ideas
 
-Check the ones from vietnam?
+Funny traps, like car on a string, or mouse-like trap...
 
 # Zombie ideas
 
 Classic ones? slow, fast, exploding kamikaze, big mutants?
 inspo from plants vs zombies (jumping over fence etc)
+Funny zombies like jumping ones, runners, zombie that looks like
+a tank
 
 # Full version
 
@@ -44,4 +46,4 @@ inspo from plants vs zombies (jumping over fence etc)
 - Cartoony style
 - Hotline Miami
 - Plants vs. Zombies
-- humor
+- humor (main character saying some funny stuff about his life pre-apocalypse)
