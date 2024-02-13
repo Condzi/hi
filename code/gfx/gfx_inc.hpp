@@ -1,5 +1,9 @@
 #pragma once
 
+#include "gfx_base.hpp"
+#include "gfx_render_graph.hpp"
+#include "gfx_draw.hpp"
+
 global Arena *gfx_arena;
 
 struct GFX_Opts {
@@ -21,11 +25,8 @@ global void
 gfx_resize(u32 new_width, u32 new_height);
 
 global void
-gfx_swap_buffers();
+gfx_swap_buffers(GFX_Image final_image);
 
-#include "gfx_base.hpp"
-#include "gfx_render_graph.hpp"
-#include "gfx_draw.hpp"
 
 #if OS_WINDOWS
 #include "win32/gfx_win32.hpp"

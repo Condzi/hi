@@ -180,10 +180,9 @@ main(int argc, char const *argv[]) {
     gfx_batch_push(batch_b, obj2);
     gfx_batch_push(batch_bg, bg_obj);
 
-    GFX_Image graph_result = gfx_rg_evaluate(rg);
-    gD3d.deferred_context->CopyResource(gD3d.framebuffer, (ID3D11Resource *)(graph_result.v[0]));
 
-    gfx_swap_buffers();
+    GFX_Image graph_result = gfx_rg_evaluate(rg);
+    gfx_swap_buffers(graph_result);
 
     // Reset the batches
     //

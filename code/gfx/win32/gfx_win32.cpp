@@ -630,8 +630,14 @@ gfx_resize(u32 new_width, u32 new_height) {
 }
 
 global void
-gfx_swap_buffers() {
+gfx_swap_buffers(GFX_Image final_image) {
   HRESULT hr = 0;
+
+  // Copy final image to the frame buffer
+  //
+  gD3d.deferred_context->ClearState();
+  ID3D11Texture2D *final = (ID3D11Texture2D *)U64ToPtr(final_image.v[0]);
+  gD3d.deferred_context->CopyResource(gD3d.framebuffer, final);
 
   // Clear the state.
   //
@@ -641,7 +647,6 @@ gfx_swap_buffers() {
   //
   {
     ErrorContext("Execute rendering commands");
-    gD3d.deferred_context->ClearState();
     ID3D11CommandList *command_list = 0;
     hr = gD3d.deferred_context->FinishCommandList(FALSE, &command_list);
     ErrorIf(FAILED(hr), "Failed to finish command list. %S", os_error_to_user_message(hr));
