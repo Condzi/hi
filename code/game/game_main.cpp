@@ -15,6 +15,15 @@ main(int argc, char const *argv[]) {
   os_init(argc, argv);
   os_gfx_init();
 
+  GFX_Layer l1 = {.category = GFX_Layer_Background};
+  GFX_Layer l2 = {.category = GFX_Layer_Foreground};
+  ErrorIf(l1.v > l2.v, "l1.v=0x%X, l2.v=0x%X", (u32)l1.v, (u32)l2.v);
+
+  GFX_Layer l3 = {.category = GFX_Layer_Background, .priority = 0};
+  GFX_Layer l4 = {.category = GFX_Layer_Background, .priority = 1};
+  ErrorIf(l3.v > l4.v, "l3.v=0x%X, l4.v=0x%X", (u32)l3.v, (u32)l4.v);
+
+
   os_gfx_open_window({
       .title      = GAME_TITLE_LITERAL ""_s8,
       .width      = 1280,
@@ -166,6 +175,8 @@ main(int argc, char const *argv[]) {
   u64 frame = 0;
   while (os_gfx_window_mode() != OS_WindowMode_Closed) {
     ErrorContext("frame=%zu", frame);
+    gfx_renderer_begin_frame();
+
     OS_Window_Event *events = os_gfx_event_pump(gContext.frame_arena);
     Unused(events);
 
@@ -176,6 +187,7 @@ main(int argc, char const *argv[]) {
     obj.rot -= 0.01f;
     obj2.rot += 0.1f;
 
+  /*
     gfx_batch_push(batch_a, obj);
     gfx_batch_push(batch_b, obj2);
     gfx_batch_push(batch_bg, bg_obj);
@@ -183,12 +195,16 @@ main(int argc, char const *argv[]) {
 
     GFX_Image graph_result = gfx_rg_evaluate(rg);
     gfx_swap_buffers(graph_result);
+  */
+    gfx_renderer_end_frame();
 
     // Reset the batches
     //
+    /*
     batch_a->objects.sz = 0;
     batch_b->objects.sz = 0;
     batch_bg->objects.sz = 0;
+    */
 
     arena_clear(gContext.frame_arena);
 
