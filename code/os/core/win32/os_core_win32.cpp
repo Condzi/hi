@@ -114,6 +114,6 @@ os_error_to_user_message(s64 error) {
   Defer { LocalFree(buff); };
 
   Str8 err8  = str8_from_16(gContext.frame_arena, str16((u16 *)buff, size));
-  Str8 final = str8_sprintf(gContext.frame_arena, "0x%X: %S", hr, err8);
+  Str8 final = str8_sprintf(gContext.frame_arena, "0x%lX: %S", hr, err8);
   return final;
 }
