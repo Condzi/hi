@@ -614,11 +614,6 @@ gfx_resize(u32 new_width, u32 new_height) {
     D3D11_TEXTURE2D_DESC desc;
     old_tex->GetDesc(&desc);
 
-    // We need this for copying the old texture into new one.
-    //
-    u32 const old_width  = desc.Width;
-    u32 const old_height = desc.Height;
-
     desc.Width  = new_width;
     desc.Height = new_height;
 
@@ -626,15 +621,6 @@ gfx_resize(u32 new_width, u32 new_height) {
     ID3D11Texture2D *new_tex = 0; // The new texture
     hr                       = gD3d.device->CreateTexture2D(&desc, 0, &new_tex);
     ErrorIf(FAILED(hr), "Failed to recreate some texture!");
-
-    // Copy the old texture into the new one (do we need it?)
-    //
-    D3D11_BOX region = {
-        .right  = Min(new_width, old_width),
-        .bottom = Min(new_height, old_height),
-        .back   = 1,
-    };
-    gD3d.deferred_context->CopySubresourceRegion(new_tex, 0, 0, 0, 0, old_tex, 0, &region);
 
     old_tex->Release();
     it->img->v[0] = PtrToU64(new_tex);
