@@ -23,6 +23,7 @@ main(int argc, char const *argv[]) {
   });
 
   gfx_init({.vp_width = os_gfx_surface_width(), .vp_height = os_gfx_surface_height()});
+  gfx_renderer_init();
 
   GFX_Object obj = {
       .pos = {200, 200},

@@ -11,6 +11,7 @@ read_only internal u32 GFX_RENDERER_BATCHES_TOTAL =
 struct {
   GFX_Render_Graph *rg = 0;
 
+  GFX_Image *batch_render_target = 0;
   // Batches for reuse
   //
   GFX_Batch_Node   *free_batches = 0;

@@ -69,7 +69,7 @@ gfx_dsf(GFX_RG_Node *node, u8 visit_cookie, GFX_RG_Operation *op_arr, u32 &op_ar
 must_use global GFX_Image
 gfx_rg_evaluate(GFX_Render_Graph *rg) {
   Assert(rg);
-  ErrorContext("roots=%d, operations=%d, visit_counter=%d",
+  ErrorContext("roots=%d, operations=%d (MAX), visit_counter=%d",
                (int)rg->roots_count,
                (int)rg->operations_count,
                (int)rg->visit_counter);
@@ -83,11 +83,13 @@ gfx_rg_evaluate(GFX_Render_Graph *rg) {
       arena_alloc_array<GFX_RG_Operation>(gContext.frame_arena, rg->operations_count);
 
   rg->visit_counter++;
+  // The actual number of operations is equal or less than rg->operations_count.
+  //
   u32 op_arr_idx = 0;
   for (u32 i = 0; i < rg->roots_count; i++) {
     gfx_dsf(rg->roots[i], rg->visit_counter, op_arr, op_arr_idx);
   }
 
-  GFX_Image result = gfx_rg_execute_operations(op_arr, rg->operations_count);
+  GFX_Image result = gfx_rg_execute_operations(op_arr, op_arr_idx);
   return result;
 }

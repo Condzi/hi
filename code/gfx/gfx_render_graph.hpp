@@ -63,6 +63,11 @@ read_only global u64 GFX_RG_MAX_PARENTS  = 2;
 read_only global u64 GFX_RG_MAX_CHILDREN = 4;
 
 struct GFX_RG_Node {
+  // When used as a single-link list, we use this. Otherwise, we use parents and
+  // children fields.
+  //
+  GFX_RG_Node* next = 0;
+
   GFX_RG_Operation op;
   GFX_RG_Node     *parents[GFX_RG_MAX_PARENTS]   = {};
   GFX_RG_Node     *children[GFX_RG_MAX_CHILDREN] = {};
