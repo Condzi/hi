@@ -69,7 +69,7 @@ gfx_renderer_end_frame() {
         GFX_Object &obj_i = objects[i];
         swapped           = false;
         for (u64 j = 0; j < objects_sz - i + 1; j++) {
-          GFX_Object &obj_j = objects[i];
+          GFX_Object &obj_j = objects[j];
           if (obj_i.layer.v > obj_j.layer.v) {
             Swap(obj_i, obj_j);
             swapped = true;
