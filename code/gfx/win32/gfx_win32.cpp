@@ -752,7 +752,7 @@ gfx_make_batch(GFX_Material_Type material) {
 }
 
 global void
-gfx_batch_push(GFX_Batch *batch, GFX_Object object) {
+gfx_batch_push(GFX_Batch *batch, GFX_Object const& object) {
   if (!batch) {
     return;
   }
