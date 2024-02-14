@@ -16,7 +16,7 @@ if not "%ERRORLEVEL%" == "0" (
 ) else (echo [clang-++ found])
 
 
-:: --- Usage Notes (2024/1/20) ------------------------------------------------
+:: --- Usage Notes (2024/02/14) ------------------------------------------------
 ::
 :: This is a central build script for the RAD Debugger project. It takes a list
 :: of simple alphanumeric-only arguments which control (a) what is built, (b) extra 

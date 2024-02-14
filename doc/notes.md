@@ -27,6 +27,8 @@
 
     [ ] List of systems to update. Maybe sort by priority?
 
+
+
     Rough system ideas:
     - physics system
     - pathfinding system (coupled to physics system?)
@@ -52,6 +54,11 @@
 
     - Level of detail handling
 
+### Physics
+
+  Islands (multithreading!): <https://box2d.org/posts/2023/10/simulation-islands/>
+  Erin's Solver2D: <https://box2d.org/posts/2024/02/solver2d/>
+
 ## Game
 
     Just app initialization.
@@ -59,16 +66,15 @@
 ## GFX
 
   [ ] Camera Node for the render graph. It sets the view.
-  [ ] Batching & Layering
-
-    1. `GFX_Object`s submitted to a per-frame array
-    2. Objects are sorted by layer.
-    3. Objects are assigned to batches. For sprites, look for the same texture. Rects are the simplest to batch, just combine all subsequent objects. Important aspect
-    is that batches are re-used and preallocated (start with 8 batches for sprites and 2 for rects).
-    4. Depending on which batch is selected and in what order, dynamically construct
-      (re-arrange) render graph nodes.
-
   [ ] Figure out common viewport sizes that we can render
+    Common aspect ratios and their resolutions (via Steam HW Survey):
+    - 16:9  (85% of users)  1920x1080  (60% of users)
+    - 16:10 (7% of users)   2560x1600  (3% of users)
+    - 21:9  (3% of users)   3440x1440  (2% of users)
+
+    I guess the best option will be to stick with 16:9, 1080p and letterboxing
+    in other aspect ratios. Although, we should support other resolutions.
+
   [ ] Figure out MVP matrix -- how exactly does it work in our 2D game?
   [ ] GPU info (memory, name...)
   [ ] GPU render time
