@@ -144,11 +144,20 @@ if not exist "%file%" (
 :: Create a new temp file with '[' at the beginning
 echo [ > "%tempFile%"
 
-:: Append the original file content to the temp file
-type "%file%" >> "%tempFile%"
+:: Copy the original file content except for the last character to the temp file
+setlocal enabledelayedexpansion
+set "prevLine="
+for /f "delims=" %%i in (%file%) do (
+    if defined prevLine echo(!prevLine!>>"%tempFile%"
+    set "prevLine=%%i"
+)
+
+:: Remove the last character from the last line (assuming it's a comma or similar)
+set "lastLine=!prevLine:~0,-1!"
+echo(!lastLine!>>"%tempFile%"
 
 :: Append ']' to the end of the temp file
-echo ] >> "%tempFile%"
+echo ]>>"%tempFile%"
 
 :: Replace the original file with the new temp file
 move /Y "%tempFile%" "%file%"
