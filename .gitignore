@@ -1,4 +1,4 @@
 .cache
 .codechecker
 /build/
-
+compile_commands.json
