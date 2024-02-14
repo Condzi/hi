@@ -15,6 +15,7 @@
 
 ## Base
 
+    [ ] Bitset / Bit Array
     [ ] Rand (perlin noise, random range)
 
 ## Debug Tools
@@ -54,11 +55,6 @@
 
     - Level of detail handling
 
-### Physics
-
-  Islands (multithreading!): <https://box2d.org/posts/2023/10/simulation-islands/>
-  Erin's Solver2D: <https://box2d.org/posts/2024/02/solver2d/>
-
 ## Game
 
     Just app initialization.
@@ -66,6 +62,8 @@
 ## GFX
 
   [ ] Camera Node for the render graph. It sets the view.
+  [ ] Figure out MVP matrix -- how exactly does it work in our 2D game?
+  
   [ ] Figure out common viewport sizes that we can render
     Common aspect ratios and their resolutions (via Steam HW Survey):
     - 16:9  (85% of users)  1920x1080  (60% of users)
@@ -75,7 +73,6 @@
     I guess the best option will be to stick with 16:9, 1080p and letterboxing
     in other aspect ratios. Although, we should support other resolutions.
 
-  [ ] Figure out MVP matrix -- how exactly does it work in our 2D game?
   [ ] GPU info (memory, name...)
   [ ] GPU render time
 
@@ -120,6 +117,11 @@
     [ ] BVH
     [ ] Debugging stats?
     [ ] Static geometry
+
+### Resources
+
+  Islands (multithreading!): <https://box2d.org/posts/2023/10/simulation-islands/>
+  Erin's Solver2D: <https://box2d.org/posts/2024/02/solver2d/>
 
 ## Telemetry
 
