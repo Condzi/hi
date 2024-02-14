@@ -5,6 +5,8 @@ read_only global u32 GFX_RG_MAX_RENDER_TARGETS_TO_CLEAR = 4;
 enum GFX_RG_Op_Type {
   GFX_RG_OpType_None,
 
+  GFX_RG_OpType_SetCamera,
+
   // Clears the given render target.
   //
   GFX_RG_OpType_ClearRenderTargets,
@@ -27,9 +29,15 @@ struct GFX_RG_Operation {
   GFX_RG_Op_Type type = GFX_RG_OpType_None;
   union {
     struct {
+      fvec2 center;
+      f32   rotation;
+      f32   zoom;
+    } camera = {};
+
+    struct {
       GFX_Image *targets[GFX_RG_MAX_RENDER_TARGETS_TO_CLEAR];
       u32        num_targets;
-    } clear = {};
+    } clear;
 
     struct {
       GFX_Batch *batch;
@@ -52,7 +60,7 @@ struct GFX_RG_Operation {
     } framebuffer;
   } input;
 
-  GFX_Image *out;
+  GFX_Image *out = 0;
 };
 
 // Random values for now. I think it should be enough.

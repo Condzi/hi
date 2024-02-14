@@ -488,8 +488,8 @@ gfx_init(GFX_Opts const &opts) {
   {
     ErrorContext("Linear sampler");
     D3D11_SAMPLER_DESC const desc = {
-        //.Filter         = D3D11_FILTER_MIN_MAG_MIP_LINEAR, // Linear filtering
-        .Filter         = D3D11_FILTER_MIN_MAG_MIP_POINT,
+        .Filter         = D3D11_FILTER_MIN_MAG_MIP_LINEAR, // Linear filtering
+        //.Filter         = D3D11_FILTER_MIN_MAG_MIP_POINT,
         .AddressU       = D3D11_TEXTURE_ADDRESS_WRAP,
         .AddressV       = D3D11_TEXTURE_ADDRESS_WRAP,
         .AddressW       = D3D11_TEXTURE_ADDRESS_WRAP,
@@ -509,6 +509,7 @@ gfx_init(GFX_Opts const &opts) {
     //
     gD3d.common_constants.data.projection =
         ortho_proj((f32)os_gfx_surface_width(), (f32)os_gfx_surface_height());
+    gD3d.common_constants.data.camera = identity();
 
     // Upload common constants to GPU
     //
@@ -942,6 +943,28 @@ gfx_rg_execute_operations(GFX_RG_Operation *operations, u32 count) {
     switch (op.type) {
       default: {
         InvalidPath;
+      } break;
+
+      case GFX_RG_OpType_SetCamera: {
+        fvec2 const center = op.input.camera.center*-1.f;
+        f32 const   rot    = op.input.camera.rotation;
+        f32 const   zoom   = op.input.camera.zoom;
+        ErrorContext("center={%g,%g}, rot=%g, zoom=%g", center.x, center.y, rot, zoom);
+        ErrorIf(zoom < 0.05f, "Tiny zoom, probably an error.");
+
+        fvec2 const half_out_sz = gfx_image_size(*op.out)*0.5f;
+        fmat4 const T                     = translate2(center);
+        fmat4 const R                     = combine(rot_z(rot), translate2(half_out_sz));
+        fmat4 const S                     = scale2({.x = zoom, .y = zoom});
+        gD3d.common_constants.data.camera = combine(T, combine(S, R));
+
+        // Update common constants
+        //
+        D3D11_MAPPED_SUBRESOURCE mapped_consts;
+        gD3d.deferred_context->Map(
+            gD3d.common_constants.buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_consts);
+        MemoryCopy(mapped_consts.pData, &gD3d.common_constants.data, sizeof(D3d_Common_Constants));
+        gD3d.deferred_context->Unmap(gD3d.common_constants.buffer, 0);
       } break;
 
       case GFX_RG_OpType_ClearRenderTargets: {

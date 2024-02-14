@@ -10,6 +10,7 @@ internal char const GFX_RECT_SHADER[] = R"(
 cbuffer Globals : register(b0)
 {
   float4x4 projection;
+  float4x4 camera;
 };
 
 // Structures
@@ -76,11 +77,10 @@ vs_main(Cpu2Vertex input) {
   // Calculate the correct translation, integrating both the rotation and adjustment
   pos = rotated_center_pos + adjustment_to_top_left + input.pos;
 
-  // @ToDo: View matrix here!
-  //
+  float4x4 cp = mul(projection, camera);
 
   Vertex2Pixel output;
-  output.pos = mul(projection, float4(pos, 0.0, 1.0));
+  output.pos = mul(cp, float4(pos, 0.0, 1.0));
   output.color = unpack_color(input.color);
   return output;
 }
@@ -103,6 +103,7 @@ internal char const GFX_SPRITE_SHADER[] = R"(
 cbuffer Globals : register(b0)
 {
   float4x4 projection;
+  float4x4 camera;
 };
 
 // Structures
@@ -192,11 +193,10 @@ vs_main(Cpu2Vertex input) {
   // Calculate the correct translation, integrating both the rotation and adjustment
   pos = rotated_center_pos + adjustment_to_top_left + input.pos;
 
-  // @ToDo: View matrix here!
-  //
+  float4x4 cp = mul(projection, camera);
 
   Vertex2Pixel output;
-  output.pos = mul(projection, float4(pos, 0.0, 1.0));
+  output.pos = mul(cp, float4(pos, 0.0, 1.0));
   output.color = unpack_color(input.color);
   output.uv = uv;
 

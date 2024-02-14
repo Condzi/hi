@@ -30,6 +30,7 @@ struct D3d_Common_Constants {
   // Updated on window resize.
   //
   fmat4 projection;
+  fmat4 camera;
 };
 
 struct D3d_Post_Fx_Constants {
