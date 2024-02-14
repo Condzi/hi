@@ -10,10 +10,10 @@ if not "%ERRORLEVEL%" == "0" (
   echo [cl not found]
 ) else (echo [cl found])
 
-call where clang-cl.exe >nul 2>nul
+call where clang++.exe >nul 2>nul
 if not "%ERRORLEVEL%" == "0" (
-  echo [clang-cl not found]
-) else (echo [clang-cl found])
+  echo [clang-++ not found]
+) else (echo [clang-++ found])
 
 
 :: --- Usage Notes (2024/1/20) ------------------------------------------------
@@ -34,6 +34,8 @@ if not "%ERRORLEVEL%" == "0" (
 :: Below is a list of all possible non-target command line options:
 ::
 :: - `asan`: enable address sanitizer
+:: - `msvc`: compile with MSVC (needs x64 native tools cmd prompt)
+:: - `clang`: compile with clang++
 
 :: --- Unpack Arguments -------------------------------------------------------
 for %%a in (%*) do set "%%a=1"
@@ -87,8 +89,7 @@ set cl_out=           /out:
 set clang_disabled_warnings= -Wno-format -Wno-pragma-once-outside-header -Wno-gcc-compat
 
 set clang_defines=    -DWIN32 -D_WINDOWS -D_HAS_EXCEPTIONS=0 -D_CRT_SECURE_NO_WARNING
-:: -Wall -Werror
-set clang_misc=       -fno-exceptions -fno-rtti 
+set clang_misc=       -fno-exceptions -fno-rtti
 set clang_common=     -I..\code\ -I..\code\3rdparty -std=c++20 %clang_defines% %clang_misc% %clang_disabled_warnings%
 set clang_debug=      call clang++ -g -O0 %clang_common% %clang_asan%
 set clang_release=    call clang++ -O3 -DNDEBUG %clang_common%
@@ -114,7 +115,6 @@ if "%release%"=="1"   set compile=%compile_release%
 if not exist build mkdir build
 
 :: --- Build Everything (@build_targets) --------------------------------------
-echo %compile%  ..\code\game\game_main.cpp  %compile_link% %out%game.exe
 pushd build
 del game.exe
 if "%game%"=="1" %compile%  ..\code\game\game_main.cpp  %compile_link% %out%game.exe
