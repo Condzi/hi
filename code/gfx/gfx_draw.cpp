@@ -158,17 +158,17 @@ gfx_renderer_end_frame() {
 }
 
 global void
-gfx_draw_sprite(GFX_Layer layer, GFX_Sprite_Opts const &opts) {
-  gfx_draw_sprite_color(layer, opts, GFX_Color {.v = 0xFF'FF'FF'FF});
+gfx_draw_sprite(GFX_Sprite_Opts const &opts) {
+  gfx_draw_sprite_color(opts, GFX_Color {.v = 0xFF'FF'FF'FF});
 }
 
 global void
-gfx_draw_sprite_color(GFX_Layer layer, GFX_Sprite_Opts const &opts, GFX_Color color) {
+gfx_draw_sprite_color(GFX_Sprite_Opts const &opts, GFX_Color color) {
   gfx_renderer_push_object({
       .pos   = opts.pos,
       .sz    = opts.sz,
       .rot   = opts.rot,
-      .layer = layer,
+      .layer = opts.layer,
       .material =
           {
               .type = GFX_MaterialType_Sprite,
@@ -183,12 +183,12 @@ gfx_draw_sprite_color(GFX_Layer layer, GFX_Sprite_Opts const &opts, GFX_Color co
 }
 
 global void
-gfx_draw_rect_color(GFX_Layer layer, GFX_Rect_Opts const &opts, GFX_Color color) {
+gfx_draw_rect_color(GFX_Rect_Opts const &opts, GFX_Color color) {
   gfx_renderer_push_object({
       .pos   = opts.pos,
       .sz    = opts.sz,
       .rot   = opts.rot,
-      .layer = layer,
+      .layer = opts.layer,
       .material =
           {
               .type = GFX_MaterialType_Rect,

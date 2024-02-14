@@ -50,19 +50,21 @@ struct GFX_Sprite_Opts {
   f32          rot = 0;
   GFX_Image    tex;
   GFX_Tex_Rect tex_rect;
+  GFX_Layer    layer;
 };
 
 global void
-gfx_draw_sprite(GFX_Layer layer, GFX_Sprite_Opts const &opts);
+gfx_draw_sprite(GFX_Sprite_Opts const &opts);
 
 global void
-gfx_draw_sprite_color(GFX_Layer layer, GFX_Sprite_Opts const &opts, GFX_Color color);
+gfx_draw_sprite_color(GFX_Sprite_Opts const &opts, GFX_Color color);
 
 struct GFX_Rect_Opts {
   fvec2 pos;
   fvec2 sz;
   f32   rot = 0;
+  GFX_Layer layer;
 };
 
 global void
-gfx_draw_rect_color(GFX_Layer layer, GFX_Rect_Opts const &opts, GFX_Color color);
+gfx_draw_rect_color(GFX_Rect_Opts const &opts, GFX_Color color);
