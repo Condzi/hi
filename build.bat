@@ -74,10 +74,10 @@ if "%asan%"=="1"      set clang_asan=-fsanitize=address -fno-omit-frame-pointer
 :: #    - automatic inline expansion
 :: #    - function not inlined
 :: #    - enumerator not explicitely handled in a switch label
-set msvc_defines=/DWIN32 /D_WINDOWS /D_HAS_EXCEPTIONS=0 /D_CRT_SECURE_NO_WARNINGS
-set msvc_disabled_warnings=/wd4505 /wd5045 /wd4577 /wd4820 /wd4201 /wd5246 /wd4710 /wd4711 /wd4061
-set msvc_misc=/GR- /Wall /WX /external:anglebrackets /external:W0 /GS /sdl /utf-8
-set msvc_all=%msvc_asan% %msvc_defines% %msvc_disabled_warnings% %msvc_misc%
+set msvc_defines=           /DWIN32 /D_WINDOWS /D_HAS_EXCEPTIONS=0 /D_CRT_SECURE_NO_WARNINGS
+set msvc_disabled_warnings= /wd4505 /wd5045 /wd4577 /wd4820 /wd4201 /wd5246 /wd4710 /wd4711 /wd4061
+set msvc_misc=              /GR- /Wall /WX /external:anglebrackets /external:W0 /GS /sdl /utf-8
+set msvc_all=               %msvc_asan% %msvc_defines% %msvc_disabled_warnings% %msvc_misc%
 
 :: --- Compile/Link Line Definitions ------------------------------------------
 set cl_common=        /I..\code\ /I..\code\3rdparty\ /nologo /FC /Z7 /std:c++20
@@ -86,10 +86,10 @@ set cl_release=       call cl /O2 /DNDEBUG %cl_common% %mscv_all%
 set cl_link=          /link /MANIFEST:EMBED /INCREMENTAL:NO
 set cl_out=           /out:
 
-set clang_disabled_warnings= -Wno-format -Wno-pragma-once-outside-header -Wno-gcc-compat
+set clang_disabled_warnings= -Wno-format -Wno-pragma-once-outside-header -Wno-gcc-compat -Wno-missing-field-initializers -Wno-missing-braces -Wno-unused-function
 
 set clang_defines=    -DWIN32 -D_WINDOWS -D_HAS_EXCEPTIONS=0 -D_CRT_SECURE_NO_WARNING
-set clang_misc=       -fno-exceptions -fno-rtti
+set clang_misc=       -fno-exceptions -fno-rtti -Wall -Wextra -Werror
 set clang_common=     -I..\code\ -I..\code\3rdparty -std=c++20 %clang_defines% %clang_misc% %clang_disabled_warnings%
 set clang_debug=      call clang++ -g -O0 %clang_common% %clang_asan%
 set clang_release=    call clang++ -O3 -DNDEBUG %clang_common%
