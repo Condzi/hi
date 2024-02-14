@@ -91,7 +91,7 @@ struct Defer_Maker final {
 #define ClampBot(X, B) Max(X, B)
 #define Clamp(A, X, B) (((X) < (A)) ? (A) : ((X) > (B)) ? (B) : (X))
 
-#define Compose64Bit(a, b) ((((U64)(a)) << 32) | ((U64)b));
+#define Compose64Bit(a, b) ((((U64)(a)) << 32) | ((U64)(b)));
 #define AlignPow2(x, b) (((x) + (b)-1) & (~((b)-1)))
 #define AlignDownPow2(x, b) ((x) & (~((b)-1)))
 #define AlignPadPow2(x, b) ((0 - (x)) & ((b)-1))
@@ -121,7 +121,7 @@ struct Defer_Maker final {
 
 // ASAN
 //
-#if defined(__SANITIZE_ADDRESS__)
+#if __has_feature(address_sanitizer) || defined(__SANITIZE_ADDRESS__)
 #define ASAN_ENABLED 1
 #define NO_ASAN __declspec(no_sanitize_address)
 #else

@@ -90,7 +90,7 @@ main(int argc, char const *argv[]) {
     gfx_draw_sprite(bg);
     gfx_draw_sprite(sprite_1);
     gfx_draw_rect_color(rect_1, {.v = 0xFF'00'00'FF});
-    
+
     gfx_renderer_end_frame();
 
     // State cleanup

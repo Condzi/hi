@@ -17,7 +17,7 @@
       "-Wextra",
       "-std=c++20",
       "-o",
-      "build/game-clang.exe"
+      "build/game.exe"
     ]
   }
 ]

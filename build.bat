@@ -2,12 +2,18 @@
 
 @echo off
 setlocal
+call cls
 cd /D "%~dp0"
 
 call where cl.exe >nul 2>nul
 if not "%ERRORLEVEL%" == "0" (
   echo [cl not found]
 ) else (echo [cl found])
+
+call where clang-cl.exe >nul 2>nul
+if not "%ERRORLEVEL%" == "0" (
+  echo [clang-cl not found]
+) else (echo [clang-cl found])
 
 
 :: --- Usage Notes (2024/1/20) ------------------------------------------------
@@ -31,16 +37,23 @@ if not "%ERRORLEVEL%" == "0" (
 
 :: --- Unpack Arguments -------------------------------------------------------
 for %%a in (%*) do set "%%a=1"
-if not "%msvc%"=="1" set msvc=1
+if not "%clang%"=="1" set msvc=1
 if not "%release%"=="1" set debug=1
 
+if "%clang%"=="1"   echo [compiling with clang++]
+if "%msvc%"=="1"    echo [compiling with cl]
 if "%debug%"=="1"   set release=0 && echo [debug mode]
 if "%release%"=="1" set debug=0 && echo [release mode]
 if "%~1"==""        echo [default mode, assuming `game` build] && set game=1
 
 :: --- Unpack Command Line Build Arguments ------------------------------------
-set auto_compile_flags=
-if "%asan%"=="1"      set auto_compile_flags=%auto_compile_flags% -fsanitize=address && echo [asan enabled -- EXECUTEBLE MUST BE RAN FROM VS NATIVE TOOL COMMAND PROMPT]
+if "%asan%"=="1"    echo [asan enabled]
+
+set msvc_asan=
+set clang_asan=
+if "%asan%"=="1"      set msvc_asan= -fsanitize=address
+if "%asan%"=="1"      set clang_asan=-fsanitize=address -fno-omit-frame-pointer
+
 
 :: --- Custom stuff -----------------------------------------------------------
 :: # 1. Set Windows Defines (no unicode!)
@@ -62,20 +75,38 @@ if "%asan%"=="1"      set auto_compile_flags=%auto_compile_flags% -fsanitize=add
 set msvc_defines=/DWIN32 /D_WINDOWS /D_HAS_EXCEPTIONS=0 /D_CRT_SECURE_NO_WARNINGS
 set msvc_disabled_warnings=/wd4505 /wd5045 /wd4577 /wd4820 /wd4201 /wd5246 /wd4710 /wd4711 /wd4061
 set msvc_misc=/GR- /Wall /WX /external:anglebrackets /external:W0 /GS /sdl /utf-8
-set auto_compile_flags=%auto_compile_flags% %msvc_defines% %msvc_disabled_warnings% %msvc_misc%
+set msvc_all=%msvc_asan% %msvc_defines% %msvc_disabled_warnings% %msvc_misc%
 
 :: --- Compile/Link Line Definitions ------------------------------------------
-set cl_common=     /I..\code\ /I..\code\3rdparty\ /nologo /FC /Z7 /std:c++20
-set cl_debug=      call cl /Od %cl_common% %auto_compile_flags%
-set cl_release=    call cl /O2 /DNDEBUG %cl_common% %auto_compile_flags%
-set cl_link=       /link /MANIFEST:EMBED /INCREMENTAL:NO
-set cl_out=        /out:
+set cl_common=        /I..\code\ /I..\code\3rdparty\ /nologo /FC /Z7 /std:c++20
+set cl_debug=         call cl /Od %cl_common% %mscv_all%
+set cl_release=       call cl /O2 /DNDEBUG %cl_common% %mscv_all%
+set cl_link=          /link /MANIFEST:EMBED /INCREMENTAL:NO
+set cl_out=           /out:
+
+set clang_disabled_warnings= -Wno-format -Wno-pragma-once-outside-header -Wno-gcc-compat
+
+set clang_defines=    -DWIN32 -D_WINDOWS -D_HAS_EXCEPTIONS=0 -D_CRT_SECURE_NO_WARNING
+:: -Wall -Werror
+set clang_misc=       -fno-exceptions -fno-rtti 
+set clang_common=     -I..\code\ -I..\code\3rdparty -std=c++20 %clang_defines% %clang_misc% %clang_disabled_warnings%
+set clang_debug=      call clang++ -g -O0 %clang_common% %clang_asan%
+set clang_release=    call clang++ -O3 -DNDEBUG %clang_common%
+set clang_out=         -o 
+set clang_link=       
 
 :: --- Choose Compile/Link Lines ----------------------------------------------
-if "%msvc%"=="1"      set compile_debug=%cl_debug%
-if "%msvc%"=="1"      set compile_release=%cl_release%
-if "%msvc%"=="1"      set compile_link=%cl_link%
-if "%msvc%"=="1"      set out=%cl_out%
+if "%msvc%"=="1"      set compile_debug=   %cl_debug%
+if "%msvc%"=="1"      set compile_release= %cl_release%
+if "%msvc%"=="1"      set compile_link=    %cl_link%
+if "%msvc%"=="1"      set out=             %cl_out%
+
+if "%clang%"=="1"     set compile_debug=   %clang_debug% 
+if "%clang%"=="1"     set compile_release= %clang_release%
+if "%clang%"=="1"     set compile_link=    %clang_link%
+if "%clang%"=="1"     set out=             %clang_out%
+
+
 if "%debug%"=="1"     set compile=%compile_debug%
 if "%release%"=="1"   set compile=%compile_release%
 
@@ -83,6 +114,7 @@ if "%release%"=="1"   set compile=%compile_release%
 if not exist build mkdir build
 
 :: --- Build Everything (@build_targets) --------------------------------------
+echo %compile%  ..\code\game\game_main.cpp  %compile_link% %out%game.exe
 pushd build
 del game.exe
 if "%game%"=="1" %compile%  ..\code\game\game_main.cpp  %compile_link% %out%game.exe
