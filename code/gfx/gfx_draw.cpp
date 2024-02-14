@@ -17,7 +17,7 @@ must_use internal GFX_Batch *
 gfx_renderer_request_batch(GFX_Material_Type type);
 
 must_use internal GFX_RG_Node *
-gfx_renderer_request_batch_node();
+gfx_renderer_request_node();
 
 // Public definitions
 //
@@ -95,7 +95,7 @@ gfx_renderer_end_frame() {
     // Then, add the batch to render node and connect the previous node with next node.
     //
     {
-      GFX_Batch *current_batch = 0;
+      GFX_Batch   *current_batch = 0;
       GFX_RG_Node *current_node  = 0;
       for (u64 i = 0; i < objects_sz; i++) {
         GFX_Object const   &obj = objects[i];
@@ -109,7 +109,8 @@ gfx_renderer_end_frame() {
             current_batch->data.sprite.texture = mat.sprite.tex;
           }
 
-          GFX_RG_Node *next_node = gfx_renderer_request_batch_node();
+          GFX_RG_Node *next_node = gfx_renderer_request_node();
+          next_node->op.type     = GFX_RG_OpType_Batch;
           if (current_node) {
             gfx_rg_attach_node_to_parent(current_node, next_node);
           } else {
@@ -145,6 +146,7 @@ gfx_renderer_end_frame() {
   for (GFX_RG_Node *node = gRen.used_nodes; node;) {
     node->children_count = 0;
     node->parents_count  = 0;
+    node->op             = {};
     GFX_RG_Node *next    = node->next;
     node->next           = 0;
     SLL_insert_at_end(gRen.free_nodes, node);
@@ -244,13 +246,16 @@ internal void
 gfx_renderer_init_render_graph() {
   // Allocate common nodes
   //
-  GFX_RG_Node *root     = gfx_rg_add_root(gRen.rg);
-  GFX_RG_Node *vignette = gfx_rg_make_node(gRen.rg);
+  GFX_RG_Node *root          = gfx_rg_add_root(gRen.rg);
+  GFX_RG_Node *clear_targets = gfx_rg_make_node(gRen.rg);
+  GFX_RG_Node *vignette      = gfx_rg_make_node(gRen.rg);
 
   // Connect common nodes
   // (we have very few nodes so nothing gets connected here ATM)
   //
-  gRen.node_before_batchers = root;
+  gRen.batch_camera = root;
+  gfx_rg_attach_node_to_parent(root, clear_targets);
+  gRen.node_before_batchers = clear_targets;
   gRen.node_after_batchers  = vignette;
 
   // Set up common resources
@@ -268,6 +273,20 @@ gfx_renderer_init_render_graph() {
   // buffer, we will have some valid image.
   //
   root->op = {
+      .type = GFX_RG_OpType_SetCamera,
+      .input =
+          {
+              .camera =
+                  {
+                      .center = {.x = 0, .y = 0},
+                      .rotation    = 0,
+                      .zoom   = 1,
+                  },
+          },
+      .out = gRen.batch_render_target,
+  };
+
+  clear_targets->op = {
       .type = GFX_RG_OpType_ClearRenderTargets,
       .input =
           {
@@ -301,7 +320,7 @@ gfx_renderer_init_render_graph() {
 internal void
 gfx_renderer_push_object(GFX_Object const &object) {
   Assert(gRen.is_accepting_new_objects);
-  
+
   if (gRen.objects_in_frame.sz == gRen.objects_in_frame.cap) {
     u64 const   old_cap     = gRen.objects_in_frame.cap;
     u64 const   new_cap     = old_cap * 2;
@@ -339,7 +358,7 @@ gfx_renderer_request_batch(GFX_Material_Type type) {
 }
 
 must_use internal GFX_RG_Node *
-gfx_renderer_request_batch_node() {
+gfx_renderer_request_node() {
   GFX_RG_Node *node = 0;
 
   // Check if a free RG node is available.
@@ -353,13 +372,23 @@ gfx_renderer_request_batch_node() {
   // Not available -- create a new one.
   //
   if (!node) {
-    node     = gfx_rg_make_node(gRen.rg);
-    node->op = {
-        .type = GFX_RG_OpType_Batch,
-        .out  = gRen.batch_render_target,
-    };
+    node = gfx_rg_make_node(gRen.rg);
   }
+
+  node->op = {
+      .type = GFX_RG_OpType_Batch,
+      .out  = gRen.batch_render_target,
+  };
 
   SLL_insert_at_end(gRen.used_nodes, node);
   return node;
+}
+
+global void
+gfx_set_camera_for_batches(GFX_Camera cam) {
+  gRen.batch_camera->op.input.camera = {
+      .center   = cam.center,
+      .rotation = cam.rot,
+      .zoom     = cam.zoom,
+  };
 }

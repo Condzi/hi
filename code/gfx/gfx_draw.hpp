@@ -30,6 +30,8 @@ struct {
   //
   GFX_RG_Node *node_before_batchers = 0;
   GFX_RG_Node *node_after_batchers  = 0;
+
+  GFX_RG_Node* batch_camera = 0;
 } global gRen;
 
 global void
@@ -68,3 +70,12 @@ struct GFX_Rect_Opts {
 
 global void
 gfx_draw_rect_color(GFX_Rect_Opts const &opts, GFX_Color color);
+
+struct GFX_Camera {
+  fvec2 center;
+  f32 rot;
+  f32 zoom;
+};
+
+global void
+gfx_set_camera_for_batches(GFX_Camera cam);
