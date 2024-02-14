@@ -54,12 +54,18 @@ main(int argc, char const *argv[]) {
   f32 const width  = (f32)os_gfx_surface_width();
   f32 const height = (f32)os_gfx_surface_height();
 
-  GFX_Sprite_Opts bg = {
-      .pos      = {0, height},
-      .sz       = {width, height},
-      .tex      = bg_img,
-      .tex_rect = {.x = 0, .y = 0, .w = (u16)width, .h = (u16)height},
-      .layer    = l1,
+  fvec2 const     bg_sz = fvec2 {width, height} * 10.f;
+  GFX_Sprite_Opts bg    = {
+         .pos      = {-bg_sz.x / 2, bg_sz.y / 2},
+         .sz       = bg_sz,
+         .tex      = bg_img,
+         .tex_rect = {.x = 0, .y = 0, .w = (u16)bg_sz.x, .h = (u16)bg_sz.y},
+         .layer    = l1,
+  };
+
+  GFX_Camera cam = {
+    .center = {200, 200},
+    .zoom = 0.8f,
   };
 
   u64 frame = 0;
@@ -87,6 +93,11 @@ main(int argc, char const *argv[]) {
 
     // Draw stuff
     //
+    cam.center.x += 0.05f;
+    cam.center.y += 0.05f;
+
+    gfx_set_camera_for_batches(cam);
+
     gfx_draw_sprite(bg);
     gfx_draw_sprite(sprite_1);
     gfx_draw_rect_color(rect_1, {.v = 0xFF'00'00'FF});
