@@ -133,6 +133,7 @@ struct GFX_Batch {
 
 struct GFX_Batch_Node {
   GFX_Batch_Node *next;
+  GFX_Batch_Node *prev;
   GFX_Batch      *batch;
 };
 

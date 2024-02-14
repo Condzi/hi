@@ -13,6 +13,12 @@ gfx_renderer_init_render_graph();
 internal void
 gfx_renderer_push_object(GFX_Object const &object);
 
+must_use internal GFX_Batch *
+gfx_renderer_request_batch(GFX_Material_Type type);
+
+must_use internal GFX_RG_Node *
+gfx_renderer_request_batch_node();
+
 // Public definitions
 //
 
@@ -85,9 +91,11 @@ gfx_renderer_end_frame() {
     // Immedietaly assign them to correct batches.
     // Add these batches to "used" list. Every next batch will be added
     // to the end of this list, which maintains the order.
+    // Then, add the batch to render node and connect the previous node with next node.
     //
     {
       GFX_Batch *current_batch = 0;
+      GFX_RG_Node *current_node  = 0;
       for (u64 i = 0; i < objects_sz; i++) {
         GFX_Object const   &obj = objects[i];
         GFX_Material const &mat = obj.material;
@@ -95,17 +103,30 @@ gfx_renderer_end_frame() {
         if (!current_batch || (current_batch->type != mat.type) ||
             (current_batch->type == mat.type && mat.type == GFX_MaterialType_Sprite &&
              current_batch->data.sprite.texture.v[0] != mat.sprite.tex.v[0])) {
-          // @ToDo Request new batch
-          InvalidPath;
-        } else {
-          gfx_batch_push(current_batch, obj);
-        }
-      }
-    }
+          current_batch = gfx_renderer_request_batch(mat.type);
+          if (mat.type == GFX_MaterialType_Sprite) {
+            current_batch->data.sprite.texture = mat.sprite.tex;
+          }
 
-    // Attach gRen.used_batches to RG nodes. Then attach nodes to each other and finally attach 
-    // the beginning and end to corresponding nodes in gRen.XXX.
-    //
+          GFX_RG_Node *next_node = gfx_renderer_request_batch_node();
+          if (current_node) {
+            gfx_rg_attach_node_to_parent(current_node, next_node);
+          } else {
+            //  It's the first node in the batcher's list.
+            //
+            gfx_rg_attach_node_to_parent(gRen.node_before_batchers, next_node);
+          }
+          current_node                       = next_node;
+          current_node->op.input.batch.batch = current_batch;
+        }
+
+        gfx_batch_push(current_batch, obj);
+      }
+
+      // Connect last batcher node in the list to correct node in RG.
+      //
+      gfx_rg_attach_node_to_parent(current_node, gRen.node_after_batchers);
+    }
   }
 
   // Render the image
@@ -123,7 +144,7 @@ gfx_renderer_end_frame() {
   for (GFX_RG_Node *node = gRen.used_nodes; node; node = node->next) {
     node->children_count = 0;
     node->parents_count  = 0;
-    SLL_insert(gRen.free_nodes, node);
+    SLL_insert_at_end(gRen.free_nodes, node);
   }
   gRen.used_nodes = 0;
 
@@ -131,7 +152,7 @@ gfx_renderer_end_frame() {
   //
   for (GFX_Batch_Node *batch = gRen.used_batches; batch; batch = batch->next) {
     batch->batch->objects.sz = 0;
-    SLL_insert(gRen.free_batches, batch);
+    DLL_insert_at_end(gRen.free_batches, batch);
   }
   gRen.used_batches = 0;
 }
@@ -192,7 +213,7 @@ gfx_renderer_init_reuseable_resources() {
                  .type = GFX_RG_OpType_Batch,
                  .out  = gRen.batch_render_target,
     };
-    SLL_insert(gRen.free_nodes, node);
+    SLL_insert_at_end(gRen.free_nodes, node);
   }
 
   // Alloc batches
@@ -201,14 +222,14 @@ gfx_renderer_init_reuseable_resources() {
     GFX_Batch      *batch = gfx_make_batch(GFX_MaterialType_Sprite);
     GFX_Batch_Node *node  = arena_alloc<GFX_Batch_Node>(gfx_arena);
     node->batch           = batch;
-    SLL_insert(gRen.free_batches, node);
+    DLL_insert_at_end(gRen.free_batches, node);
   }
 
   for (u32 i = 0; i < GFX_RENDERER_RECT_BATCHES_COUNT; i++) {
     GFX_Batch      *batch = gfx_make_batch(GFX_MaterialType_Rect);
     GFX_Batch_Node *node  = arena_alloc<GFX_Batch_Node>(gfx_arena);
     node->batch           = batch;
-    SLL_insert(gRen.free_batches, node);
+    DLL_insert_at_end(gRen.free_batches, node);
   }
 }
 
@@ -285,4 +306,52 @@ gfx_renderer_push_object(GFX_Object const &object) {
 
   gRen.objects_in_frame.v[gRen.objects_in_frame.sz] = object;
   gRen.objects_in_frame.sz++;
+}
+
+must_use internal GFX_Batch *
+gfx_renderer_request_batch(GFX_Material_Type type) {
+  GFX_Batch_Node *node = 0;
+  // First, check if there is a free batch available.
+  //
+  for (node = gRen.free_batches; node; node = node->next) {
+    if (node->batch->type == type) {
+      DLL_remove(gRen.free_batches, node);
+      break;
+    }
+  }
+
+  // If we don't have a free batch, allocate it.
+  //
+  if (!node) {
+    node        = arena_alloc<GFX_Batch_Node>(gfx_arena);
+    node->batch = gfx_make_batch(type);
+  }
+
+  DLL_insert_at_end(gRen.used_batches, node);
+  return node->batch;
+}
+
+must_use internal GFX_RG_Node *
+gfx_renderer_request_batch_node() {
+  GFX_RG_Node *node = 0;
+
+  // Check if a free RG node is available.
+  //
+  if (gRen.free_nodes) {
+    node            = gRen.free_nodes;
+    gRen.free_nodes = node->next;
+  }
+
+  // Not available -- create a new one.
+  //
+  if (!node) {
+    node     = gfx_rg_make_node(gRen.rg);
+    node->op = {
+        .type = GFX_RG_OpType_Batch,
+        .out  = gRen.batch_render_target,
+    };
+  }
+
+  SLL_insert_at_end(gRen.used_nodes, node);
+  return node;
 }

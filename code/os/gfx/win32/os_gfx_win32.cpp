@@ -222,7 +222,7 @@ internal OS_Window_Event *
 win32_push_event(OS_Event_Type type) {
   OS_Window_Event *ev = arena_alloc<OS_Window_Event>(w32_event_arena);
 
-  SLL_insert(w32_event_list, ev);
+  SLL_insert_at_end(w32_event_list, ev);
   ev->type         = type;
   ev->timestamp_us = os_now_us();
 

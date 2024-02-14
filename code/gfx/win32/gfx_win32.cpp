@@ -10,7 +10,7 @@ global void
 gfx_resize_image_with_framebuffer(GFX_Image *img) {
   D3d_Image_Node *new_node = arena_alloc<D3d_Image_Node>(gfx_arena);
   new_node->img            = img;
-  SLL_insert(gD3d.fb_images, new_node);
+  SLL_insert_at_end(gD3d.fb_images, new_node);
 }
 
 must_use internal HRESULT

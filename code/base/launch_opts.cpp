@@ -66,7 +66,7 @@ push_launch_opt(Str8 name, Str8 value) {
   opt->name       = name;
   opt->value      = value;
 
-  SLL_insert(gOptions, opt);
+  SLL_insert_at_end(gOptions, opt);
 
   os_debug_message(name);
   os_debug_message(" = "_s8);

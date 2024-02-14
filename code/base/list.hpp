@@ -5,7 +5,7 @@
 
 template <typename T>
 void
-DLL_insert(T *&root, T *&node) {
+DLL_insert_at_end(T *&root, T *&node) {
   Assert(node);
 
   if (root) {
@@ -44,7 +44,7 @@ DLL_remove(T *&root, T *&node) {
 
 template <typename T>
 void
-SLL_insert(T *&root, T *&node) {
+SLL_insert_at_end(T *&root, T *&node) {
   if (!root) {
     root = node;
   } else {

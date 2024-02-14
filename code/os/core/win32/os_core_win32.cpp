@@ -102,7 +102,7 @@ os_error_to_user_message(s64 error) {
     hr = gD3d.device->GetDeviceRemovedReason();
   }
 
-  LPWSTR buff = nullptr;
+  LPWSTR buff = 0;
   DWORD  size = FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM |
                                   FORMAT_MESSAGE_IGNORE_INSERTS,
                               0,
