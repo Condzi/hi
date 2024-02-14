@@ -100,5 +100,5 @@ main(int argc, char const *argv[]) {
     scratch_end(&error_context_scratch);
     gContext.error_context->first = gContext.error_context->last = 0;
     frame++;
-      }
+  }
 }
