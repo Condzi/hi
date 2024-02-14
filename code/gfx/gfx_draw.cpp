@@ -41,6 +41,8 @@ gfx_renderer_init() {
 
   gfx_renderer_init_reuseable_resources();
   gfx_renderer_init_render_graph();
+
+  gRen.objects_in_frame.cap = 64;
 }
 
 global void
