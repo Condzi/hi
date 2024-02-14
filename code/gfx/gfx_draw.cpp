@@ -64,7 +64,6 @@ gfx_renderer_end_frame() {
   ErrorContext("objects_count=%zu", objects_sz);
 
   gRen.is_accepting_new_objects = false;
-  GFX_Image final_image;
 
   if (objects && objects_sz) {
     // @Performance Bubble sort the objects by layer.
@@ -131,7 +130,7 @@ gfx_renderer_end_frame() {
 
   // Render the image
   //
-  final_image = gfx_rg_evaluate(gRen.rg);
+  GFX_Image final_image = gfx_rg_evaluate(gRen.rg);
   gfx_swap_buffers(final_image);
 
   // Reset the render graph nodes
@@ -141,18 +140,24 @@ gfx_renderer_end_frame() {
 
   // Walk through the used nodes and reset their parents/children.
   //
-  for (GFX_RG_Node *node = gRen.used_nodes; node; node = node->next) {
+  for (GFX_RG_Node *node = gRen.used_nodes; node;) {
     node->children_count = 0;
     node->parents_count  = 0;
+    GFX_RG_Node *next    = node->next;
+    node->next           = 0;
     SLL_insert_at_end(gRen.free_nodes, node);
+    node = next;
   }
   gRen.used_nodes = 0;
 
   // Same for batches.
   //
-  for (GFX_Batch_Node *batch = gRen.used_batches; batch; batch = batch->next) {
+  for (GFX_Batch_Node *batch = gRen.used_batches; batch;) {
     batch->batch->objects.sz = 0;
+    GFX_Batch_Node *next     = batch->next;
+    DLL_remove(gRen.used_batches, batch);
     DLL_insert_at_end(gRen.free_batches, batch);
+    batch = next;
   }
   gRen.used_batches = 0;
 }
@@ -340,6 +345,7 @@ gfx_renderer_request_batch_node() {
   if (gRen.free_nodes) {
     node            = gRen.free_nodes;
     gRen.free_nodes = node->next;
+    node->next      = 0;
   }
 
   // Not available -- create a new one.
