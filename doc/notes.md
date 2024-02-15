@@ -28,8 +28,6 @@
 
     [ ] List of systems to update. Maybe sort by priority?
 
-
-
     Rough system ideas:
     - physics system
     - pathfinding system (coupled to physics system?)
@@ -87,33 +85,27 @@
 
 ## OS Core
 
-    [X] Debugger output
     [ ] Filesystem 
     [ ] File Watch (notify when file updates) / Hot Reload
     [ ] Threads
     [ ] Mutexes
     [ ] SEH
     [ ] Minidumps
-    [X] Memory allocation
     [ ] library loading
     [ ] OS Information, SIMD detection, CPU and memory info
-    [X] Time
 
 ## OS Gfx
 
-    [X] Message boxes (custom ones!) https://learn.microsoft.com/en-us/windows/win32/api/commctrl/nf-commctrl-taskdialogindirect
     [ ] Monitor enumeration
-    [X] Event loop and forwarding the OS events to our abstracted ones
-    [ ] RawInput, keys and mouse buttons, scroll and mouse position
-    [X] Window
 
 ## Physics
 
     Must support AI and building system! Also, collision resolution (just don't allow objects to overleap, nothing fancy for now)
+    [ ] Islands
     [ ] SAH
     [ ] BVH
-    [ ] Debugging stats?
     [ ] Static geometry
+    [ ] Debugging stats?
 
 ### Resources
 
