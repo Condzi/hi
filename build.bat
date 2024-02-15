@@ -18,7 +18,7 @@ if not "%ERRORLEVEL%" == "0" (
 
 :: --- Usage Notes (2024/02/14) ------------------------------------------------
 ::
-:: This is a central build script for the RAD Debugger project. It takes a list
+:: This is a central build script for the game. It takes a list
 :: of simple alphanumeric-only arguments which control (a) what is built, (b) extra 
 :: high-level build options. By default, if no options are passed, then the main 
 :: "game" is built.
@@ -57,23 +57,23 @@ if "%asan%"=="1"      set msvc_asan= -fsanitize=address
 if "%asan%"=="1"      set clang_asan=-fsanitize=address -fno-omit-frame-pointer
 
 
-:: --- Custom stuff -----------------------------------------------------------
-:: # 1. Set Windows Defines (no unicode!)
-:: # 2. Disable Exceptions and RTTI
-:: # 3. Disable warnings about insecure C functions (maybe remove that later?)
-:: # 4. Enable all warnings and treat them as errors. Do not analyze external libraries.
-:: #    (which are specified by angle brackets <> in include directives)
-:: # 5. Check for buffer oveflow (/GS) and additional security checks
-:: # 6. Disable warnings: 
-:: #    - unused functions,
-:: #    - spectre, 
-:: #    - noexcept, 
-:: #    - additional padding, 
-:: #    - nonstandard nameless struct and unions
-:: #    - initialization of subobjects in nameless unions should be wrapped in braces
-:: #    - automatic inline expansion
-:: #    - function not inlined
-:: #    - enumerator not explicitely handled in a switch label
+:: --- MSVC  -----------------------------------------------------------
+::  1. Set Windows Defines (no unicode!)
+::  2. Disable Exceptions and RTTI
+::  3. Disable warnings about insecure C functions (maybe remove that later?)
+::  4. Enable all warnings and treat them as errors. Do not analyze external libraries.
+::     (which are specified by angle brackets <> in include directives)
+::  5. Check for buffer oveflow (/GS) and additional security checks
+::  6. Disable warnings: 
+::     - unused functions,
+::     - spectre, 
+::     - noexcept, 
+::     - additional padding, 
+::     - nonstandard nameless struct and unions
+::     - initialization of subobjects in nameless unions should be wrapped in braces
+::     - automatic inline expansion
+::     - function not inlined
+::     - enumerator not explicitely handled in a switch label
 set msvc_defines=           /DWIN32 /D_WINDOWS /D_HAS_EXCEPTIONS=0 /D_CRT_SECURE_NO_WARNINGS
 set msvc_disabled_warnings= /wd4505 /wd5045 /wd4577 /wd4820 /wd4201 /wd5246 /wd4710 /wd4711 /wd4061
 set msvc_misc=              /GR- /Wall /WX /external:anglebrackets /external:W0 /GS /sdl /utf-8
@@ -86,6 +86,7 @@ set cl_release=       call cl /O2 /DNDEBUG %cl_common% %mscv_all%
 set cl_link=          /link /MANIFEST:EMBED /INCREMENTAL:NO
 set cl_out=           /out:
 
+:: --- clang++  ---------------------------------------------------------------
 set clang_disabled_warnings= -Wno-format -Wno-pragma-once-outside-header -Wno-gcc-compat -Wno-missing-field-initializers -Wno-missing-braces -Wno-unused-function
 
 set clang_defines=    -DWIN32 -D_WINDOWS -D_HAS_EXCEPTIONS=0 -D_CRT_SECURE_NO_WARNING
@@ -123,7 +124,13 @@ del game.exe
 if "%game%"=="1" %compile%  ..\code\game\game_main.cpp  %compile_link% %out%game.exe %compile_commands%
 popd
 
-:: --- Fix compile_commands.json so it's an array
+:: --- Compile Commands Madness  ----------------------------------------------
+:: Clang generates the compile_commands.json, but the tools don't like it because:
+::  1. It's not an array
+::  2. It ends with a ','
+:: This script simply removes the comma and adds [] around the file contents, so tools
+:: don't complain.
+
 
 if not "%clang%"=="1" (
     echo [skipping compile_commands.json]
