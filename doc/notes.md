@@ -61,9 +61,6 @@
 
 ## GFX
 
-  [ ] Camera Node for the render graph. It sets the view.
-  [ ] Figure out MVP matrix -- how exactly does it work in our 2D game?
-  
   [ ] Figure out common viewport sizes that we can render
     Common aspect ratios and their resolutions (via Steam HW Survey):
     - 16:9  (85% of users)  1920x1080  (60% of users)
@@ -131,6 +128,7 @@
 ## Text Rasterizing
 
     Use DirectDraw or freetype to render fonts?
+    We will probably use it later. For now, just take ready made fonts.
 
 ## Logging
 
@@ -144,6 +142,9 @@
 
 ## Text Rendering
 
+    Only monospace fonts for simplicity?
+    
+    [ ] Add code from BB for simple font rendering
     [ ] Handling \n etc
     [ ] Rendering to texture
     [ ] Handle transforms
