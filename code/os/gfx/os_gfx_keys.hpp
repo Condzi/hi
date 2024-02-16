@@ -1,6 +1,6 @@
 #pragma once
 
-// OS-agnostic keys (+mouse buttons)
+// OS-agnostic keyboard keys, mouse and gamepad buttons
 //
 
 enum Game_Input {
@@ -131,8 +131,8 @@ enum Game_Input {
   GameInput_RightShift,
   GameInput_LeftCtrl,
   GameInput_RightCtrl,
-  GameInput_LeftMenu,
-  GameInput_RightMenu,
+  GameInput_LeftAlt,
+  GameInput_RightAlt,
 
   GameInput_Plus,
   GameInput_Comma,

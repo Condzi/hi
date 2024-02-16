@@ -7,6 +7,7 @@
 #if OS_WINDOWS
 #include "core/win32/os_core_win32.hpp"
 #include "gfx/win32/os_gfx_win32.hpp"
+#include "gfx/win32/os_gfx_win32_keys.hpp"
 #else
 #error OS Layer not set up!
 #endif

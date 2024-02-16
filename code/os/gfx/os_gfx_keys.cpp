@@ -119,8 +119,8 @@ game_input_to_str8(Game_Input v) {
     case GameInput_RightShift:      return "Right Shift"_s8;
     case GameInput_LeftCtrl:        return "Lef Ctrl"_s8;
     case GameInput_RightCtrl:       return "Right Ctrl"_s8;
-    case GameInput_LeftMenu:        return "Left Menu"_s8;
-    case GameInput_RightMenu:       return "Right Menu"_s8;
+    case GameInput_LeftAlt:         return "Left Alt"_s8;
+    case GameInput_RightAlt:        return "Right Alt"_s8;
     case GameInput_Plus:            return "Plus"_s8;
     case GameInput_Comma:           return "Comma"_s8;
     case GameInput_Minus:           return "Minus"_s8;
