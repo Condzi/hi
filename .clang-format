@@ -1,16 +1,54 @@
+DisableFormat: false
 BasedOnStyle: LLVM
+ColumnLimit: 100
+
+# Indentation
+UseTab: Never
+IndentWidth: 2
+TabWidth: 2
 AccessModifierOffset: -2
+NamespaceIndentation: None
+ConstructorInitializerIndentWidth: 4
+IndentCaseLabels: true
+IndentPPDirectives: None
+IndentWrappedFunctionNames: false
+
+ReflowComments: true
+SortIncludes: false
+SpaceAfterCStyleCast: false
+SpaceAfterTemplateKeyword: true
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeCpp11BracedList: true
+SpaceBeforeParens: ControlStatements
+SpaceInEmptyParentheses: false
+SpacesInAngles: false
+SpacesInContainerLiterals: true
+SpacesInCStyleCastParentheses: false
+SpacesInParentheses: false
+SpacesInSquareBrackets: false
+
+# Alignment
 AlignAfterOpenBracket: Align
 AlignConsecutiveAssignments: true
 AlignConsecutiveDeclarations: true
+AlignConsecutiveMacros: true
+AlignConsecutiveBitFields: true
+AlignConsecutiveShortCaseStatements:
+  Enabled: true
+  AcrossEmptyLines: true
+  AcrossComments: true
+  AlignCaseColons: false
 AlignEscapedNewlines: Right
 AlignOperands: true
 AlignTrailingComments: true
+DerivePointerAlignment: false
+PointerAlignment: Right
+
 AllowAllArgumentsOnNextLine: true
 AllowAllConstructorInitializersOnNextLine: true
 AllowAllParametersOfDeclarationOnNextLine: true
 AllowShortBlocksOnASingleLine: false
-AllowShortCaseLabelsOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: true
 AllowShortFunctionsOnASingleLine: All
 AllowShortIfStatementsOnASingleLine: true
 AllowShortLoopsOnASingleLine: false
@@ -20,47 +58,22 @@ AlwaysBreakTemplateDeclarations: Yes
 BinPackArguments: false
 BinPackParameters: false
 BraceWrapping:
-  AfterClass:      false
+  AfterClass: false
   AfterControlStatement: false
-  AfterEnum:       false
-  AfterFunction:   false
-  AfterNamespace:  false
-  AfterStruct:     false
-  AfterUnion:      false
+  AfterEnum: false
+  AfterFunction: false
+  AfterNamespace: false
+  AfterStruct: false
+  AfterUnion: false
   AfterExternBlock: false
-  BeforeCatch:     false
-  BeforeElse:      false
+  BeforeCatch: false
+  BeforeElse: false
 BreakBeforeBraces: Custom
 BreakConstructorInitializers: BeforeComma
-ColumnLimit:     100
 CompactNamespaces: true
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
-ConstructorInitializerIndentWidth: 4
 Cpp11BracedListStyle: true
-DerivePointerAlignment: false
-DisableFormat:   false
 FixNamespaceComments: true
-IncludeBlocks:   Preserve
-IndentCaseLabels: true
-IndentPPDirectives: None
-IndentWidth:     2
-IndentWrappedFunctionNames: false
+IncludeBlocks: Preserve
 KeepEmptyLinesAtTheStartOfBlocks: true
 MaxEmptyLinesToKeep: 1
-NamespaceIndentation: None
-PointerAlignment: Right
-ReflowComments:  true
-SortIncludes:    false
-SpaceAfterCStyleCast: false
-SpaceAfterTemplateKeyword: true
-SpaceBeforeAssignmentOperators: true
-SpaceBeforeCpp11BracedList: true
-SpaceBeforeParens: ControlStatements
-SpaceInEmptyParentheses: false
-SpacesInAngles:  false
-SpacesInContainerLiterals: true
-SpacesInCStyleCastParentheses: false
-SpacesInParentheses: false
-SpacesInSquareBrackets: false
-TabWidth:        2
-UseTab:          Never

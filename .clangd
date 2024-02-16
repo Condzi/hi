@@ -3,7 +3,7 @@ If:
   PathExclude: [code/3rdparty/.*, code/base/base_types.hpp]
 
 CompileFlags:
- Add: -includeall_inc.hpp
- Compiler: clang++
+  Add: -includeall_inc.hpp
+  Compiler: clang++
 Diagnostics:
   UnusedIncludes: None
