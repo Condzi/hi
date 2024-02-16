@@ -50,6 +50,7 @@ Checks:
   '-readability-identifier-length',
 
   '-clang-diagnostic-unknown-pragmas',
+  '-clang-diagnostic-format',  
   ]
   
 HeaderFileExtensions:         ['', 'hpp','hxx']

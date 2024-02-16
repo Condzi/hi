@@ -8,3 +8,6 @@ analyzer:
 
   # @ToDo: add this check back when we have more code!
   - --disable=clang-diagnostic-unused-function
+
+  # It clashes with our custom %S specifier, so I turned it off.
+  - --disable=clang-diagnostic-format
