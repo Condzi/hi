@@ -11,7 +11,7 @@ internal void
 gfx_renderer_init_render_graph();
 
 internal void
-gfx_renderer_push_object(GFX_Object const &object);
+gfx_renderer_push_game_object(GFX_Object const &object);
 
 must_use internal GFX_Batch *
 gfx_renderer_request_batch(GFX_Material_Type type);
@@ -42,14 +42,14 @@ gfx_renderer_init() {
   gfx_renderer_init_reuseable_resources();
   gfx_renderer_init_render_graph();
 
-  gRen.objects_in_frame.cap = 64;
+  gRen.game_objects_in_frame.cap = 64;
 }
 
 global void
 gfx_renderer_begin_frame() {
-  u64 const   obj_cap   = gRen.objects_in_frame.cap;
+  u64 const   obj_cap   = gRen.game_objects_in_frame.cap;
   GFX_Object *obj       = arena_alloc_array<GFX_Object>(gContext.frame_arena, obj_cap);
-  gRen.objects_in_frame = {
+  gRen.game_objects_in_frame = {
       .v   = obj,
       .cap = obj_cap,
   };
@@ -61,8 +61,8 @@ global void
 gfx_renderer_end_frame() {
   // Aliases
   //
-  GFX_Object *objects    = gRen.objects_in_frame.v;
-  u64 const   objects_sz = gRen.objects_in_frame.sz;
+  GFX_Object *objects    = gRen.game_objects_in_frame.v;
+  u64 const   objects_sz = gRen.game_objects_in_frame.sz;
   ErrorContext("objects_count=%zu", objects_sz);
 
   gRen.is_accepting_new_objects = false;
@@ -202,7 +202,7 @@ gfx_draw_sprite(GFX_Sprite_Opts const &opts) {
 
 global void
 gfx_draw_sprite_color(GFX_Sprite_Opts const &opts, GFX_Color color) {
-  gfx_renderer_push_object({
+  gfx_renderer_push_game_object({
       .pos   = opts.pos,
       .sz    = opts.sz,
       .rot   = opts.rot,
@@ -223,7 +223,7 @@ gfx_draw_sprite_color(GFX_Sprite_Opts const &opts, GFX_Color color) {
 
 global void
 gfx_draw_rect_color(GFX_Rect_Opts const &opts, GFX_Color color) {
-  gfx_renderer_push_object({
+  gfx_renderer_push_game_object({
       .pos   = opts.pos,
       .sz    = opts.sz,
       .rot   = opts.rot,
@@ -348,20 +348,20 @@ gfx_renderer_init_render_graph() {
 }
 
 internal void
-gfx_renderer_push_object(GFX_Object const &object) {
+gfx_renderer_push_game_object(GFX_Object const &object) {
   Assert(gRen.is_accepting_new_objects);
 
-  if (gRen.objects_in_frame.sz == gRen.objects_in_frame.cap) {
-    u64 const   old_cap     = gRen.objects_in_frame.cap;
+  if (gRen.game_objects_in_frame.sz == gRen.game_objects_in_frame.cap) {
+    u64 const   old_cap     = gRen.game_objects_in_frame.cap;
     u64 const   new_cap     = old_cap * 2;
     GFX_Object *new_objects = arena_alloc_array<GFX_Object>(gContext.frame_arena, new_cap);
-    MemoryCopy(new_objects, gRen.objects_in_frame.v, old_cap);
-    gRen.objects_in_frame.v   = new_objects;
-    gRen.objects_in_frame.cap = new_cap;
+    MemoryCopy(new_objects, gRen.game_objects_in_frame.v, old_cap);
+    gRen.game_objects_in_frame.v   = new_objects;
+    gRen.game_objects_in_frame.cap = new_cap;
   }
 
-  gRen.objects_in_frame.v[gRen.objects_in_frame.sz] = object;
-  gRen.objects_in_frame.sz++;
+  gRen.game_objects_in_frame.v[gRen.game_objects_in_frame.sz] = object;
+  gRen.game_objects_in_frame.sz++;
 }
 
 must_use internal GFX_Batch *

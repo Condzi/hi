@@ -22,7 +22,7 @@ struct {
   GFX_RG_Node *free_nodes = 0;
   GFX_RG_Node *used_nodes = 0;
 
-  GFX_Object_Array objects_in_frame;         // Uses frame arena as storage!
+  GFX_Object_Array game_objects_in_frame;         // Uses frame arena as storage!
   bool             is_accepting_new_objects = false; // true if between begin/end frame calls.
 
   // Batchers need to be added between these two nodes -- as children of "before" and the last one
