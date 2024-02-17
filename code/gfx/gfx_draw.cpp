@@ -101,10 +101,12 @@ gfx_renderer_end_frame() {
         GFX_Object const   &obj = objects[i];
         GFX_Material const &mat = obj.material;
 
-        if (!current_batch || (current_batch->type != mat.type) ||
+        if (!current_batch || current_batch->sampler != mat.sampler ||
+            (current_batch->type != mat.type) ||
             (current_batch->type == mat.type && mat.type == GFX_MaterialType_Sprite &&
              current_batch->data.sprite.texture.v[0] != mat.sprite.tex.v[0])) {
           current_batch = gfx_renderer_request_batch(mat.type);
+          current_batch->sampler = mat.sampler;
           if (mat.type == GFX_MaterialType_Sprite) {
             current_batch->data.sprite.texture = mat.sprite.tex;
           }
@@ -185,6 +187,7 @@ gfx_draw_text_color(GFX_Text_Opts const &opts, GFX_Color color) {
             .tex      = opts.font->image,
             .tex_rect = glyph.rect,
             .layer    = opts.layer,
+            .sampler  = GFX_SamplerType_PixelPerfect,
         },
         color);
 
@@ -213,6 +216,7 @@ gfx_draw_sprite_color(GFX_Sprite_Opts const &opts, GFX_Color color) {
                       .tex_rect = opts.tex_rect,
                       .color    = color,
                   },
+              .sampler = opts.sampler,
           },
   });
 }
@@ -304,9 +308,9 @@ gfx_renderer_init_render_graph() {
           {
               .camera =
                   {
-                      .center = {.x = 0, .y = 0},
-                      .rotation    = 0,
-                      .zoom   = 1,
+                      .center   = {.x = 0, .y = 0},
+                      .rotation = 0,
+                      .zoom     = 1,
                   },
           },
       .out = gRen.batch_render_target,

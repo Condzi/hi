@@ -68,6 +68,7 @@ struct GFX_Sprite_Opts {
   GFX_Image    tex;
   GFX_Tex_Rect tex_rect;
   GFX_Layer    layer;
+  GFX_Sampler_Type sampler = {};
 };
 
 global void

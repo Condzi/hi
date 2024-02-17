@@ -59,9 +59,9 @@ struct D3d {
   ID3D11BlendState      *blend_state;
   ID3D11RasterizerState *rasterizer_state;
 
-  // @ToDo: different sampler types!
-  //
   ID3D11SamplerState *linear_sampler;
+  ID3D11SamplerState *pixel_perfect_sampler;
+
 
   struct {
     ID3D11Buffer *rect;
@@ -142,3 +142,6 @@ d3d_load_png(Str8 src);
 
 must_use ID3D11RenderTargetView*
 d3d_image_to_rtv(GFX_Image image);
+
+must_use ID3D11SamplerState*
+d3d_sampler_type_to_d3d_sampler(GFX_Sampler_Type type);

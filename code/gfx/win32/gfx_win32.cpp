@@ -78,6 +78,15 @@ d3d_image_to_rtv(GFX_Image image) {
   return rt_view;
 }
 
+must_use ID3D11SamplerState *
+d3d_sampler_type_to_d3d_sampler(GFX_Sampler_Type type) {
+  switch (type) {
+    default:                           Assert(false);
+    case GFX_SamplerType_Linear:       return gD3d.linear_sampler;
+    case GFX_SamplerType_PixelPerfect: return gD3d.pixel_perfect_sampler;
+  }
+}
+
 // Input Element Tables
 //
 
@@ -488,11 +497,10 @@ gfx_init(GFX_Opts const &opts) {
   {
     ErrorContext("Linear sampler");
     D3D11_SAMPLER_DESC const desc = {
-        .Filter         = D3D11_FILTER_MIN_MAG_MIP_LINEAR, // Linear filtering -- textures, characters
-        //.Filter         = D3D11_FILTER_MIN_MAG_MIP_POINT, // Exact pixel maping, text fonts.
-        .AddressU       = D3D11_TEXTURE_ADDRESS_WRAP,
-        .AddressV       = D3D11_TEXTURE_ADDRESS_WRAP,
-        .AddressW       = D3D11_TEXTURE_ADDRESS_WRAP,
+        .Filter   = D3D11_FILTER_MIN_MAG_MIP_LINEAR, // Linear filtering -- textures, characters
+        .AddressU = D3D11_TEXTURE_ADDRESS_WRAP,
+        .AddressV = D3D11_TEXTURE_ADDRESS_WRAP,
+        .AddressW = D3D11_TEXTURE_ADDRESS_WRAP,
         .ComparisonFunc = D3D11_COMPARISON_NEVER,
         .MinLOD         = 0,
         .MaxLOD         = D3D11_FLOAT32_MAX,
@@ -501,6 +509,25 @@ gfx_init(GFX_Opts const &opts) {
     hr = gD3d.device->CreateSamplerState(&desc, &(gD3d.linear_sampler));
     ErrorIf(FAILED(hr), "%S", os_error_to_user_message(hr));
   }
+
+  {
+    ErrorContext("Pixel-perfect sampler");
+    D3D11_SAMPLER_DESC const desc = {
+        .Filter         = D3D11_FILTER_MIN_MAG_MIP_POINT, // Exact pixel maping, text fonts.
+        .AddressU       = D3D11_TEXTURE_ADDRESS_WRAP,
+        .AddressV       = D3D11_TEXTURE_ADDRESS_WRAP,
+        .AddressW       = D3D11_TEXTURE_ADDRESS_WRAP,
+        .ComparisonFunc = D3D11_COMPARISON_NEVER,
+        .MinLOD         = 0,
+        .MaxLOD         = D3D11_FLOAT32_MAX,
+    };
+
+    hr = gD3d.device->CreateSamplerState(&desc, &(gD3d.pixel_perfect_sampler));
+    ErrorIf(FAILED(hr), "%S", os_error_to_user_message(hr));
+  }
+
+  // Create constants buffers
+  //
 
   {
     ErrorContext("Create common constants buffer");
@@ -912,7 +939,8 @@ gfx_batch_draw(GFX_Batch *batch, GFX_Image target) {
 
     gD3d.deferred_context->PSSetShaderResources(0, 1, &srv);
     gD3d.deferred_context->PSSetShader(gD3d.sprite.ps, 0, 0);
-    gD3d.deferred_context->PSSetSamplers(0, 1, &(gD3d.linear_sampler));
+    ID3D11SamplerState* sampler = d3d_sampler_type_to_d3d_sampler(batch->sampler);
+    gD3d.deferred_context->PSSetSamplers(0, 1, &sampler);
 
     // @ToDo: Handle zoom and offsets!
     //

@@ -72,6 +72,14 @@ union GFX_Layer {
 // Materials
 //
 
+enum GFX_Sampler_Type : u8 {
+  GFX_SamplerType_Default,
+  GFX_SamplerType_Linear = GFX_SamplerType_Default,
+  GFX_SamplerType_PixelPerfect,
+
+  GFX_SampelrType__count
+};
+
 enum GFX_Material_Type : u8 {
   GFX_MaterialType_Default,
   GFX_MaterialType_Rect = GFX_MaterialType_Default,
@@ -93,6 +101,7 @@ struct GFX_Material {
       GFX_Color    color;
     } sprite;
   };
+  GFX_Sampler_Type sampler;
 };
 
 struct GFX_Object {
@@ -124,6 +133,7 @@ struct GFX_Batch {
 
   // What is the material of the objects in this batch?
   GFX_Material_Type type = {};
+  GFX_Sampler_Type sampler = {};
   union {
     struct {
       GFX_Image texture;
