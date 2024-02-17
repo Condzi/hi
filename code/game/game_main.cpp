@@ -68,6 +68,9 @@ main(int argc, char const *argv[]) {
     .zoom = 0.8f,
   };
 
+  GFX_Image font_img = d3d_load_png("W:/hi/run_tree/tex/pixel_font_basic_latin_ascii.png"_s8);
+  GFX_Font  font     = gfx_make_font(font_img, 7, 9);
+
   u64 frame = 0;
   while (os_gfx_window_mode() != OS_WindowMode_Closed) {
     // Frame start
@@ -101,6 +104,13 @@ main(int argc, char const *argv[]) {
     gfx_draw_sprite(bg);
     gfx_draw_sprite(sprite_1);
     gfx_draw_rect_color(rect_1, {.v = 0xFF'00'00'FF});
+    gfx_draw_text_color({
+        .pos       = {cam.center.x, cam.center.y},
+        .height_px = 100,
+        .font      = &font,
+        .layer     = l4,
+        .string    = "Hello, World!"_s8,
+    }, {.v = 0xD04848FF});
 
     gfx_renderer_end_frame();
 

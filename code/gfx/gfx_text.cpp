@@ -17,13 +17,14 @@ gfx_get_glyph(GFX_Font *font, u8 ch, u16 height_px) {
   // Normalize the character ID. Calculate UV coords.
   //
   ch = Clamp(32, ch, 127);
+  ch -= 32;
 
-  u16 const u = ch % 16 * font->char_width;
-  u16 const v = ch / 16 * font->char_height;
+  u16 const u = (ch % 16) * font->char_width;
+  u16 const v = (ch / 16) * font->char_height;
 
   // Calculate the desired width
   //
-  f32 const w = ((f32)font->char_width * (f32)height_px) / (f32)font->char_height;
+  f32 const w = ffloor(((f32)font->char_width * (f32)height_px) / (f32)font->char_height);
 
   return {
       .rect =
@@ -33,7 +34,7 @@ gfx_get_glyph(GFX_Font *font, u8 ch, u16 height_px) {
               .w = font->char_width,
               .h = font->char_height,
           },
-      .sz        = {(f32)height_px, w},
+      .sz        = {w, (f32)height_px},
       .advance_x = w,
   };
 }

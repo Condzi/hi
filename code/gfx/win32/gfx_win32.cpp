@@ -488,8 +488,8 @@ gfx_init(GFX_Opts const &opts) {
   {
     ErrorContext("Linear sampler");
     D3D11_SAMPLER_DESC const desc = {
-        .Filter         = D3D11_FILTER_MIN_MAG_MIP_LINEAR, // Linear filtering
-        //.Filter         = D3D11_FILTER_MIN_MAG_MIP_POINT,
+        .Filter         = D3D11_FILTER_MIN_MAG_MIP_LINEAR, // Linear filtering -- textures, characters
+        //.Filter         = D3D11_FILTER_MIN_MAG_MIP_POINT, // Exact pixel maping, text fonts.
         .AddressU       = D3D11_TEXTURE_ADDRESS_WRAP,
         .AddressV       = D3D11_TEXTURE_ADDRESS_WRAP,
         .AddressW       = D3D11_TEXTURE_ADDRESS_WRAP,

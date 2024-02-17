@@ -167,6 +167,32 @@ gfx_renderer_end_frame() {
 }
 
 global void
+gfx_draw_text(GFX_Text_Opts const &opts) {
+  gfx_draw_text_color(opts, {.v = 0xFF'FF'FF'FF});
+}
+
+global void
+gfx_draw_text_color(GFX_Text_Opts const &opts, GFX_Color color) {
+  fvec2 pen = opts.pos;
+
+  for (u64 i = 0; i < opts.string.sz; i++) {
+    GFX_Glyph glyph = gfx_get_glyph(opts.font, opts.string.v[i], opts.height_px);
+
+    gfx_draw_sprite_color(
+        {
+            .pos      = pen,
+            .sz       = glyph.sz,
+            .tex      = opts.font->image,
+            .tex_rect = glyph.rect,
+            .layer    = opts.layer,
+        },
+        color);
+
+    pen.x += glyph.advance_x;
+  }
+}
+
+global void
 gfx_draw_sprite(GFX_Sprite_Opts const &opts) {
   gfx_draw_sprite_color(opts, GFX_Color {.v = 0xFF'FF'FF'FF});
 }
