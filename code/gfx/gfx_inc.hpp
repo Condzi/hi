@@ -3,6 +3,7 @@
 #include "gfx_base.hpp"
 #include "gfx_render_graph.hpp"
 #include "gfx_draw.hpp"
+#include "gfx_text.hpp"
 
 global Arena *gfx_arena;
 
