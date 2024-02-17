@@ -129,19 +129,25 @@
 
 ## Localization
 
-    Have some special localized strings that are mapped to some string loaded from a 
-    CSV. Only in UI I guess?
+    Works by mapping numerical IDs to UTF-8 strings in a cache.
+    Cache is read from disk or google docs (need sockets for that).
 
 ## Text Rendering
 
     Only monospace fonts for simplicity?
     
+    [ ] Font utility. Is it monospace? Get tex rect for given character (aka glyph?) 
     [ ] Add code from BB for simple font rendering
-    [ ] Handling \n etc
-    [ ] Rendering to texture
-    [ ] Handle transforms
-    [ ] Handling color (maybe escape codes?)
-    [ ] Figure out styles bold, italic etc?
+    [ ] Debug rendering (at least maybe boxes around text?)
+    [ ] Rendering to a render target and manipulating it
+      [ ] Figure out how to deal with render graph. Just add nodes to it for every text?
+        Since the font is monospace we could simply figure out how big the render target should
+        be, then render to it easily via render graph.
+      [ ] Handle transforms
+    [ ] Handling rich text 
+      [ ] Handling \n and \t
+      [ ] color (maybe escape codes?)
+      [ ] Figure out styles bold, italic, underline etc?
 
 ## UI
 
