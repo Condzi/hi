@@ -50,9 +50,9 @@ d3d_load_png(Str8 src) {
   ErrorContext("src=%S", src);
 
   stbi_set_flip_vertically_on_load(0);
-  int x        = 0;
-  int y        = 0;
-  int ch       = 0;
+  int x  = 0;
+  int y  = 0;
+  int ch = 0;
   // @ToDo: use own functions for file loading
   //
   u8 *img_data = stbi_load((char const *)src.v, &x, &y, &ch, 4);
@@ -745,8 +745,8 @@ must_use global GFX_Batch *
 gfx_make_batch(GFX_Material_Type material) {
   ErrorContext("material=%d", (int)material);
 
-  GFX_Batch *batch = arena_alloc<GFX_Batch>(gfx_arena);
-  batch->type      = material;
+  GFX_Batch *batch   = arena_alloc<GFX_Batch>(gfx_arena);
+  batch->type        = material;
   batch->objects.v   = arena_alloc_array<GFX_Object>(gfx_arena, GFX_BATCH_MAX_INSTANCES);
   batch->objects.cap = GFX_BATCH_MAX_INSTANCES;
 
@@ -780,7 +780,7 @@ gfx_make_batch(GFX_Material_Type material) {
 }
 
 global void
-gfx_batch_push(GFX_Batch *batch, GFX_Object const& object) {
+gfx_batch_push(GFX_Batch *batch, GFX_Object const &object) {
   if (!batch) {
     return;
   }
@@ -917,8 +917,8 @@ gfx_batch_draw(GFX_Batch *batch, GFX_Image target) {
     };
 
     HRESULT hr = 0;
-    hr = gD3d.device->CreateShaderResourceView(tex, &srv_desc, &srv);
-    Defer{srv->Release();};
+    hr         = gD3d.device->CreateShaderResourceView(tex, &srv_desc, &srv);
+    Defer { srv->Release(); };
     ErrorIf(FAILED(hr), "Failed to create SRV for A. %S", os_error_to_user_message(hr));
 
     // Draw the batch.
@@ -939,7 +939,7 @@ gfx_batch_draw(GFX_Batch *batch, GFX_Image target) {
 
     gD3d.deferred_context->PSSetShaderResources(0, 1, &srv);
     gD3d.deferred_context->PSSetShader(gD3d.sprite.ps, 0, 0);
-    ID3D11SamplerState* sampler = d3d_sampler_type_to_d3d_sampler(batch->sampler);
+    ID3D11SamplerState *sampler = d3d_sampler_type_to_d3d_sampler(batch->sampler);
     gD3d.deferred_context->PSSetSamplers(0, 1, &sampler);
 
     // @ToDo: Handle zoom and offsets!
@@ -964,8 +964,11 @@ must_use internal GFX_Image
 gfx_rg_execute_operations(GFX_RG_Operation *operations, u32 count) {
   ErrorContext("count=%d", (int)count);
 
+  os_debug_message("RG PASS BEGIN\n"_s8);
   for (u32 i = 0; i < count; i++) {
     GFX_RG_Operation &op = operations[i];
+    os_debug_message(str8_sprintf(
+        gContext.frame_arena, " %d/%d. opt.type=%d\n", (int)i, (int)count, (int)op.type));
 
     ErrorContext("i=%d, op.type=%d", (int)i, (int)op.type);
     switch (op.type) {
@@ -974,13 +977,13 @@ gfx_rg_execute_operations(GFX_RG_Operation *operations, u32 count) {
       } break;
 
       case GFX_RG_OpType_SetCamera: {
-        fvec2 const center = op.input.camera.center*-1.f;
+        fvec2 const center = op.input.camera.center * -1.f;
         f32 const   rot    = op.input.camera.rotation;
         f32 const   zoom   = op.input.camera.zoom;
         ErrorContext("center={%g,%g}, rot=%g, zoom=%g", center.x, center.y, rot, zoom);
         ErrorIf(zoom < 0.05f, "Tiny zoom, probably an error.");
 
-        fvec2 const half_out_sz = gfx_image_size(*op.out)*0.5f;
+        fvec2 const half_out_sz           = gfx_image_size(*op.out) * 0.5f;
         fmat4 const T                     = translate2(center);
         fmat4 const R                     = combine(rot_z(rot), translate2(half_out_sz));
         fmat4 const S                     = scale2({.x = zoom, .y = zoom});
@@ -1057,7 +1060,7 @@ gfx_combine_images(GFX_Image a, GFX_Image b, GFX_Image target) {
   };
 
   HRESULT hr = 0;
-  hr = gD3d.device->CreateShaderResourceView(tex_a, &srv_desc, &srv_a);
+  hr         = gD3d.device->CreateShaderResourceView(tex_a, &srv_desc, &srv_a);
   ErrorIf(FAILED(hr), "Failed to create SRV for A. %S", os_error_to_user_message(hr));
   hr = gD3d.device->CreateShaderResourceView(tex_b, &srv_desc, &srv_b);
   ErrorIf(FAILED(hr), "Failed to create SRV for B. %S", os_error_to_user_message(hr));
@@ -1117,7 +1120,7 @@ gfx_apply_post_fx(GFX_Fx fx, GFX_Image src, GFX_Image target) {
   };
 
   HRESULT hr = 0;
-  hr = gD3d.device->CreateShaderResourceView(tex, &srv_desc, &srv);
+  hr         = gD3d.device->CreateShaderResourceView(tex, &srv_desc, &srv);
   ErrorIf(FAILED(hr), "Failed to create SRV. %S", os_error_to_user_message(hr));
   Defer { srv->Release(); };
 

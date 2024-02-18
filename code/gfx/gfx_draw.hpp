@@ -12,6 +12,7 @@ struct {
   GFX_Render_Graph *rg = 0;
 
   GFX_Image *batch_render_target = 0;
+  GFX_Image *ui_render_target    = 0;
   // Batches for reuse
   //
   GFX_Batch_Node   *free_batches = 0;
@@ -23,6 +24,7 @@ struct {
   GFX_RG_Node *used_nodes = 0;
 
   GFX_Object_Array game_objects_in_frame;         // Uses frame arena as storage!
+  GFX_Object_Array ui_objects_in_frame;           // Uses frame arena as storage!
   bool             is_accepting_new_objects = false; // true if between begin/end frame calls.
 
   // Batchers need to be added between these two nodes -- as children of "before" and the last one
@@ -30,6 +32,9 @@ struct {
   //
   GFX_RG_Node *node_before_batchers = 0;
   GFX_RG_Node *node_after_batchers  = 0;
+
+  GFX_RG_Node *node_before_ui = 0;
+  GFX_RG_Node *node_after_ui  = 0;
 
   GFX_RG_Node* batch_camera = 0;
 } global gRen;

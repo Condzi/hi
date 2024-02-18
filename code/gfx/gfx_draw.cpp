@@ -13,6 +13,9 @@ gfx_renderer_init_render_graph();
 internal void
 gfx_renderer_push_game_object(GFX_Object const &object);
 
+internal void
+gfx_renderer_push_ui_object(GFX_Object const &object);
+
 must_use internal GFX_Batch *
 gfx_renderer_request_batch(GFX_Material_Type type);
 
@@ -32,26 +35,36 @@ gfx_renderer_init() {
 
   // We render all batches to one render target, but sorterd by layers every frame.
   //
-  GFX_Image *render_target = arena_alloc<GFX_Image>(gfx_arena);
-  *render_target           = gfx_make_image(0, os_gfx_surface_width(), os_gfx_surface_height());
+  GFX_Image *batch_render_target = arena_alloc<GFX_Image>(gfx_arena);
+  *batch_render_target = gfx_make_image(0, os_gfx_surface_width(), os_gfx_surface_height());
+
   // We always want to have render target that is the size of the framebuffer.
   //
-  gfx_resize_image_with_framebuffer(render_target);
-  gRen.batch_render_target = render_target;
+  gfx_resize_image_with_framebuffer(batch_render_target);
+
+  gRen.batch_render_target = batch_render_target;
 
   gfx_renderer_init_reuseable_resources();
   gfx_renderer_init_render_graph();
 
   gRen.game_objects_in_frame.cap = 64;
+  gRen.ui_objects_in_frame.cap   = 64;
 }
 
 global void
 gfx_renderer_begin_frame() {
-  u64 const   obj_cap   = gRen.game_objects_in_frame.cap;
-  GFX_Object *obj       = arena_alloc_array<GFX_Object>(gContext.frame_arena, obj_cap);
+  u64 const   game_obj_cap   = gRen.game_objects_in_frame.cap;
+  GFX_Object *game_obj       = arena_alloc_array<GFX_Object>(gContext.frame_arena, game_obj_cap);
   gRen.game_objects_in_frame = {
-      .v   = obj,
-      .cap = obj_cap,
+      .v   = game_obj,
+      .cap = game_obj_cap,
+  };
+
+  u64 const   ui_obj_cap   = gRen.ui_objects_in_frame.cap;
+  GFX_Object *ui_obj       = arena_alloc_array<GFX_Object>(gContext.frame_arena, ui_obj_cap);
+  gRen.ui_objects_in_frame = {
+      .v   = ui_obj,
+      .cap = ui_obj_cap,
   };
 
   gRen.is_accepting_new_objects = true;
@@ -59,26 +72,28 @@ gfx_renderer_begin_frame() {
 
 global void
 gfx_renderer_end_frame() {
-  // Aliases
-  //
-  GFX_Object *objects    = gRen.game_objects_in_frame.v;
-  u64 const   objects_sz = gRen.game_objects_in_frame.sz;
-  ErrorContext("objects_count=%zu", objects_sz);
-
   gRen.is_accepting_new_objects = false;
-
-  if (objects && objects_sz) {
-    // @Performance Bubble sort the objects by layer.
+  // Game objects
+  //
+  {
+    // Aliases
     //
-    {
+    GFX_Object *objects    = gRen.game_objects_in_frame.v;
+    u64 const   objects_sz = gRen.game_objects_in_frame.sz;
+    ErrorContext("game_objects_count=%zu", objects_sz);
+
+    if (objects && objects_sz) {
+      // @Performance Bubble sort the objects by layer.
+      //
+      {
       bool swapped = false;
       for (u64 i = 0; i < objects_sz - 1; i++) {
-        GFX_Object &obj_i = objects[i];
-        swapped           = false;
-        for (u64 j = 0; j < objects_sz - i + 1; j++) {
-          GFX_Object &obj_j = objects[j];
-          if (obj_i.layer.v > obj_j.layer.v) {
-            Swap(obj_i, obj_j);
+        swapped = false;
+        for (u64 j = 0; j < objects_sz - i - 1; j++) {
+          GFX_Object &obj_j   = objects[j];
+          GFX_Object &obj_j_1 = objects[j + 1];
+          if (obj_j.layer.v > obj_j_1.layer.v) {
+            Swap(obj_j, obj_j_1);
             swapped = true;
           }
         }
@@ -88,48 +103,128 @@ gfx_renderer_end_frame() {
       }
     }
 
-    // Look for subsequences of objects with compatible materials for batching.
-    // Immedietaly assign them to correct batches.
-    // Add these batches to "used" list. Every next batch will be added
-    // to the end of this list, which maintains the order.
-    // Then, add the batch to render node and connect the previous node with next node.
-    //
-    {
-      GFX_Batch   *current_batch = 0;
-      GFX_RG_Node *current_node  = 0;
-      for (u64 i = 0; i < objects_sz; i++) {
-        GFX_Object const   &obj = objects[i];
-        GFX_Material const &mat = obj.material;
+      // Look for subsequences of objects with compatible materials for batching.
+      // Immedietaly assign them to correct batches.
+      // Add these batches to "used" list. Every next batch will be added
+      // to the end of this list, which maintains the order.
+      // Then, add the batch to render node and connect the previous node with next node.
+      //
+      {
+        GFX_Batch   *current_batch = 0;
+        GFX_RG_Node *current_node  = 0;
+        for (u64 i = 0; i < objects_sz; i++) {
+          GFX_Object const   &obj = objects[i];
+          GFX_Material const &mat = obj.material;
 
-        if (!current_batch || current_batch->sampler != mat.sampler ||
-            (current_batch->type != mat.type) ||
-            (current_batch->type == mat.type && mat.type == GFX_MaterialType_Sprite &&
-             current_batch->data.sprite.texture.v[0] != mat.sprite.tex.v[0])) {
-          current_batch = gfx_renderer_request_batch(mat.type);
-          current_batch->sampler = mat.sampler;
-          if (mat.type == GFX_MaterialType_Sprite) {
-            current_batch->data.sprite.texture = mat.sprite.tex;
+          if (!current_batch || current_batch->sampler != mat.sampler ||
+              (current_batch->type != mat.type) ||
+              (current_batch->type == mat.type && mat.type == GFX_MaterialType_Sprite &&
+               current_batch->data.sprite.texture.v[0] != mat.sprite.tex.v[0])) {
+            current_batch          = gfx_renderer_request_batch(mat.type);
+            current_batch->sampler = mat.sampler;
+            if (mat.type == GFX_MaterialType_Sprite) {
+              current_batch->data.sprite.texture = mat.sprite.tex;
+            }
+
+            GFX_RG_Node *next_node = gfx_renderer_request_node();
+            next_node->op.type     = GFX_RG_OpType_Batch;
+            if (current_node) {
+              gfx_rg_attach_node_to_parent(current_node, next_node);
+            } else {
+              //  It's the first node in the batcher's list.
+              //
+              gfx_rg_attach_node_to_parent(gRen.node_before_batchers, next_node);
+            }
+            current_node                       = next_node;
+            current_node->op.input.batch.batch = current_batch;
           }
 
-          GFX_RG_Node *next_node = gfx_renderer_request_node();
-          next_node->op.type     = GFX_RG_OpType_Batch;
-          if (current_node) {
-            gfx_rg_attach_node_to_parent(current_node, next_node);
-          } else {
-            //  It's the first node in the batcher's list.
-            //
-            gfx_rg_attach_node_to_parent(gRen.node_before_batchers, next_node);
-          }
-          current_node                       = next_node;
-          current_node->op.input.batch.batch = current_batch;
+          gfx_batch_push(current_batch, obj);
         }
 
-        gfx_batch_push(current_batch, obj);
+        // Connect last batcher node in the list to correct node in RG.
+        //
+        gfx_rg_attach_node_to_parent(current_node, gRen.node_after_batchers);
+      }
+    }
+  }
+
+  // UI
+  { // Aliases
+    //
+    GFX_Object *objects    = gRen.ui_objects_in_frame.v;
+    u64 const   objects_sz = gRen.ui_objects_in_frame.sz;
+    ErrorContext("ui_objects_count=%zu", objects_sz);
+
+    if (objects && objects_sz) {
+      // @Performance Bubble sort the objects by layer.
+      //
+      {
+        bool swapped = false;
+        for (u64 i = 0; i < objects_sz - 1; i++) {
+          swapped = false;
+          for (u64 j = 0; j < objects_sz - i - 1; j++) {
+            GFX_Object &obj_j   = objects[j];
+            GFX_Object &obj_j_1 = objects[j + 1];
+            if (obj_j.layer.v > obj_j_1.layer.v) {
+              Swap(obj_j, obj_j_1);
+              swapped = true;
+            }
+          }
+          if (!swapped) {
+            break;
+          }
+        }
       }
 
-      // Connect last batcher node in the list to correct node in RG.
+      // Look for subsequences of objects with compatible materials for batching.
+      // Immedietaly assign them to correct batches.
+      // Add these batches to "used" list. Every next batch will be added
+      // to the end of this list, which maintains the order.
+      // Then, add the batch to render node and connect the previous node with next node.
       //
-      gfx_rg_attach_node_to_parent(current_node, gRen.node_after_batchers);
+      {
+        GFX_Batch   *current_batch = 0;
+        GFX_RG_Node *current_node  = 0;
+        for (u64 i = 0; i < objects_sz; i++) {
+          GFX_Object const   &obj = objects[i];
+          GFX_Material const &mat = obj.material;
+
+          if (!current_batch || current_batch->sampler != mat.sampler ||
+              (current_batch->type != mat.type) ||
+              (current_batch->type == mat.type && mat.type == GFX_MaterialType_Sprite &&
+               current_batch->data.sprite.texture.v[0] != mat.sprite.tex.v[0])) {
+            current_batch          = gfx_renderer_request_batch(mat.type);
+            current_batch->sampler = mat.sampler;
+            if (mat.type == GFX_MaterialType_Sprite) {
+              current_batch->data.sprite.texture = mat.sprite.tex;
+            }
+
+            GFX_RG_Node *next_node = gfx_renderer_request_node();
+            next_node->op.type     = GFX_RG_OpType_Batch;
+            if (current_node) {
+              gfx_rg_attach_node_to_parent(current_node, next_node);
+            } else {
+              //  It's the first node in the batcher's list.
+              //
+              gfx_rg_attach_node_to_parent(gRen.node_before_ui, next_node);
+            }
+            current_node                       = next_node;
+            current_node->op.input.batch.batch = current_batch;
+          }
+
+          // os_debug_message(str8_sprintf(gContext.frame_arena, "%d/%d objects\n", (int)i,
+          // (int)objects_sz));
+
+          gfx_batch_push(current_batch, obj);
+        }
+
+        // Connect last batcher node in the list to correct node in RG.
+        //
+        if (gRen.node_after_ui) {
+          gfx_rg_attach_node_to_parent(current_node, gRen.node_after_ui);
+        }
+      }
     }
   }
 
@@ -142,6 +237,11 @@ gfx_renderer_end_frame() {
   //
   gRen.node_before_batchers->children_count = 0;
   gRen.node_after_batchers->parents_count   = 0;
+
+  gRen.node_before_ui->children_count = 0;
+  if (gRen.node_after_ui) {
+    gRen.node_after_ui->parents_count = 0;
+  }
 
   // Walk through the used nodes and reset their parents/children.
   //
@@ -180,16 +280,22 @@ gfx_draw_text_color(GFX_Text_Opts const &opts, GFX_Color color) {
   for (u64 i = 0; i < opts.string.sz; i++) {
     GFX_Glyph glyph = gfx_get_glyph(opts.font, opts.string.v[i], opts.height_px);
 
-    gfx_draw_sprite_color(
-        {
-            .pos      = pen,
-            .sz       = glyph.sz,
-            .tex      = opts.font->image,
-            .tex_rect = glyph.rect,
-            .layer    = opts.layer,
-            .sampler  = GFX_SamplerType_PixelPerfect,
-        },
-        color);
+    gfx_renderer_push_ui_object({
+        .pos   = pen,
+        .sz    = glyph.sz,
+        .layer = opts.layer,
+        .material =
+            {
+                .type = GFX_MaterialType_Sprite,
+                .sprite =
+                    {
+                        .tex      = opts.font->image,
+                        .tex_rect = glyph.rect,
+                        .color    = color,
+                    },
+                .sampler = GFX_SamplerType_PixelPerfect,
+            },
+    });
 
     pen.x += glyph.advance_x;
   }
@@ -276,16 +382,16 @@ internal void
 gfx_renderer_init_render_graph() {
   // Allocate common nodes
   //
-  GFX_RG_Node *root          = gfx_rg_add_root(gRen.rg);
-  GFX_RG_Node *clear_targets = gfx_rg_make_node(gRen.rg);
-  GFX_RG_Node *vignette      = gfx_rg_make_node(gRen.rg);
+  GFX_RG_Node *game_obj_root      = gfx_rg_add_root(gRen.rg);
+  GFX_RG_Node *clear_game_targets = gfx_rg_make_node(gRen.rg);
+  GFX_RG_Node *vignette           = gfx_rg_make_node(gRen.rg);
 
   // Connect common nodes
   // (we have very few nodes so nothing gets connected here ATM)
   //
-  gRen.batch_camera = root;
-  gfx_rg_attach_node_to_parent(root, clear_targets);
-  gRen.node_before_batchers = clear_targets;
+  gRen.batch_camera = game_obj_root;
+  gfx_rg_attach_node_to_parent(game_obj_root, clear_game_targets);
+  gRen.node_before_batchers = clear_game_targets;
   gRen.node_after_batchers  = vignette;
 
   // Set up common resources
@@ -302,7 +408,7 @@ gfx_renderer_init_render_graph() {
   // in this case the batch render target, so when we copy the last output to the frame
   // buffer, we will have some valid image.
   //
-  root->op = {
+  game_obj_root->op = {
       .type = GFX_RG_OpType_SetCamera,
       .input =
           {
@@ -316,7 +422,7 @@ gfx_renderer_init_render_graph() {
       .out = gRen.batch_render_target,
   };
 
-  clear_targets->op = {
+  clear_game_targets->op = {
       .type = GFX_RG_OpType_ClearRenderTargets,
       .input =
           {
@@ -345,6 +451,29 @@ gfx_renderer_init_render_graph() {
           },
       .out = vignette_target,
   };
+
+  // Set up the UI part.
+  //
+
+  GFX_RG_Node *ui_obj_root = gfx_rg_make_node(gRen.rg);
+
+  gfx_rg_attach_node_to_parent(vignette, ui_obj_root);
+  gRen.node_before_ui = ui_obj_root;
+  gRen.node_after_ui  = 0;
+
+  ui_obj_root->op = {
+      .type = GFX_RG_OpType_SetCamera,
+      .input =
+          {
+              .camera =
+                  {
+                      .center   = {.x = 0, .y = 0},
+                      .rotation = 0,
+                      .zoom     = 1,
+                  },
+          },
+      .out = gRen.batch_render_target,
+  };
 }
 
 internal void
@@ -362,6 +491,22 @@ gfx_renderer_push_game_object(GFX_Object const &object) {
 
   gRen.game_objects_in_frame.v[gRen.game_objects_in_frame.sz] = object;
   gRen.game_objects_in_frame.sz++;
+}
+
+internal void
+gfx_renderer_push_ui_object(GFX_Object const &object) {
+  Assert(gRen.is_accepting_new_objects);
+  if (gRen.ui_objects_in_frame.sz == gRen.ui_objects_in_frame.cap) {
+    u64 const   old_cap     = gRen.ui_objects_in_frame.cap;
+    u64 const   new_cap     = old_cap * 2;
+    GFX_Object *new_objects = arena_alloc_array<GFX_Object>(gContext.frame_arena, new_cap);
+    MemoryCopy(new_objects, gRen.ui_objects_in_frame.v, old_cap);
+    gRen.ui_objects_in_frame.v   = new_objects;
+    gRen.ui_objects_in_frame.cap = new_cap;
+  }
+
+  gRen.ui_objects_in_frame.v[gRen.ui_objects_in_frame.sz] = object;
+  gRen.ui_objects_in_frame.sz++;
 }
 
 must_use internal GFX_Batch *
