@@ -53,10 +53,7 @@ enum OS_Event_Type {
   OS_EventType_ButtonPressed,
   OS_EventType_ButtonReleased,
 
-  // Scroll Events
-  //
-  OS_EventType_MouseScrolledV,
-  OS_EventType_MouseScrolledH,
+  OS_EventType_MouseScrolled,
 
   OS_EventType__count
 };
@@ -68,8 +65,11 @@ struct OS_Window_Event {
   u64           timestamp_us;
 
   union {
-    u32 button;
-    f32 scroll;
+    fvec2 scroll;
+    struct {
+      u32   button;
+      fvec2 pos;
+    };
   } data;
 };
 

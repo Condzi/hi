@@ -81,7 +81,9 @@ main(int argc, char const *argv[]) {
     // Event handling
     //
     OS_Window_Event *events = os_gfx_event_pump(gContext.frame_arena);
-    Unused(events);
+    for (;events; events = events->next) {
+      os_debug_message(str8_sprintf(gContext.frame_arena, "%S\n", str8_dump_struct(*events)));
+    }
 
     // Simulation update
     //

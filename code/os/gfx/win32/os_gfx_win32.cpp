@@ -154,6 +154,8 @@ win32_window_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     return DefWindowProcW(hwnd, uMsg, wParam, lParam);
   }
 
+  bool release = false;
+
   LRESULT result = 0;
   switch (uMsg) {
     default: {
@@ -196,12 +198,81 @@ win32_window_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
       os_debug_message("WM_SETFOCUS\n"_s8);
     } break;
 
-    case WM_KEYDOWN: {
+    case WM_LBUTTONUP:
+    case WM_MBUTTONUP:
+    case WM_RBUTTONUP: {
+      release = true;
+    } // fallthrough;
+    case WM_LBUTTONDOWN:
+    case WM_MBUTTONDOWN:
+    case WM_RBUTTONDOWN: {
+      OS_Window_Event *event =
+          win32_push_event(release ? OS_EventType_ButtonReleased : OS_EventType_ButtonPressed);
+      switch (uMsg) {
+        case WM_LBUTTONUP:
+        case WM_LBUTTONDOWN: {
+          event->data.button = GameInput_MouseLeft;
+        } break;
+        case WM_MBUTTONUP:
+        case WM_MBUTTONDOWN: {
+          event->data.button = GameInput_MouseMiddle;
+        } break;
+        case WM_RBUTTONUP:
+        case WM_RBUTTONDOWN: {
+          event->data.button = GameInput_MouseRight;
+        } break;
+      }
+      event->data.pos.x = (f32)LOWORD(lParam);
+      event->data.pos.y = (f32)HIWORD(lParam);
+    } break;
+
+      case WM_MOUSEWHEEL:
+      {
+        s16 wheel_delta = HIWORD(wParam);
+        OS_Window_Event *event = win32_push_event(OS_EventType_MouseScrolled);
+        event->data.scroll = {.y = -(f32)wheel_delta};
+      }break;
+      
+      case WM_MOUSEHWHEEL:
+      {
+        s16 wheel_delta = HIWORD(wParam);
+        OS_Window_Event *event = win32_push_event(OS_EventType_MouseScrolled);
+        event->data.scroll = {.x = (f32)wheel_delta};
+      }break;
+
+    case WM_SYSKEYDOWN:
+    case WM_SYSKEYUP:   {
+      if (wParam != VK_MENU && (wParam < VK_F1 || VK_F24 < wParam || wParam == VK_F4)) {
+        result = DefWindowProcW(hwnd, uMsg, wParam, lParam);
+      }
+    } // fallthrough;
+    case WM_KEYDOWN:
+    case WM_KEYUP:   {
       if (wParam == VK_ESCAPE) {
         DestroyWindow(hwnd);
         win32_push_event(OS_EventType_WindowClosed);
         w32_mode = OS_WindowMode_Closed;
       }
+
+      bool const was_down = (lParam & bit31);
+      bool const is_down  = !(lParam & bit32);
+
+      // Do not repeat events.
+      //
+      if (is_down && was_down) {
+        break;
+      }
+      /*
+            bool right_sided = 0;
+            if ((lParam & bit25) && (wParam == VK_CONTROL || wParam == VK_RCONTROL || wParam ==
+         VK_MENU || wParam == VK_RMENU || wParam == VK_SHIFT || wParam == VK_RSHIFT)) { right_sided
+         = 1;
+            }
+      */
+
+      OS_Window_Event *event =
+          win32_push_event(is_down ? OS_EventType_ButtonPressed : OS_EventType_ButtonReleased);
+      event->data.button = os_gfx_vk_to_game_input(wParam);
     } break;
 
     case WM_CLOSE: {
