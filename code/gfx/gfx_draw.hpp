@@ -66,6 +66,20 @@ gfx_draw_text(GFX_Text_Opts const& opts);
 global void
 gfx_draw_text_color(GFX_Text_Opts const& opts, GFX_Color color);
 
+struct GFX_Rich_Text_Opts {
+  fvec2     pos;
+  u16       height_px;
+  GFX_Font *font;
+  GFX_Layer layer;
+  Str8      string;
+};
+
+global void
+gfx_draw_rich_text(GFX_Rich_Text_Opts const &opts);
+
+global void
+gfx_draw_rich_text_color(GFX_Rich_Text_Opts const &opts, GFX_Color color);
+
 struct GFX_Sprite_Opts {
   fvec2        pos;
   fvec2        sz;

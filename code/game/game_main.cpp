@@ -106,15 +106,14 @@ main(int argc, char const *argv[]) {
     gfx_draw_sprite(bg);
     gfx_draw_sprite(sprite_1);
     gfx_draw_rect_color(rect_1, {.v = 0xFF'00'00'FF});
-    gfx_draw_text_color(
-        {
-            .pos       = {0, 0},
-            .height_px = 32,
-            .font      = &font,
-            .layer     = l4,
-            .string    = str8_sprintf(gContext.frame_arena, "frame=%zu", frame),
-        },
-        {.v = 0xD04848FF});
+    gfx_draw_rich_text({
+        .pos       = {0, 0},
+        .height_px = 32,
+        .font      = &font,
+        .layer     = l4,
+        .string    = str8_sprintf(
+            gContext.frame_arena, "f^dr^wa^eme^=%zu\n^%S", frame, str8_dump_struct(cam)),
+    });
 
     gfx_renderer_end_frame();
 

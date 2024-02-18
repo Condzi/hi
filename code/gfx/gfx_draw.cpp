@@ -190,8 +190,8 @@ gfx_renderer_end_frame() {
           GFX_Object const   &obj = objects[i];
           GFX_Material const &mat = obj.material;
 
-          if (!current_batch || current_batch->sampler != mat.sampler ||
-              (current_batch->type != mat.type) ||
+          if (!current_batch || current_batch->objects.sz == current_batch->objects.cap ||
+              current_batch->sampler != mat.sampler || (current_batch->type != mat.type) ||
               (current_batch->type == mat.type && mat.type == GFX_MaterialType_Sprite &&
                current_batch->data.sprite.texture.v[0] != mat.sprite.tex.v[0])) {
             current_batch          = gfx_renderer_request_batch(mat.type);
@@ -299,8 +299,88 @@ gfx_draw_text_color(GFX_Text_Opts const &opts, GFX_Color color) {
 }
 
 global void
+gfx_draw_rich_text(GFX_Rich_Text_Opts const &opts) {
+  gfx_draw_rich_text_color(opts, {.v = 0xFF'FF'FF'FF});
+}
+
+global void
+gfx_draw_rich_text_color(GFX_Rich_Text_Opts const &opts, GFX_Color color) {
+  read_only local_persist u32       TAB_SIZE   = 4;
+  read_only local_persist GFX_Color COLOR_ERR  = {.v = 0xD04848FF};
+  read_only local_persist GFX_Color COLOR_WRN  = {.v = 0xF3B95FFF};
+  read_only local_persist GFX_Color COLOR_DBG  = {.v = 0x6895D2FF};
+  GFX_Color const                   color_base = color;
+
+  GFX_Object obj = {
+      .layer = opts.layer,
+      .material =
+          {
+              .type = GFX_MaterialType_Sprite,
+              .sprite =
+                  {
+                      .tex = opts.font->image,
+                  },
+              .sampler = GFX_SamplerType_PixelPerfect,
+          },
+  };
+
+  fvec2 pen = opts.pos;
+  for (u64 i = 0; i < opts.string.sz; i++) {
+    u8 const  ch    = opts.string.v[i];
+    GFX_Glyph glyph = gfx_get_glyph(opts.font, ch, opts.height_px);
+
+    obj.material.sprite.color    = color;
+    obj.material.sprite.tex_rect = glyph.rect;
+    obj.sz                       = glyph.sz;
+    obj.pos                      = pen;
+
+    switch (ch) {
+      default: {
+        gfx_renderer_push_ui_object(obj);
+        pen.x += glyph.advance_x;
+      } break;
+
+      case '\n': {
+        pen.x = opts.pos.x;
+        pen.y -= glyph.sz.height;
+      } break;
+
+      case '\t': {
+        pen.x += glyph.advance_x * TAB_SIZE;
+      } break;
+
+      case '^': {
+        if (i + 1 < opts.string.sz) {
+          i++;
+          u8 const modifier = opts.string.v[i];
+          switch (modifier) {
+            default: {
+              i--; // the char does not set the color, so we render it.
+              color = color_base;
+            } break;
+
+            case 'E':
+            case 'e': {
+              color = COLOR_ERR;
+            } break;
+            case 'W':
+            case 'w': {
+              color = COLOR_WRN;
+            } break;
+            case 'D':
+            case 'd': {
+              color = COLOR_DBG;
+            } break;
+          }
+        }
+      } break;
+    }
+  }
+}
+
+global void
 gfx_draw_sprite(GFX_Sprite_Opts const &opts) {
-  gfx_draw_sprite_color(opts, GFX_Color {.v = 0xFF'FF'FF'FF});
+  gfx_draw_sprite_color(opts, {.v = 0xFF'FF'FF'FF});
 }
 
 global void
