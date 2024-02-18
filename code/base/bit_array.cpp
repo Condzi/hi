@@ -55,8 +55,8 @@ must_use global u64
 ba_find_first_set(Bit_Array *array) {
   for (u64 i = 0; i < (array->sz + 63) / 64; ++i) {
     if (array->v[i]) {
-      int bitIdx = __builtin_ctzll(array->v[i]);
-      return i * 64 + bitIdx;
+      int bit_idx = __builtin_ctzll(array->v[i]);
+      return i * 64 + bit_idx;
     }
   }
   return MAX_U64;

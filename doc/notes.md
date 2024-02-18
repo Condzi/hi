@@ -30,7 +30,7 @@
 
     Rough system ideas:
     - physics system
-    - pathfinding system (coupled to physics system?)
+    - pathfinding system (coupled to physics system? just needs to know about static geometry and dangers, right?)
     - rendering system? that gathers all entities and their states and determines what should be rendered? (so, clipping?)
     - ai system
     - trap building system (tightly coupled with player interaction I think?)
@@ -52,6 +52,14 @@
     - all kind of debug subsystems? for some diagrams, drawing, debug UI
 
     - Level of detail handling
+
+    What about tools? What kind of tools, how to design the code for them?
+    Some kind of animation editor? Level editor? Trap editor? Also, would it be better
+    than just editing config files? I don't think so...
+    It seems that render graph would really use some visualization what connects to what. Maybe
+    start with that?
+    Entity inspector / editor. When we will have the guns/traps it would be cool to edit the
+    stats on the fly and save the best feeling options. Also for movement and camera system.
 
 ## Game
 
@@ -100,12 +108,22 @@
 
 ## Physics
 
-    Must support AI and building system! Also, collision resolution (just don't allow objects to overleap, nothing fancy for now)
-    [ ] Islands
-    [ ] SAH
-    [ ] BVH
-    [ ] Static geometry
-    [ ] Debugging stats?
+- basic collision resolution (no overleap)
+- force-field based explosions
+- traps that move the zombies around (like catapult, for example)
+- BVH and static object to improve performance
+  - we can take the result from BVH and distribute it among threads to calculate narrow phase manifolds,
+    since we know which objects can collide with which. Then resolve the collisions in one thread again.
+
+  [ ] v1
+    [ ] Fixed timestep loop
+    [ ] Intergrate velocities and impulses...
+    [ ] Detect collisions using SAT
+    [ ] Debug rendering of shapes
+
+  [ ] v2
+    [ ] Collision resolution
+    [ ] Broad phase with AABB, and BVH, to support many zombies per wave.
 
 ### Resources
 
