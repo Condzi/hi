@@ -128,6 +128,7 @@ gfx_renderer_end_frame() {
 
             GFX_RG_Node *next_node = gfx_renderer_request_node();
             next_node->op.type     = GFX_RG_OpType_Batch;
+            next_node->op.out      = gRen.node_before_batchers->op.out;
             if (current_node) {
               gfx_rg_attach_node_to_parent(current_node, next_node);
             } else {
@@ -202,6 +203,7 @@ gfx_renderer_end_frame() {
 
             GFX_RG_Node *next_node = gfx_renderer_request_node();
             next_node->op.type     = GFX_RG_OpType_Batch;
+            next_node->op.out      = gRen.node_after_batchers->op.out;
             if (current_node) {
               gfx_rg_attach_node_to_parent(current_node, next_node);
             } else {
@@ -549,7 +551,7 @@ gfx_renderer_init_render_graph() {
                       .zoom     = 1,
                   },
           },
-      .out = gRen.batch_render_target,
+      .out = vignette_target,
   };
 }
 
