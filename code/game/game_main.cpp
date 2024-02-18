@@ -38,17 +38,17 @@ main(int argc, char const *argv[]) {
   GFX_Image bg_img         = gfx_checkerboard_image(64, 16, 16);
 
   GFX_Sprite_Opts sprite_1 = {
-      .pos      = {200, 200},
+      .pos      = {0, 0},
       .sz       = fvec2 {54.f, 43.f} * 3,
       .tex      = characters_img,
       .tex_rect = {.x = 263, .y = 132, .w = 49, .h = 43},
-      .layer    = l4,
+      .layer    = l2,
   };
 
   GFX_Rect_Opts rect_1 = {
-      .pos   = {200, 200},
+      .pos   = {0, 0},
       .sz    = {50.f, 50.f},
-      .layer = l3,
+      .layer = l2,
   };
 
   f32 const width  = (f32)os_gfx_surface_width();
@@ -62,7 +62,6 @@ main(int argc, char const *argv[]) {
          .tex_rect = {.x = 0, .y = 0, .w = (u16)bg_sz.x, .h = (u16)bg_sz.y},
          .layer    = l1,
   };
-  (void)bg;
 
   GFX_Camera cam = {
     .center = {200, 200},
@@ -111,7 +110,7 @@ main(int argc, char const *argv[]) {
             .height_px = 32,
             .font      = &font,
             .layer     = l4,
-            .string    = "Hello, World!"_s8,
+            .string    = str8_sprintf(gContext.frame_arena, "frame=%zu", frame),
         },
         {.v = 0xD04848FF});
 

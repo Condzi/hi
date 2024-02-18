@@ -213,9 +213,6 @@ gfx_renderer_end_frame() {
             current_node->op.input.batch.batch = current_batch;
           }
 
-          // os_debug_message(str8_sprintf(gContext.frame_arena, "%d/%d objects\n", (int)i,
-          // (int)objects_sz));
-
           gfx_batch_push(current_batch, obj);
         }
 
@@ -467,7 +464,7 @@ gfx_renderer_init_render_graph() {
           {
               .camera =
                   {
-                      .center   = {.x = 0, .y = 0},
+                      .center   = {os_gfx_surface_width() / 2.f, -(os_gfx_surface_height() / 2.f)},
                       .rotation = 0,
                       .zoom     = 1,
                   },
