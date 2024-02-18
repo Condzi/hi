@@ -112,6 +112,26 @@
   Islands (multithreading!): <https://box2d.org/posts/2023/10/simulation-islands/>
   Erin's Solver2D: <https://box2d.org/posts/2024/02/solver2d/>
 
+  Box2D 3.0 uses Temporal Gauss-Seidel (TGS) solver. We can do sub-stepping without updating the broad-phase or recomputing the contact points.
+
+  Smaller steps are more effective than more iterations.
+
+  Soft constraints. Keep constaint HZ below the simulation step (for 60HZ keep 30HZ).
+
+- mass coefficient
+- bias coefficient
+- impulse coefficient
+
+  ```cpp
+    float zeta = 1.0f; // damping ratio
+    float hertz = 5.0f; // cycles per second
+    float omega = 2.0f * pi * hertz; // angular frequency
+    float shared = 2.0f * zeta + omega * timeStep; // shared expression
+    float biasCoeff = omega / shared;
+    float impulseCoeff = 1.0f / (1.0f + omega * timeStep * shared);
+    float massCoeff = omega * timeStep / (1.0f + omega * timeStep * shared);
+  ```
+
 ## Telemetry
 
     Basically, use the microseconds timer to time some functions in instrumented release-with-debug-info build.
