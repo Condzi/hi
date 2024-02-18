@@ -47,6 +47,9 @@ str8_compare(Str8 a, Str8 b);
 must_use global bool
 str8_has_prefix(Str8 str, Str8 prefix);
 
+must_use global Str8
+str8_concat(Arena* arena, Str8 a, Str8 b);
+
 #if defined(__has_attribute)
 #if __has_attribute(format)
 #define AttributeFormat(fmt, va) __attribute__((format(printf, fmt, va)))
@@ -72,3 +75,10 @@ str8_from_16(Arena *arena, Str16 in);
 
 must_use global Str16
 str16_from_8(Arena *arena, Str8 in);
+
+// Some custom functions
+//
+
+template <typename T>
+must_use global Str8
+str8_dump_struct(T& s);

@@ -96,6 +96,14 @@ str8_has_prefix(Str8 str, Str8 prefix) {
   return MemoryCompare(str.v, prefix.v, prefix.sz) == 0;
 }
 
+must_use global Str8
+str8_concat(Arena *arena, Str8 a, Str8 b) {
+  u8 *v = arena_alloc_array<u8>(arena, a.sz + b.sz);
+  MemoryCopy(v, a.v, a.sz);
+  MemoryCopy(v + a.sz, b.v, b.sz);
+  return {.v = v, .sz = a.sz + b.sz};
+}
+
 template <typename... TArgs>
 must_use global Str8
 str8_sprintf(Arena *arena, char const *format, TArgs... args) {
@@ -161,7 +169,7 @@ utf8_decode(u8 *str, u64 max) {
   u8             byte_class = utf8_class[byte >> 3];
   switch (byte_class) {
     default:
-    case 1: {
+    case 1:  {
       result.codepoint = byte;
     } break;
     case 2: {
@@ -256,4 +264,21 @@ utf16_encode(u16 *str, u32 codepoint) {
     inc    = 2;
   }
   return (inc);
+}
+
+template <typename T>
+must_use global Str8
+str8_dump_struct(T &s) {
+#if COMPILER_CLANG
+  Str8       out      = {};
+  auto const callback = [&out](auto fmt, auto... args) {
+    Str8 formatted = str8_sprintf(gContext.frame_arena, fmt, args...);
+    out            = str8_concat(gContext.frame_arena, out, formatted);
+  };
+
+  __builtin_dump_struct(&s, callback);
+  return out;
+#else
+#error struct dump not supported
+#endif
 }

@@ -964,11 +964,17 @@ must_use internal GFX_Image
 gfx_rg_execute_operations(GFX_RG_Operation *operations, u32 count) {
   ErrorContext("count=%d", (int)count);
 
-  os_debug_message("RG PASS BEGIN\n"_s8);
   for (u32 i = 0; i < count; i++) {
     GFX_RG_Operation &op = operations[i];
-    os_debug_message(str8_sprintf(
-        gContext.frame_arena, " %d/%d. opt.type=%d\n", (int)i, (int)count, (int)op.type));
+
+// #define GFX_TRACE
+#ifdef GFX_TRACE
+    Scratch_Buffer scratch = scratch_begin(gContext.frame_arena);
+    Defer { scratch_end(&scratch); };
+    os_debug_message(str8_sprintf(gContext.frame_arena, " %d/%d. ", (int)i, (int)count));
+    os_debug_message(str8_dump_struct(op));
+    os_debug_message("\n"_s8);
+#endif // GFX_TRACE
 
     ErrorContext("i=%d, op.type=%d", (int)i, (int)op.type);
     switch (op.type) {
