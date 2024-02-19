@@ -15,8 +15,8 @@
 
 ## Base
 
-    [ ] Bitset / Bit Array
     [ ] Rand (perlin noise, random range)
+    [ ] Figure out how to handle realloc / free for arenas
 
 ## Debug Tools
 
@@ -112,8 +112,7 @@
 - force-field based explosions
 - traps that move the zombies around (like catapult, for example)
 - BVH and static object to improve performance
-  - we can take the result from BVH and distribute it among threads to calculate narrow phase manifolds,
-    since we know which objects can collide with which. Then resolve the collisions in one thread again.
+  - we can take the result from BVH and distribute it among threads to calculate narrow phase manifolds, since we know which objects can collide with which. Then resolve the collisions in one thread again.
 
   [ ] v1
     [ ] Fixed timestep loop
