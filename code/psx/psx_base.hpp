@@ -30,6 +30,7 @@ struct PSX_Body {
   f32         mass_inv    = 0;
   f32         torque      = 0;
   f32         angular_vel = 0;
+  f32         i_inv       = 0; // inertia
 };
 
 struct PSX_Body_Array {

@@ -53,6 +53,8 @@ psx_world_add(PSX_World *w, PSX_Body_Opts const &opts) {
     body.mass_inv = 1 / opts.mass;
   }
 
+  body.i_inv = 1.0f / (opts.mass * (opts.sz.x * opts.sz.x + opts.sz.y * opts.sz.y) / 12.f);
+
   return id;
 }
 
