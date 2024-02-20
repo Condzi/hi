@@ -8,6 +8,9 @@ struct Bit_Array {
 must_use global Bit_Array *
 make_bit_array(Arena *arena, u64 num_bits);
 
+must_use global bool
+ba_test(Bit_Array *array, u64 bit);
+
 global void
 ba_set(Bit_Array *array, u64 bit);
 

@@ -10,6 +10,13 @@ make_bit_array(Arena *arena, u64 num_bits) {
   return array;
 }
 
+must_use global bool
+ba_test(Bit_Array *array, u64 bit) {
+  u64 idx     = bit / 64;
+  u64 bit_idx = bit % 64;
+  return array->v[idx] & (1ULL << bit_idx);
+}
+
 global void
 ba_set(Bit_Array *array, u64 bit) {
   u64 idx     = bit / 64;
