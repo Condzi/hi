@@ -8,41 +8,28 @@ read_only global f32 PSX_STEP    = 1 / PSX_STEP_HZ;
 read_only global f32 PSX_SCALE     = 100.f;
 read_only global f32 PSX_SCALE_INV = 1 / PSX_SCALE;
 
+// Common types
+//
+
 union PSX_Body_ID {
-  u64 v;
+  u64 v = 0;
   struct {
     u32 idx;        // Index in parent array.
     u32 generation; // Every time this object gets deleted, generation increments.
   };
 };
 
-struct PSX_Shape {
-  fvec2 *v;
-  u64    sz;
-};
-
-struct PSX_Fixture {
-  PSX_Body_ID parent;
-  PSX_Shape   shape;
-  f32         mass;
-  bool        sensor;
-  u8         *user_data;
-};
-
-struct PSX_Fixture_Array {
-  PSX_Fixture *v;
-  u64          sz;
-};
-
 struct PSX_Body {
-  PSX_Body_ID       id;
-  fvec2             pos;
-  fvec2             imp;
-  fvec2             vel;
-  f32               friction;
-  f32               rot;
-  PSX_Fixture_Array fixtures;
-  u8               *user_data;
+  PSX_Body_ID id;
+  fvec2       pos;
+  fvec2       vel;
+  fvec2       force;
+  fvec2       sz;
+  f32         rot         = 0;
+  f32         friction    = 0;
+  f32         mass_inv    = 0;
+  f32         torque      = 0;
+  f32         angular_vel = 0;
 };
 
 struct PSX_Body_Array {
@@ -50,60 +37,52 @@ struct PSX_Body_Array {
   u64       sz;
 };
 
-struct PSX_Body_ID_Array {
-  PSX_Body_ID *v;
-  u64          sz;
+struct PSX_Body_Opts {
+  fvec2 pos;
+  fvec2 sz;
+  f32   mass     = 0;
+  f32   rot      = 0;
+  f32   friction = 0;
 };
 
-struct PSX_Callbacks {
-  void *on_collision_start;
-  void *on_collision_end;
-};
-
-struct PSX_Callbacks_Array {
-  PSX_Callbacks *v;
+struct PSX_Body_Opts_Array {
+  PSX_Body_Opts *v;
   u64            sz;
+  u64            cap;
 };
 
 struct PSX_World {
-  Bit_Array           bodies_status_lookup;
-  PSX_Body_Array      bodies;
-  PSX_Callbacks_Array callbacks;
+  Bit_Array     *bodies_status_lookup;
+  PSX_Body_Array bodies;
 
-  // Actions on bodies are deferred to allow removing/adding of objects during collision callbacks
+  // Body removal is deferred to allow removing/adding of objects during collision callbacks
   // in physics steps.
-  PSX_Body_Array    new_bodies;
-  PSX_Body_ID_Array bodies_to_remove;
+  //
+  Bit_Array *bodies_to_remove;
 };
+
+Arena *psx_arena;
+
+// Functions
+//
 
 // Arena allocator, maybe space for some kind of performance counters...?
 // Later -- multithreading or some job system setup.
-void
+//
+global void
 psx_init();
 
 must_use global PSX_World *
 psx_make_world(u64 num_objects);
 
 global void
-psx_simulate(PSX_World *world);
+psx_world_simulate(PSX_World *world, f32 dt);
 
 must_use global PSX_Body_ID
-psx_world_add(...);
-
-must_use global bool
-psx_world_remove(PSX_Body_ID id);
-
-// Object manipulation
-//
+psx_world_add(PSX_World *w, PSX_Body_Opts const &opts);
 
 global void
-psx_apply_impulse(...);
+psx_world_remove(PSX_World *w, PSX_Body_ID id);
 
 global void
-psx_rotate(...);
-
-global void
-psx_set_position(...);
-
-// What about get/set?
-// How does the collision data gets returned? What if we want to spawn new objects on collision?
+psx_body_add_force(PSX_World *w, PSX_Body_ID id, fvec2 force);
