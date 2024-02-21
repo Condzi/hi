@@ -11,24 +11,33 @@ read_only global f32 PSX_SCALE_INV = 1 / PSX_SCALE;
 // Common types
 //
 
-union PSX_Body_ID {
-  u32 v = 0;
-  struct {
-    u16 idx;        // Index in parent array.
-    u16 generation; // Every time this object gets deleted, generation increments.
-  };
+struct PSX_World_ID {
+  u16 idx;
+  u16 is_set   : 1;
+  u16 revision : 15;
 };
 
-union PSX_Shape_ID {
-  u32 v = 0;
-  struct {
-    u16 idx;
-    // When used in list context, this field disambiguates if idx=0 means index
-    // 0 or NULL.
-    u16 is_pointing : 1;
-    u16 generation  : 15;
-  };
+struct PSX_Body_ID {
+  u16 idx;
+  u16 world;
+  u16 is_set   : 1;
+  u16 revision : 15;
 };
+
+struct PSX_Shape_ID {
+  u16 idx;
+  u16 world;
+  u16 is_set   : 1;
+  u16 revision : 15;
+};
+
+#define PSX_IS_NULL(id)  ((id).is_set == 0)
+#define PSX_NON_NULL(id) ((id).is_set != 0)
+#define PSX_ID_EQUALS(a, b)                                                                        \
+  (((a).idx == (b).idx) && ((a).world == (b).world) && ((a).revision == (b).revision))
+
+#define PSX_ID_NOT_EQUALS(a, b)                                                                        \
+  (((a).idx != (b).idx) || ((a).world != (b).world) || ((a).revision != (b).revision))
 
 enum PSX_Shape_Type : u8 {
   PSX_ShapeType_Polygon,
@@ -40,8 +49,8 @@ struct PSX_Polygon_Shape {
 };
 
 struct PSX_Shape {
-  PSX_Shape_ID   id;
-  PSX_Shape_ID   next;
+  PSX_Shape_ID   id   = {};
+  PSX_Shape_ID   next = {};
   PSX_Shape_Type type = PSX_ShapeType_Polygon;
   union {
     PSX_Polygon_Shape polygon = {};
@@ -49,14 +58,14 @@ struct PSX_Shape {
 };
 
 struct PSX_Body {
-  PSX_Body_ID  id;
+  PSX_Body_ID  id = {};
   fvec2        pos;
   fvec2        vel;
   fvec2        force;
   f32          rot            = 0;
   f32          mass_inv       = 0;
   f32          linear_damping = 0;
-  PSX_Shape_ID shapes;
+  PSX_Shape_ID shapes         = {};
 };
 
 struct PSX_Body_Array {
@@ -72,13 +81,8 @@ struct PSX_Body_Opts {
   f32   linear_damping = 0;
 };
 
-struct PSX_Body_Opts_Array {
-  PSX_Body_Opts *v;
-  u64            sz;
-  u64            cap;
-};
-
 struct PSX_World {
+  PSX_World_ID   id;
   Bit_Array     *bodies_status_lookup;
   PSX_Body_Array bodies;
 
@@ -86,6 +90,7 @@ struct PSX_World {
   // in physics steps.
   //
   Bit_Array *bodies_to_remove;
+  PSX_World *next;
 };
 
 Arena *psx_arena;
@@ -99,17 +104,17 @@ Arena *psx_arena;
 global void
 psx_init();
 
-must_use global PSX_World *
+must_use global PSX_World_ID
 psx_make_world(u64 num_objects);
 
 global void
-psx_world_simulate(PSX_World *world, f32 dt);
+psx_world_simulate(PSX_World_ID w, f32 dt);
 
 must_use global PSX_Body_ID
-psx_world_add(PSX_World *w, PSX_Body_Opts const &opts);
+psx_world_add(PSX_World_ID world, PSX_Body_Opts const &opts);
 
 global void
-psx_world_remove(PSX_World *w, PSX_Body_ID id);
+psx_world_remove(PSX_World_ID world, PSX_Body_ID id);
 
 global void
-psx_body_add_force(PSX_World *w, PSX_Body_ID id, fvec2 force);
+psx_body_add_force(PSX_World_ID world, PSX_Body_ID id, fvec2 force);
