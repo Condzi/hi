@@ -20,9 +20,13 @@
 
 ## Debug Tools
 
+    [ ] Physics visualisation - shapes, AABBs, contacts, origin points
     [ ] Frame Time Graph
-    [ ] Menu with toggable flags, for example for debug view of collisions
+    [ ] Menu with toggable flags, for example for debug view of physics system
+    [ ] Debug text rendering (at least maybe boxes around text?)
+    [ ] Render graph visualsation
     [ ] Menu with Entity information...?
+    [ ] In-game logger / debug console (do we need commands if we have debug ui?)
 
 ## Entities & Systems
 
@@ -56,8 +60,6 @@
     What about tools? What kind of tools, how to design the code for them?
     Some kind of animation editor? Level editor? Trap editor? Also, would it be better
     than just editing config files? I don't think so...
-    It seems that render graph would really use some visualization what connects to what. Maybe
-    start with that?
     Entity inspector / editor. When we will have the guns/traps it would be cool to edit the
     stats on the fly and save the best feeling options. Also for movement and camera system.
 
@@ -66,6 +68,14 @@
     Just app initialization.
 
 ## GFX
+
+  [ ] Common shapes rendering, mostly for debugging support.
+    [ ] Arrow
+    [ ] Filled arrow
+    [ ] Circle
+    [ ] Filled circle
+
+  [ ] Make it easier to select if we render a UI object or game object.
 
   [ ] Figure out common viewport sizes that we can render
     Common aspect ratios and their resolutions (via Steam HW Survey):
@@ -87,20 +97,32 @@
     We need textures and noise:
     https://www.youtube.com/watch?v=wvK6MNlmCCE
 
+  [ ] Shadows
+    What? How? Would be cool if the game takes place at night.
+
+  [] Lights? Maybe? Again, what kind lights? Would be cool if shooting weapons make light effects and
+  particle effects would generate light
+
 ## Key Bindings
 
-    Checks input events and updates the binding status accordingly.
+  [ ] Basic array that maps key id to button ID and updates the state of the bindings depending on
+  the OS events.
+  [ ] Support for default, primary and secondary bindings and rebinding logic
 
 ## OS Core
 
     [ ] Filesystem 
-    [ ] File Watch (notify when file updates) / Hot Reload
     [ ] Threads
     [ ] Mutexes
-    [ ] SEH
-    [ ] Minidumps
-    [ ] library loading
-    [ ] OS Information, SIMD detection, CPU and memory info
+    [ ] File Watch (notify when file updates) / Hot Reload
+    [ ] SEH / crash handling
+      [ ] Determine what exceptions to catch
+      [ ] write minidump
+      [ ] write log and error context to the crash info
+    [ ] OS Information, 
+      [ ] Memory (RAM)
+      [ ] CPU family, cache, frequency
+      [ ] SIMD detection
 
 ## OS Gfx
 
@@ -115,14 +137,24 @@
   - we can take the result from BVH and distribute it among threads to calculate narrow phase manifolds, since we know which objects can collide with which. Then resolve the collisions in one thread again.
 
   [ ] v1
-    [ ] Fixed timestep loop
-    [ ] Intergrate velocities and impulses...
+    [X] Fixed timestep loop
+    [X] Intergrate velocities and impulses...
     [ ] Detect collisions using SAT
-    [ ] Debug rendering of shapes
+    [ ] Raycasting (for shooting, unless we wanna have physical bullets?)
 
   [ ] v2
-    [ ] Collision resolution
-    [ ] Broad phase with AABB, and BVH, to support many zombies per wave.
+    [ ] Collision resolution using impulses
+      Figure out the logic behind it because I don't really get the idea of calculating incident faces etc.
+
+    [ ] Broad phase with AABB
+      [ ] Generate BVH every frame for all objects?
+
+  [ ] v3
+    [ ] Static (immovable) objects / Dynamic objects distinction
+      [ ] Generate separate BVH for them
+    [ ] Dynamic BVH
+    [ ] 'Fat' AABBs?
+    [ ] Cleanup
 
 ### Resources
 
@@ -148,6 +180,13 @@
     float impulseCoeff = 1.0f / (1.0f + omega * timeStep * shared);
     float massCoeff = omega * timeStep / (1.0f + omega * timeStep * shared);
   ```
+
+## **new** Serialization
+
+  [ ] Key bindings
+  [ ] Program options (volume, window mode)
+  [ ] Saves (so, unlocked characters / weapons...? we don't really have much to save)
+  [ ] Entities definitions (parameters for zombies, weapons, player movement, level generation...)
 
 ## Telemetry
 
@@ -175,7 +214,6 @@
     
     [X] Font utility. Is it monospace? Get tex rect for given character (aka glyph?) 
     [X] Add code from BB for simple font rendering
-    [] Debug rendering (at least maybe boxes around text?)
     [ ] Rendering to a render target and manipulating it
       [ ] Figure out how to deal with render graph. Just add nodes to it for every text?
         Since the font is monospace we could simply figure out how big the render target should
@@ -188,10 +226,16 @@
 
 ## UI
 
-    [ ] Text box (automatically wraps)
-    [ ] Button
     [ ] Window
+      [ ] Handle moving by mouse
+      [ ] Resizing
+        Have some minimal size, so we don't make it too small.
+    [ ] Text box (automatically wraps)
     [ ] Panels
-    [ ] Auto layout?
+    [ ] Lists
+    [ ] Button
+    [ ] Auto layout
+    [ ] Plots (for example frame time)
+    [ ] Event charts (or at least ability to make one), for example for flame graphs or input recordings
 
 ## Misc

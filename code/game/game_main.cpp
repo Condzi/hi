@@ -77,12 +77,14 @@ main(int argc, char const *argv[]) {
 
   psx_init();
   PSX_World_ID world = psx_make_world(64);
-  PSX_Body_ID  body  = psx_world_add(world,
-                                     {
-                                         .pos            = sprite_1.pos * PSX_SCALE_INV,
-                                         .mass           = 10,
-                                         .linear_damping = 1.0f,
-                                   });
+  PSX_Body_ID  body  = psx_world_add(
+      world,
+      {
+            .pos            = sprite_1.pos * PSX_SCALE_INV,
+            .center_of_mass = fvec2 {-sprite_1.sz.x, sprite_1.sz.y} * PSX_SCALE_INV * 0.5f,
+            .mass           = 10,
+            .linear_damping = 1.0f,
+      });
   psx_body_add_box_shape(world, body, {0, 0}, sprite_1.sz * PSX_SCALE_INV);
 
   u64 frame       = 0;
