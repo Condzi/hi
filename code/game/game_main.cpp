@@ -31,7 +31,11 @@ main(int argc, char const *argv[]) {
       .fullscreen = false,
   });
 
-  gfx_init({.vp_width = os_gfx_surface_width(), .vp_height = os_gfx_surface_height()});
+  gfx_init({
+      .vp_width  = os_gfx_surface_width(),
+      .vp_height = os_gfx_surface_height(),
+      .vsync     = true,
+  });
   gfx_renderer_init();
 
   GFX_Image characters_img = d3d_load_png("W:/hi/run_tree/tex/characters.png"_s8);
@@ -100,12 +104,12 @@ main(int argc, char const *argv[]) {
           mov_dir.y += 1;
         } else if (events->data.button == GameInput_LetterS) {
           mov_dir.y -= 1;
-
         } else if (events->data.button == GameInput_LetterA) {
           mov_dir.x -= 1;
-
         } else if (events->data.button == GameInput_LetterD) {
           mov_dir.x += 1;
+        } else if (events->data.button == GameInput_LetterV) {
+          gfx_set_vsync(!gfx_is_vsync_enabled());
         }
       }
     }
@@ -144,12 +148,15 @@ main(int argc, char const *argv[]) {
     gfx_draw_rect_color(rect_1, {.v = 0xFF'00'00'FF});
     gfx_draw_rich_text({
         .pos       = {0, 0},
-        .height_px = 32,
+        .height_px = 12,
         .font      = &font,
         .layer     = l4,
         .string    = str8_sprintf(gContext.frame_arena,
-                               "f^dr^wa^eme^=%zu\n^%S",
+                               "time=%g\nf^dr^wa^eme^=%zu, dt=%gms, fps=%zu\n^%S",
+                               os_seconds_since_startup(),
                                frame,
+                               dt * 1000,
+                               u64(1.f / dt),
                                str8_dump_struct(psx_world->bodies.v[0])),
     });
 
