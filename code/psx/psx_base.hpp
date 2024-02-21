@@ -75,7 +75,6 @@ struct PSX_Body_Array {
 
 struct PSX_Body_Opts {
   fvec2 pos;
-  fvec2 sz;
   f32   mass           = 0;
   f32   rot            = 0;
   f32   linear_damping = 0;
@@ -118,3 +117,6 @@ psx_world_remove(PSX_World_ID world, PSX_Body_ID id);
 
 global void
 psx_body_add_force(PSX_World_ID world, PSX_Body_ID id, fvec2 force);
+
+must_use global fvec2 
+psx_body_get_position(PSX_World_ID world, PSX_Body_ID body);

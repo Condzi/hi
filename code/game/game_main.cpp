@@ -71,7 +71,19 @@ main(int argc, char const *argv[]) {
   GFX_Image font_img = d3d_load_png("W:/hi/run_tree/tex/pixel_font_basic_latin_ascii.png"_s8);
   GFX_Font  font     = gfx_make_font(font_img, 7, 9);
 
+  psx_init();
+  PSX_World_ID world = psx_make_world(64);
+  PSX_Body_ID  body  = psx_world_add(world,
+                                     {
+                                         .pos            = sprite_1.pos * PSX_SCALE_INV,
+                                         .mass           = 10,
+                                         .linear_damping = 1.0f,
+                                   });
+
   u64 frame = 0;
+  f32 psx_acc     = 0;
+  f32 dt          = 0;
+  f32 frame_begin = os_seconds_since_startup();
   while (os_gfx_window_mode() != OS_WindowMode_Closed) {
     // Frame start
     //
@@ -80,19 +92,43 @@ main(int argc, char const *argv[]) {
 
     // Event handling
     //
+    fvec2            mov_dir = {};
     OS_Window_Event *events = os_gfx_event_pump(gContext.frame_arena);
     for (;events; events = events->next) {
-      os_debug_message(str8_sprintf(gContext.frame_arena, "%S\n", str8_dump_struct(*events)));
+      if (events->type == OS_EventType_ButtonPressed) {
+        if (events->data.button == GameInput_LetterW) {
+          mov_dir.y += 1;
+        } else if (events->data.button == GameInput_LetterS) {
+          mov_dir.y -= 1;
+
+        } else if (events->data.button == GameInput_LetterA) {
+          mov_dir.x -= 1;
+
+        } else if (events->data.button == GameInput_LetterD) {
+          mov_dir.x += 1;
+        }
+      }
     }
+    psx_body_add_force(world, body, mov_dir * 1000.f);
 
     // Simulation update
     //
+
+    psx_acc += dt;
+    if (psx_acc >= PSX_STEP) {
+      while (psx_acc > PSX_STEP) {
+        psx_world_simulate(world, PSX_STEP);
+        psx_acc -= PSX_STEP;
+      }
+      psx_world_simulate(world, psx_acc);
+      psx_acc = 0;
+    }
 
     // obj.pos.x += 0.5f;
     // obj2.pos.y += 0.5f;
     //  obj.material.rect.color.a += 1;
     //  obj2.material.rect.color.a += 1;
-    sprite_1.rot -= 0.01f;
+    sprite_1.pos = psx_body_get_position(world, body) * PSX_SCALE;
     rect_1.rot += 0.1f;
 
 
@@ -111,8 +147,10 @@ main(int argc, char const *argv[]) {
         .height_px = 32,
         .font      = &font,
         .layer     = l4,
-        .string    = str8_sprintf(
-            gContext.frame_arena, "f^dr^wa^eme^=%zu\n^%S", frame, str8_dump_struct(cam)),
+        .string    = str8_sprintf(gContext.frame_arena,
+                               "f^dr^wa^eme^=%zu\n^%S",
+                               frame,
+                               str8_dump_struct(psx_world->bodies.v[0])),
     });
 
     gfx_renderer_end_frame();
@@ -124,5 +162,8 @@ main(int argc, char const *argv[]) {
     scratch_end(&error_context_scratch);
     gContext.error_context->first = gContext.error_context->last = 0;
     frame++;
+    f32 frame_end = os_seconds_since_startup();
+    dt            = frame_end - frame_begin;
+    frame_begin   = frame_end;
   }
 }

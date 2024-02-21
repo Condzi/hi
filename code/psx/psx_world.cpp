@@ -49,35 +49,32 @@ psx_make_world(u64 num_objects) {
 
 must_use global PSX_Body_ID
 psx_world_add(PSX_World_ID world, PSX_Body_Opts const &opts) {
-  ErrorContext("pos=(%g,%g), sz=(%g,%g), mass=%g, rot=%g, linear_damping=%g",
+  ErrorContext("pos=(%g,%g), mass=%g, rot=%g, linear_damping=%g",
                opts.pos.x,
                opts.pos.y,
-               opts.sz.x,
-               opts.sz.y,
                opts.mass,
                opts.rot,
                opts.linear_damping);
   ErrorIf(PSX_IS_NULL(world), "World ID is NULL!");
   ErrorIf(opts.mass < 0, "Mass cannot be negative!");
   ErrorIf(opts.linear_damping < 0, "Linear damping factor cannot be be negative!");
-  ErrorIf(opts.sz.width <= EPS_F32 || opts.sz.height <= EPS_F32, "Size must be positive!");
 
   PSX_World &w = psx_world_from_id(world);
-  ErrorIf(ba_is_any_unset(w.bodies_status_lookup), "No space for new objects.");
+  ErrorIf(!ba_is_any_unset(w.bodies_status_lookup), "No space for new objects.");
 
   u64 unset_idx = ba_find_first_unset(w.bodies_status_lookup);
   ba_set(w.bodies_status_lookup, unset_idx);
 
-  PSX_Body    &body = w.bodies.v[unset_idx];
-  PSX_Body_ID &id   = body.id;
-  id                = {
-                     .idx      = (u16)unset_idx,
-                     .world    = world.idx,
-                     .is_set   = 1,
-                     .revision = ++body.id.revision,
+  PSX_Body   &body = w.bodies.v[unset_idx];
+  PSX_Body_ID id   = {
+        .idx      = (u16)unset_idx,
+        .world    = world.idx,
+        .is_set   = 1,
+        .revision = ++body.id.revision,
   };
 
   body = {
+      .id             = id,
       .pos            = opts.pos,
       .rot            = opts.rot,
       .linear_damping = opts.linear_damping,
@@ -123,4 +120,12 @@ psx_body_add_force(PSX_World_ID world, PSX_Body_ID id, fvec2 force) {
   ErrorIf(!ba_test(w.bodies_status_lookup, id.idx), "Object is dead");
 
   body.force += force;
+}
+
+must_use global fvec2
+psx_body_get_position(PSX_World_ID world, PSX_Body_ID body) {
+  ErrorContext("idx=%u, world=%u, revision=%u", body.idx, body.world, body.revision);
+  PSX_World &w = psx_world_from_id(world);
+  PSX_Body  &b = psx_body_from_id(w, body);
+  return b.pos;
 }
