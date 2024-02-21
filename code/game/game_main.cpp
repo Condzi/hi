@@ -87,6 +87,8 @@ main(int argc, char const *argv[]) {
   u64 frame = 0;
   f32 psx_acc     = 0;
   f32 dt          = 0;
+  f32 dt_min      = FLT_MAX;
+  f32 dt_max      = 0;
   f32 frame_begin = os_seconds_since_startup();
   while (os_gfx_window_mode() != OS_WindowMode_Closed) {
     // Frame start
@@ -110,6 +112,9 @@ main(int argc, char const *argv[]) {
           mov_dir.x += 1;
         } else if (events->data.button == GameInput_LetterV) {
           gfx_set_vsync(!gfx_is_vsync_enabled());
+        } else if (events->data.button == GameInput_LetterR) {
+          dt_min = FLT_MAX;
+          dt_max = 0;
         }
       }
     }
@@ -151,13 +156,16 @@ main(int argc, char const *argv[]) {
         .height_px = 12,
         .font      = &font,
         .layer     = l4,
-        .string    = str8_sprintf(gContext.frame_arena,
-                               "time=%g\nf^dr^wa^eme^=%zu, dt=%gms, fps=%zu\n^%S",
-                               os_seconds_since_startup(),
-                               frame,
-                               dt * 1000,
-                               u64(1.f / dt),
-                               str8_dump_struct(psx_world->bodies.v[0])),
+        .string    = str8_sprintf(
+            gContext.frame_arena,
+            "time=%g\nf^dr^wa^eme^=%zu\n dt_min=%gms dt_max=%gms dt=%gms, fps=%zu\n^%S",
+            os_seconds_since_startup(),
+            frame,
+            dt_min * 1000,
+            dt_max * 1000,
+            dt * 1000,
+            u64(1.f / dt),
+            str8_dump_struct(psx_world->bodies.v[0])),
     });
 
     gfx_renderer_end_frame();
@@ -172,5 +180,7 @@ main(int argc, char const *argv[]) {
     f32 frame_end = os_seconds_since_startup();
     dt            = frame_end - frame_begin;
     frame_begin   = frame_end;
+    dt_min        = Min(dt, dt_min);
+    dt_max        = Max(dt, dt_max);
   }
 }
