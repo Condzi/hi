@@ -106,6 +106,9 @@ struct GFX_Rect_Opts {
 global void
 gfx_draw_rect_color(GFX_Rect_Opts const &opts, GFX_Color color);
 
+global void
+gfx_draw_rect_color_ui(GFX_Rect_Opts const &opts, GFX_Color color);
+
 struct GFX_Camera {
   fvec2 center;
   f32 rot;

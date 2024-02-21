@@ -86,22 +86,22 @@ gfx_renderer_end_frame() {
       // @Performance Bubble sort the objects by layer.
       //
       {
-      bool swapped = false;
-      for (u64 i = 0; i < objects_sz - 1; i++) {
-        swapped = false;
-        for (u64 j = 0; j < objects_sz - i - 1; j++) {
-          GFX_Object &obj_j   = objects[j];
-          GFX_Object &obj_j_1 = objects[j + 1];
-          if (obj_j.layer.v > obj_j_1.layer.v) {
-            Swap(obj_j, obj_j_1);
-            swapped = true;
+        bool swapped = false;
+        for (u64 i = 0; i < objects_sz - 1; i++) {
+          swapped = false;
+          for (u64 j = 0; j < objects_sz - i - 1; j++) {
+            GFX_Object &obj_j   = objects[j];
+            GFX_Object &obj_j_1 = objects[j + 1];
+            if (obj_j.layer.v > obj_j_1.layer.v) {
+              Swap(obj_j, obj_j_1);
+              swapped = true;
+            }
+          }
+          if (!swapped) {
+            break;
           }
         }
-        if (!swapped) {
-          break;
-        }
       }
-    }
 
       // Look for subsequences of objects with compatible materials for batching.
       // Immedietaly assign them to correct batches.
@@ -409,6 +409,24 @@ gfx_draw_sprite_color(GFX_Sprite_Opts const &opts, GFX_Color color) {
 global void
 gfx_draw_rect_color(GFX_Rect_Opts const &opts, GFX_Color color) {
   gfx_renderer_push_game_object({
+      .pos   = opts.pos,
+      .sz    = opts.sz,
+      .rot   = opts.rot,
+      .layer = opts.layer,
+      .material =
+          {
+              .type = GFX_MaterialType_Rect,
+              .rect =
+                  {
+                      .color = color,
+                  },
+          },
+  });
+}
+
+global void
+gfx_draw_rect_color_ui(GFX_Rect_Opts const &opts, GFX_Color color) {
+  gfx_renderer_push_ui_object({
       .pos   = opts.pos,
       .sz    = opts.sz,
       .rot   = opts.rot,
