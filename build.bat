@@ -93,7 +93,7 @@ set clang_defines=    -DWIN32 -D_WINDOWS -D_HAS_EXCEPTIONS=0 -D_CRT_SECURE_NO_WA
 set clang_misc=       -fno-exceptions -fno-rtti -ferror-limit=0 -Wall -Wextra -Werror
 set clang_common=     -I..\code\ -I..\code\3rdparty -std=c++20 %clang_defines% %clang_misc% %clang_disabled_warnings%
 set clang_debug=      call clang++ -g -O0 %clang_common% %clang_asan%
-set clang_release=    call clang++ -O3 -DNDEBUG %clang_common%
+set clang_release=    call clang++ -Ofast -DNDEBUG %clang_common%
 set clang_out=         -o 
 set clang_link=       
 
