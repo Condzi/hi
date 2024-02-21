@@ -184,6 +184,7 @@ gfx_init(GFX_Opts const &opts) {
   ErrorContext("%ux%u px, vsync=%s", opts.vp_width, opts.vp_height, opts.vsync ? "on" : "off");
 
   gfx_arena = make_arena(true);
+  gD3d.vsync = opts.vsync;
 
   HRESULT hr = 0;
 
@@ -588,6 +589,16 @@ gfx_init(GFX_Opts const &opts) {
   }
 }
 
+must_use global bool
+gfx_is_vsync_enabled() {
+  return gD3d.vsync;
+}
+
+global void
+gfx_set_vsync(bool v) {
+  gD3d.vsync = v;
+}
+
 global void
 gfx_resize(u32 new_width, u32 new_height) {
   ErrorContext("new_width=%u, new_height=%u", new_width, new_height);
@@ -686,7 +697,8 @@ gfx_swap_buffers(GFX_Image final_image) {
   //
   {
     ErrorContext("Swap Buffers");
-    hr = gD3d.dxgi_swapchain->Present(1, 0);
+    UINT vsync = gD3d.vsync;
+    hr = gD3d.dxgi_swapchain->Present(vsync, 0);
     ErrorIf(FAILED(hr), "Call to Present failed. %S", os_error_to_user_message(hr));
   }
 }

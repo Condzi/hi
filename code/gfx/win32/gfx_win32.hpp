@@ -45,6 +45,8 @@ struct D3d_Image_Node {
 };
 
 struct D3d {
+  bool vsync;
+
   IDXGIFactory6   *dxgi_factory;
   IDXGISwapChain1 *dxgi_swapchain;
 
