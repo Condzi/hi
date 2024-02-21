@@ -36,16 +36,22 @@ struct PSX_Shape_ID {
 #define PSX_ID_EQUALS(a, b)                                                                        \
   (((a).idx == (b).idx) && ((a).world == (b).world) && ((a).revision == (b).revision))
 
-#define PSX_ID_NOT_EQUALS(a, b)                                                                        \
+#define PSX_ID_NOT_EQUALS(a, b)                                                                    \
   (((a).idx != (b).idx) || ((a).world != (b).world) || ((a).revision != (b).revision))
 
 enum PSX_Shape_Type : u8 {
   PSX_ShapeType_Polygon,
 };
 
+// @ToDo: currently, we have a hard limit on the vertices count
+// because I don't wanna deal with memory allocation - we only have
+// memory arenas at the moment. When we do a new allocator (BlockAllocator?)
+// we will need to revisit this and other places.
+//
+global read_only u64 PSX_POLYGON_MAX_VERTICES = 8;
 struct PSX_Polygon_Shape {
-  fvec2 *v;
-  u64    sz;
+  fvec2 v[PSX_POLYGON_MAX_VERTICES];
+  u64   sz;
 };
 
 struct PSX_Shape {
@@ -57,9 +63,15 @@ struct PSX_Shape {
   };
 };
 
+struct PSX_Shape_Array {
+  PSX_Shape *v;
+  u64        sz;
+};
+
 struct PSX_Body {
   PSX_Body_ID  id = {};
   fvec2        pos;
+  fvec2        center_of_mass; // 0,0 is top left. The object will rotate about this point.
   fvec2        vel;
   fvec2        force;
   f32          rot            = 0;
@@ -75,6 +87,7 @@ struct PSX_Body_Array {
 
 struct PSX_Body_Opts {
   fvec2 pos;
+  fvec2 center_of_mass;
   f32   mass           = 0;
   f32   rot            = 0;
   f32   linear_damping = 0;
@@ -84,6 +97,9 @@ struct PSX_World {
   PSX_World_ID   id;
   Bit_Array     *bodies_status_lookup;
   PSX_Body_Array bodies;
+
+  Bit_Array      *shapes_status_lookup;
+  PSX_Shape_Array shapes;
 
   // Body removal is deferred to allow removing/adding of objects during collision callbacks
   // in physics steps.
@@ -118,5 +134,8 @@ psx_world_remove(PSX_World_ID world, PSX_Body_ID id);
 global void
 psx_body_add_force(PSX_World_ID world, PSX_Body_ID id, fvec2 force);
 
-must_use global fvec2 
+must_use global fvec2
 psx_body_get_position(PSX_World_ID world, PSX_Body_ID body);
+
+global void
+psx_body_add_box_shape(PSX_World_ID world, PSX_Body_ID body, fvec2 pos, fvec2 sz);

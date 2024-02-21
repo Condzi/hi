@@ -83,8 +83,9 @@ main(int argc, char const *argv[]) {
                                          .mass           = 10,
                                          .linear_damping = 1.0f,
                                    });
+  psx_body_add_box_shape(world, body, {0, 0}, sprite_1.sz * PSX_SCALE_INV);
 
-  u64 frame = 0;
+  u64 frame       = 0;
   f32 psx_acc     = 0;
   f32 dt          = 0;
   f32 dt_min      = FLT_MAX;

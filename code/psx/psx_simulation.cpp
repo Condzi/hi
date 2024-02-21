@@ -24,6 +24,11 @@ psx_world_simulate(PSX_World_ID w, f32 dt) {
     u64 idx = ba_find_first_set(world.bodies_to_remove);
     ba_unset(world.bodies_status_lookup, idx);
     ba_unset(world.bodies_to_remove, idx);
+    PSX_Shape_ID shape = world.bodies.v[idx].shapes;
+    while (shape.is_set) {
+      ba_unset(world.shapes_status_lookup, shape.idx);
+      shape = world.shapes.v[shape.idx].next;
+    }
   }
 
   PSX_Participants_Array participants = psx_get_simulation_participants(world);
