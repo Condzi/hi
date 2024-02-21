@@ -8,4 +8,4 @@ struct PSX_Participants_Array {
 // Return array with IDs of alive objects in the world.
 //
 must_use internal PSX_Participants_Array
-psx_get_simulation_participants(PSX_World *w);
+psx_get_simulation_participants(PSX_World_ID w);

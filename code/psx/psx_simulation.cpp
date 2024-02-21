@@ -2,11 +2,11 @@
 #include "all_inc.hpp"
 
 must_use internal PSX_Participants_Array
-psx_get_simulation_participants(PSX_World *w) {
-  PSX_Participants_Array res = {.v = arena_alloc_array<u32>(gContext.frame_arena, w->bodies.sz)};
+psx_get_simulation_participants(PSX_World &w) {
+  PSX_Participants_Array res = {.v = arena_alloc_array<u32>(gContext.frame_arena, w.bodies.sz)};
 
-  for (u64 i = 0; i < w->bodies_status_lookup->sz; i++) {
-    if (ba_test(w->bodies_status_lookup, i)) {
+  for (u64 i = 0; i < w.bodies_status_lookup->sz; i++) {
+    if (ba_test(w.bodies_status_lookup, i)) {
       res.v[res.sz] = (u32)i;
       res.sz++;
     }
@@ -16,13 +16,14 @@ psx_get_simulation_participants(PSX_World *w) {
 }
 
 global void
-psx_world_simulate(PSX_World *world, f32 dt) {
+psx_world_simulate(PSX_World_ID w, f32 dt) {
+  PSX_World &world = psx_world_from_id(w);
   // Remove entities first.
   //
-  while (ba_is_any_set(world->bodies_to_remove)) {
-    u64 idx = ba_find_first_set(world->bodies_to_remove);
-    ba_unset(world->bodies_status_lookup, idx);
-    ba_unset(world->bodies_to_remove, idx);
+  while (ba_is_any_set(world.bodies_to_remove)) {
+    u64 idx = ba_find_first_set(world.bodies_to_remove);
+    ba_unset(world.bodies_status_lookup, idx);
+    ba_unset(world.bodies_to_remove, idx);
   }
 
   PSX_Participants_Array participants = psx_get_simulation_participants(world);
@@ -30,7 +31,7 @@ psx_world_simulate(PSX_World *world, f32 dt) {
   // Integrate forces.
   //
   for (u64 i = 0; i < participants.sz; i++) {
-    PSX_Body &body = world->bodies.v[participants.v[i]];
+    PSX_Body &body = world.bodies.v[participants.v[i]];
 
     body.vel += body.force * body.mass_inv * dt;
 
@@ -46,7 +47,7 @@ psx_world_simulate(PSX_World *world, f32 dt) {
   // Integrate velocities.
   //
   for (u64 i = 0; i < participants.sz; i++) {
-    PSX_Body &body = world->bodies.v[participants.v[i]];
+    PSX_Body &body = world.bodies.v[participants.v[i]];
 
     body.pos += body.vel * dt;
     body.force = {};

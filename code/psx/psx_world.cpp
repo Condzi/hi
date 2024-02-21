@@ -5,7 +5,7 @@
 PSX_World *psx_world;
 
 must_use internal PSX_World &
-psx_find_world(PSX_World_ID id) {
+psx_world_from_id(PSX_World_ID id) {
   ErrorIf(PSX_IS_NULL(id), "World ID is not set!");
   ErrorIf((id.idx != psx_world->id.idx || id.revision != psx_world->id.revision),
           "IDs do not match!");
@@ -13,7 +13,7 @@ psx_find_world(PSX_World_ID id) {
 }
 
 must_use internal PSX_Body &
-psx_find_body(PSX_World &w, PSX_Body_ID id) {
+psx_body_from_id(PSX_World &w, PSX_Body_ID id) {
   ErrorIf(PSX_IS_NULL(id), "Body ID is not set!");
   ErrorIf(id.idx >= w.bodies.sz, "Body index out of bounds");
 
@@ -62,7 +62,7 @@ psx_world_add(PSX_World_ID world, PSX_Body_Opts const &opts) {
   ErrorIf(opts.linear_damping < 0, "Linear damping factor cannot be be negative!");
   ErrorIf(opts.sz.width <= EPS_F32 || opts.sz.height <= EPS_F32, "Size must be positive!");
 
-  PSX_World &w = psx_find_world(world);
+  PSX_World &w = psx_world_from_id(world);
   ErrorIf(ba_is_any_unset(w.bodies_status_lookup), "No space for new objects.");
 
   u64 unset_idx = ba_find_first_unset(w.bodies_status_lookup);
@@ -98,8 +98,8 @@ psx_world_remove(PSX_World_ID world, PSX_Body_ID id) {
   ErrorIf(PSX_IS_NULL(id), "Body ID is NULL!");
   ErrorIf(PSX_IS_NULL(world), "World ID is NULL!");
 
-  PSX_World &w    = psx_find_world(world);
-  PSX_Body  &body = psx_find_body(w, id);
+  PSX_World &w    = psx_world_from_id(world);
+  PSX_Body  &body = psx_body_from_id(w, id);
 
   bool const is_or_will_be_dead =
       !ba_test(w.bodies_status_lookup, id.idx) || ba_test(w.bodies_to_remove, id.idx);
@@ -117,8 +117,8 @@ psx_world_remove(PSX_World_ID world, PSX_Body_ID id) {
 global void
 psx_body_add_force(PSX_World_ID world, PSX_Body_ID id, fvec2 force) {
   ErrorContext("idx=%u, world=%u, revision=%u", id.idx, id.world, id.revision);
-  PSX_World &w    = psx_find_world(world);
-  PSX_Body  &body = psx_find_body(w, id);
+  PSX_World &w    = psx_world_from_id(world);
+  PSX_Body  &body = psx_body_from_id(w, id);
 
   ErrorIf(!ba_test(w.bodies_status_lookup, id.idx), "Object is dead");
 
