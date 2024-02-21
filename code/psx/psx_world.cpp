@@ -21,15 +21,16 @@ psx_make_world(u64 num_objects) {
 
 must_use global PSX_Body_ID
 psx_world_add(PSX_World *w, PSX_Body_Opts const &opts) {
-  ErrorContext("pos=(%g,%g), sz=(%g,%g), mass=%g, rot=%g, friction=%g",
+  ErrorContext("pos=(%g,%g), sz=(%g,%g), mass=%g, rot=%g, linear_damping=%g",
                opts.pos.x,
                opts.pos.y,
                opts.sz.x,
                opts.sz.y,
                opts.mass,
                opts.rot,
-               opts.friction);
+               opts.linear_damping);
   ErrorIf(opts.mass < 0, "Mass cannot be negative!");
+  ErrorIf(opts.linear_damping < 0, "Linear damping factor cannot be be negative!");
   ErrorIf(opts.sz.width <= EPS_F32 || opts.sz.height <= EPS_F32, "Size must be positive!");
   ErrorIf(ba_is_any_unset(w->bodies_status_lookup), "No space for new objects.");
 
@@ -40,11 +41,10 @@ psx_world_add(PSX_World *w, PSX_Body_Opts const &opts) {
   PSX_Body_ID const id   = body.id;
 
   body = {
-      .id       = id,
-      .pos      = opts.pos,
-      .sz       = opts.sz,
-      .rot      = opts.rot,
-      .friction = opts.friction,
+      .id             = id,
+      .pos            = opts.pos,
+      .rot            = opts.rot,
+      .linear_damping = opts.linear_damping,
   };
 
   // Set the mass only if not zero.
@@ -52,8 +52,6 @@ psx_world_add(PSX_World *w, PSX_Body_Opts const &opts) {
   if (!f32_is_near(opts.mass, 0)) {
     body.mass_inv = 1 / opts.mass;
   }
-
-  body.i_inv = 1.0f / (opts.mass * (opts.sz.x * opts.sz.x + opts.sz.y * opts.sz.y) / 12.f);
 
   return id;
 }

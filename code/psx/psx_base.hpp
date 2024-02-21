@@ -12,25 +12,51 @@ read_only global f32 PSX_SCALE_INV = 1 / PSX_SCALE;
 //
 
 union PSX_Body_ID {
-  u64 v = 0;
+  u32 v = 0;
   struct {
-    u32 idx;        // Index in parent array.
-    u32 generation; // Every time this object gets deleted, generation increments.
+    u16 idx;        // Index in parent array.
+    u16 generation; // Every time this object gets deleted, generation increments.
+  };
+};
+
+union PSX_Shape_ID {
+  u32 v = 0;
+  struct {
+    u16 idx;
+    // When used in list context, this field disambiguates if idx=0 means index
+    // 0 or NULL.
+    u16 is_pointing : 1;
+    u16 generation  : 15;
+  };
+};
+
+enum PSX_Shape_Type : u8 {
+  PSX_ShapeType_Polygon,
+};
+
+struct PSX_Polygon_Shape {
+  fvec2 *v;
+  u64    sz;
+};
+
+struct PSX_Shape {
+  PSX_Shape_ID   id;
+  PSX_Shape_ID   next;
+  PSX_Shape_Type type = PSX_ShapeType_Polygon;
+  union {
+    PSX_Polygon_Shape polygon = {};
   };
 };
 
 struct PSX_Body {
-  PSX_Body_ID id;
-  fvec2       pos;
-  fvec2       vel;
-  fvec2       force;
-  fvec2       sz;
-  f32         rot         = 0;
-  f32         friction    = 0;
-  f32         mass_inv    = 0;
-  f32         torque      = 0;
-  f32         angular_vel = 0;
-  f32         i_inv       = 0; // inertia
+  PSX_Body_ID  id;
+  fvec2        pos;
+  fvec2        vel;
+  fvec2        force;
+  f32          rot            = 0;
+  f32          mass_inv       = 0;
+  f32          linear_damping = 0;
+  PSX_Shape_ID shapes;
 };
 
 struct PSX_Body_Array {
@@ -41,9 +67,9 @@ struct PSX_Body_Array {
 struct PSX_Body_Opts {
   fvec2 pos;
   fvec2 sz;
-  f32   mass     = 0;
-  f32   rot      = 0;
-  f32   friction = 0;
+  f32   mass           = 0;
+  f32   rot            = 0;
+  f32   linear_damping = 0;
 };
 
 struct PSX_Body_Opts_Array {

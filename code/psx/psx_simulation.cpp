@@ -33,7 +33,10 @@ psx_world_simulate(PSX_World *world, f32 dt) {
     PSX_Body &body = world->bodies.v[participants.v[i]];
 
     body.vel += body.force * body.mass_inv * dt;
-    body.angular_vel += body.torque * body.i_inv * dt;
+
+    f32 damping_factor = 1.0f - body.linear_damping * dt;
+    damping_factor     = Max(0, damping_factor);
+    body.vel *= damping_factor;
   }
 
   //
@@ -46,8 +49,6 @@ psx_world_simulate(PSX_World *world, f32 dt) {
     PSX_Body &body = world->bodies.v[participants.v[i]];
 
     body.pos += body.vel * dt;
-    body.rot += body.angular_vel * dt;
-    body.force  = {};
-    body.torque = 0;
+    body.force = {};
   }
 }
