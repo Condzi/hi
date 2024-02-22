@@ -8,3 +8,4 @@
 #include "base_math.cpp"
 #include "error_context.cpp"
 #include "bit_array.cpp"
+#include "block_allocator.cpp"

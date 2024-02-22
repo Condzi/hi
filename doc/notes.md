@@ -16,7 +16,12 @@
 ## Base
 
     [ ] Rand (perlin noise, random range)
-    [ ] Figure out how to handle realloc / free for arenas
+    [ ] Block (Pool) Allocator
+      We have some common sizes of blocks (16, 32, 64, 96 ... 512 bytes). Each block has its
+      own free/used list. 
+      When an allocation needs to be done, we round the size up to the first available block size.
+      This allocator is a good choice for things that are small and allocated in lists, but need to
+      live longer than 1 frame and perhaps need to be removed, like physics or game objects.
 
 ## Debug Tools
 

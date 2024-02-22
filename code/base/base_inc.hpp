@@ -10,3 +10,4 @@
 #include "launch_opts.hpp"
 #include "base_math.hpp"
 #include "bit_array.hpp"
+#include "block_allocator.hpp"

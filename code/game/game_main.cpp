@@ -159,16 +159,16 @@ main(int argc, char const *argv[]) {
         .height_px = 12,
         .font      = &font,
         .layer     = l4,
-        .string    = str8_sprintf(
-            gContext.frame_arena,
-            "time=%g\nf^dr^wa^eme^=%zu\n dt_min=%gms dt_max=%gms dt=%gms, fps=%zu\n^%S",
-            os_seconds_since_startup(),
-            frame,
-            dt_min * 1000,
-            dt_max * 1000,
-            dt * 1000,
-            u64(1.f / dt),
-            str8_dump_struct(psx_world->bodies.v[0])),
+        .string    = str8_sprintf(gContext.frame_arena,
+                               "^wtime^=%.3fs\nf^dr^wa^eme^=%zu\n^wdt_min^=%0.3fms "
+                                  "^wdt_max^=%0.3fms ^wdt^=%0.3fms, fps=%zu\n^%S",
+                               os_seconds_since_startup(),
+                               frame,
+                               dt_min * 1000,
+                               dt_max * 1000,
+                               dt * 1000,
+                               u64(1.f / dt),
+                               str8_dump_struct(psx_world->bodies.v[0])),
     });
 
     gfx_renderer_end_frame();
