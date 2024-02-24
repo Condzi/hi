@@ -10,9 +10,6 @@ struct Block_Allocator;
 must_use global Block_Allocator *
 make_block_allocator(u64 base, u64 sz);
 
-global void
-unmake_block_allocator(Block_Allocator *allocator);
-
 must_use global void *
 alloc_block(Block_Allocator *allocator, u64 sz);
 

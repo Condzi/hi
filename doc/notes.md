@@ -21,6 +21,7 @@
       When an allocation needs to be done, we round the size up to the first available block size.
       This allocator is a good choice for things that are small and allocated in lists, but need to
       live longer than 1 frame and perhaps need to be removed, like physics or game objects.
+    [ ] Add list inserting that puts nodes at the beginning, not at the end. What was I thinking? lol
 
 ## Debug Tools
 
