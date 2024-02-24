@@ -10,18 +10,19 @@
 
 // Language layer -- keywords
 //
-#define local_persist static
-#define global static
-#define internal static
-#define read_only constexpr
-#define must_use [[nodiscard]]
-#define no_return [[noreturn]]
+#define local_persist        static
+#define global               static
+#define internal             static
+#define read_only            constexpr
+#define must_use             [[nodiscard]]
+#define no_return            [[noreturn]]
+#define aligned_to_word_size alignas(8)
 
 // Language layer -- memory operations
 //
 #define MemoryCopy(dst, src, size) memmove((dst), (src), (size))
-#define MemorySet(dst, byte, len) memset((dst), (byte), (len))
-#define MemoryCompare(a, b, len) memcmp((a), (b), (len))
+#define MemorySet(dst, byte, len)  memset((dst), (byte), (len))
+#define MemoryCompare(a, b, len)   memcmp((a), (b), (len))
 
 // Language layer -- asserts
 //
@@ -45,7 +46,7 @@
 #endif
 
 #define NotImplemented Assert(!"Not implemented!")
-#define InvalidPath Assert(!"Invalid code path taken!")
+#define InvalidPath    Assert(!"Invalid code path taken!")
 
 // Defer Macro
 //
@@ -73,16 +74,16 @@ struct Defer_Maker final {
 //
 
 #define C_LINKAGE_BEGIN extern "C" {
-#define C_LINKAGE_END }
-#define C_LINKAGE extern "C"
+#define C_LINKAGE_END   }
+#define C_LINKAGE       extern "C"
 
 #define ArrayCount(a) (sizeof(a) / sizeof((a)[0]))
 
 #define Stringify_(S) #S
-#define Stringify(S) Stringify_(S)
+#define Stringify(S)  Stringify_(S)
 
 #define Glue_(A, B) A##B
-#define Glue(A, B) Glue_(A, B)
+#define Glue(A, B)  Glue_(A, B)
 
 #define Min(A, B) (((A) < (B)) ? (A) : (B))
 #define Max(A, B) (((A) > (B)) ? (A) : (B))
@@ -91,21 +92,22 @@ struct Defer_Maker final {
 #define ClampBot(X, B) Max(X, B)
 #define Clamp(A, X, B) (((X) < (A)) ? (A) : ((X) > (B)) ? (B) : (X))
 
-#define Compose64Bit(a, b) ((((U64)(a)) << 32) | ((U64)(b)));
-#define AlignPow2(x, b) (((x) + (b)-1) & (~((b)-1)))
+#define Compose64Bit(a, b)  ((((U64)(a)) << 32) | ((U64)(b)));
+#define AlignPow2(x, b)     (((x) + (b)-1) & (~((b)-1)))
 #define AlignDownPow2(x, b) ((x) & (~((b)-1)))
-#define AlignPadPow2(x, b) ((0 - (x)) & ((b)-1))
-#define IsPow2(x) ((x) != 0 && ((x) & ((x)-1)) == 0)
-#define IsPow2OrZero(x) ((((x)-1) & (x)) == 0)
+#define AlignPadPow2(x, b)  ((0 - (x)) & ((b)-1))
+#define IsPow2(x)           ((x) != 0 && ((x) & ((x)-1)) == 0)
+#define IsPow2OrZero(x)     ((((x)-1) & (x)) == 0)
+#define Is8ByteAligned(x)   (((x) & 0x07) == 0)
 
 #define KB(n) (((u64)(n)) << 10)
 #define MB(n) (((u64)(n)) << 20)
 #define GB(n) (((u64)(n)) << 30)
 #define TB(n) (((u64)(n)) << 40)
 
-#define Thousand(n) ((n) * 1000)
-#define Million(n) ((n) * 1000000)
-#define Billion(n) ((n) * 1000000000)
+#define Thousand(n) ((n) * 1'000)
+#define Million(n)  ((n) * 1'000'000)
+#define Billion(n)  ((n) * 1'000'000'000)
 
 #define Swap(a, b)                                                                                 \
   do {                                                                                             \
@@ -117,13 +119,13 @@ struct Defer_Maker final {
 // Conversion macros
 //
 #define PtrToU64(p) (u64)((p))
-#define U64ToPtr(u) (void *)(u)
+#define U64ToPtr(u) (void *)((u64)(u))
 
 // ASAN
 //
 #if __has_feature(address_sanitizer) || defined(__SANITIZE_ADDRESS__)
 #define ASAN_ENABLED 1
-#define NO_ASAN __declspec(no_sanitize_address)
+#define NO_ASAN      __declspec(no_sanitize_address)
 #else
 #define NO_ASAN
 #endif
@@ -137,10 +139,10 @@ void
 __asan_unpoison_memory_region(void const volatile *addr, size_t size);
 C_LINKAGE_END
 
-#define AsanPoisonMemoryRegion(addr, size) __asan_poison_memory_region((addr), (size))
+#define AsanPoisonMemoryRegion(addr, size)   __asan_poison_memory_region((addr), (size))
 #define AsanUnpoisonMemoryRegion(addr, size) __asan_unpoison_memory_region((addr), (size))
 #else
-#define AsanPoisonMemoryRegion(addr, size) ((void)(addr), (void)(size))
+#define AsanPoisonMemoryRegion(addr, size)   ((void)(addr), (void)(size))
 #define AsanUnpoisonMemoryRegion(addr, size) ((void)(addr), (void)(size))
 
 #endif
@@ -160,6 +162,21 @@ using s64 = int64_t;
 
 using f32 = float;
 using f64 = double;
+
+// Pointer types used in relative poitners arithmetic.
+//
+using mem8  = u8;
+using mem16 = u16;
+using mem32 = u32;
+using mem64 = u64;
+
+// Concepts
+//
+template <typename T>
+concept UnsignedInteger = !static_cast<bool>(T(-1) < T(0));
+
+template <typename TFrom, typename TTo>
+concept ConvertibleTo = requires(TFrom from) { static_cast<TTo>(from); };
 
 // Common math types
 //
