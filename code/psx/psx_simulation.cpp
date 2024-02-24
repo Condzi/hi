@@ -45,10 +45,23 @@ psx_world_simulate(PSX_World_ID w, f32 dt) {
     body.vel *= damping_factor;
   }
 
+  // Check collisions (ambarassingly slow and bad, but fuck it for now :))
   //
-  // <collision code will go here>
-  //
+  for (u64 i = 0; i < participants.sz; i++) {
+    PSX_Body const  &body_i  = world.bodies.v[participants.v[i]];
+    PSX_Shape const &shape_i = world.shapes.v[body_i.shapes.idx];
+    for (u64 j = i + 1; j < participants.sz; j++) {
+      PSX_Body const  &body_j  = world.bodies.v[participants.v[j]];
+      PSX_Shape const &shape_j = world.shapes.v[body_j.shapes.idx];
 
+      // For now just assume we only have 1 shape per object because im lazy.
+      // @Todo: support collision for multiple shapes
+
+      if (psx_sat_test(shape_i.polygon, shape_j.polygon)) {
+        os_debug_message("Collision!"_s8);
+      }
+    }
+  }
   // Integrate velocities.
   //
   for (u64 i = 0; i < participants.sz; i++) {
