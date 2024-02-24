@@ -41,4 +41,4 @@ os_debug_message(Str8 msg);
 
 // @Note: s64 because HRESULT is a long
 must_use Str8
-os_error_to_user_message(s64 error);
+os_error_id_to_user_message(s64 error);

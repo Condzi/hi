@@ -13,7 +13,7 @@ struct Arena {
   Arena *prev;
   Arena *next;
 
-  u64 base_pos;
+  mem64 base_pos;
   u64 curr_pos;
   u64 reserved;
   bool grow;

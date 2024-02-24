@@ -15,7 +15,6 @@
 
 ## Base
 
-    [ ] Refactor Arena to use the new memXX types
     [ ] Rand (perlin noise, random range)
     [ ] Add list inserting that puts nodes at the beginning, not at the end. What was I thinking? lol
 

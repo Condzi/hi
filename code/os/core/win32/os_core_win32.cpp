@@ -91,7 +91,7 @@ os_debug_message(Str8 msg) {
 }
 
 must_use Str8
-os_error_to_user_message(s64 error) {
+os_error_id_to_user_message(s64 error) {
   HRESULT hr = (HRESULT)error;
 
   if (SUCCEEDED(hr)) {
