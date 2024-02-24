@@ -58,3 +58,46 @@ psx_world_simulate(PSX_World_ID w, f32 dt) {
     body.force = {};
   }
 }
+
+must_use internal bool
+psx_sat_test(PSX_Polygon_Shape const &shape_a, PSX_Polygon_Shape const &shape_b) {
+  fvec2 const *v_a = shape_a.v;
+  fvec2 const *v_b = shape_b.v;
+  u64          n   = shape_a.sz;
+  u64          m   = shape_b.sz;
+
+  for (u64 pass = 0; pass < 2; pass++) {
+    for (u64 i = 0; i < n; i++) {
+      fvec2 const current = v_a[i];
+      fvec2 const next    = v_a[(i + 1) % n];
+      fvec2 const edge    = next - current;
+      fvec2 const axis    = {.x = -edge.y, .y = edge.x};
+
+      f32 a_min = MAX_F32;
+      f32 a_max = MIN_F32;
+
+      for (u64 j = 0; j < n; j++) {
+        f32 const proj = dot(axis, v_a[j]);
+        a_min          = Min(a_min, proj);
+        a_max          = Max(a_max, proj);
+      }
+
+      f32 b_min = MAX_F32;
+      f32 b_max = MIN_F32;
+      for (u64 j = 0; j < m; j++) {
+        f32 const proj = dot(axis, v_b[j]);
+        b_min          = Min(b_min, proj);
+        b_max          = Max(b_max, proj);
+      }
+
+      if (a_max < b_min || a_min > b_max) {
+        return false;
+      }
+    }
+
+    Swap(v_a, v_b);
+    Swap(n, m);
+  }
+
+  return true;
+}
