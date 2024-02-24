@@ -8,7 +8,7 @@
 struct Block_Allocator;
 
 must_use global Block_Allocator *
-make_block_allocator(u64 base, u64 sz);
+make_block_allocator(Arena* arena, u64 sz);
 
 must_use global void *
 alloc_block(Block_Allocator *allocator, u64 sz);

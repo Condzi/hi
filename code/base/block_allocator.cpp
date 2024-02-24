@@ -71,10 +71,14 @@ find_or_alloc_block(Block_Allocator *allocator, u8 sz);
 //
 
 must_use global Block_Allocator *
-make_block_allocator(u64 base, u64 sz) {
+make_block_allocator(Arena *arena, u64 sz) {
   Assert(sz > sizeof(Block_Allocator));
   Assert(sz < MAX_U32);
-  Block_Allocator *result = (Block_Allocator *)base;
+
+  void       *base_mem = arena_alloc(arena, sz, 8);
+  mem64 const base     = PtrToU64(base_mem);
+
+  Block_Allocator *result = (Block_Allocator *)base_mem;
   AsanUnpoisonMemoryRegion(U64ToPtr(base), sizeof(Block_Allocator));
   *result = {
       .base_pos = base,
