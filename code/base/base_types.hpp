@@ -275,6 +275,8 @@ read_only global s16 MIN_S16 = INT16_MIN;
 read_only global s8  MIN_S8  = INT8_MIN;
 
 read_only global f32 EPS_F32 = FLT_EPSILON;
+read_only global f32 MIN_F32 = 1.175494351e-38f;
+read_only global f32 MAX_F32 = 3.402823466e+38f;
 
 read_only global f32 PI   = 3.141592653589793f;
 read_only global f32 PI_2 = 1.57079632679489661923f; // PI/2
