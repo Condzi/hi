@@ -15,6 +15,7 @@
 
 ## Base
 
+    [ ] Refactor Arena to use the new memXX types
     [ ] Rand (perlin noise, random range)
     [ ] Add list inserting that puts nodes at the beginning, not at the end. What was I thinking? lol
 
@@ -26,7 +27,7 @@
     [ ] Debug text rendering (at least maybe boxes around text?)
     [ ] Render graph visualsation
     [ ] Menu with Entity information...?
-    [ ] In-game logger / debug console (do we need commands if we have debug ui?)
+    [ ] Debug console (do we need commands if we have debug ui?)
 
 ## Entities & Systems
 
@@ -57,18 +58,14 @@
 
     - Level of detail handling
 
-    What about tools? What kind of tools, how to design the code for them?
-    Some kind of animation editor? Level editor? Trap editor? Also, would it be better
-    than just editing config files? I don't think so...
-    Entity inspector / editor. When we will have the guns/traps it would be cool to edit the
-    stats on the fly and save the best feeling options. Also for movement and camera system.
-
 ## Game
 
     Just app initialization.
 
 ## GFX
 
+  [ ] Refactor plz
+    The code is full of repetitions and not robust. Also, fix poor resource handling, or actually lack of it.
   [ ] Common shapes rendering, mostly for debugging support.
     [ ] Arrow
     [ ] Filled arrow
@@ -139,7 +136,7 @@
   [ ] v1
     [X] Fixed timestep loop
     [X] Intergrate velocities and impulses...
-    [ ] Detect collisions using SAT
+    [X] Detect collisions using SAT
     [ ] Raycasting (for shooting, unless we wanna have physical bullets?)
 
   [ ] v2
@@ -164,22 +161,6 @@
   Box2D 3.0 uses Temporal Gauss-Seidel (TGS) solver. We can do sub-stepping without updating the broad-phase or recomputing the contact points.
 
   Smaller steps are more effective than more iterations.
-
-  Soft constraints. Keep constaint HZ below the simulation step (for 60HZ keep 30HZ).
-
-- mass coefficient
-- bias coefficient
-- impulse coefficient
-
-  ```cpp
-    float zeta = 1.0f; // damping ratio
-    float hertz = 5.0f; // cycles per second
-    float omega = 2.0f * pi * hertz; // angular frequency
-    float shared = 2.0f * zeta + omega * timeStep; // shared expression
-    float biasCoeff = omega / shared;
-    float impulseCoeff = 1.0f / (1.0f + omega * timeStep * shared);
-    float massCoeff = omega * timeStep / (1.0f + omega * timeStep * shared);
-  ```
 
 ## **new** Serialization
 
@@ -239,3 +220,5 @@
     [ ] Event charts (or at least ability to make one), for example for flame graphs or input recordings
 
 ## Misc
+
+  How to support content creation? And playtesting?
