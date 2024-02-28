@@ -50,14 +50,19 @@ psx_world_simulate(PSX_World_ID w, f32 dt) {
   for (u64 i = 0; i < participants.sz; i++) {
     PSX_Body const  &body_i  = world.bodies.v[participants.v[i]];
     PSX_Shape const &shape_i = world.shapes.v[body_i.shapes.idx];
+    PSX_Polygon_Shape shape_i_transformed =
+        psx_transform_shape(body_i.center_of_mass, body_i.pos, body_i.rot, shape_i.polygon);
+
     for (u64 j = i + 1; j < participants.sz; j++) {
       PSX_Body const  &body_j  = world.bodies.v[participants.v[j]];
       PSX_Shape const &shape_j = world.shapes.v[body_j.shapes.idx];
+      PSX_Polygon_Shape shape_j_transformed =
+          psx_transform_shape(body_j.center_of_mass, body_j.pos, body_j.rot, shape_j.polygon);
 
       // For now just assume we only have 1 shape per object because im lazy.
       // @Todo: support collision for multiple shapes
 
-      if (psx_sat_test(shape_i.polygon, shape_j.polygon)) {
+      if (psx_sat_test(shape_i_transformed, shape_j_transformed)) {
         os_debug_message("Collision!"_s8);
       }
     }
@@ -70,6 +75,24 @@ psx_world_simulate(PSX_World_ID w, f32 dt) {
     body.pos += body.vel * dt;
     body.force = {};
   }
+}
+
+must_use internal PSX_Polygon_Shape
+psx_transform_shape(fvec2 const             &origin,
+                    fvec2 const             &position,
+                    f32                      rotation,
+                    PSX_Polygon_Shape const &shape) {
+
+  // Lord forgive me for 4x4 transofrm matrix.
+  //
+  fmat4 const       T         = translate2(position);
+  fmat4 const       R         = combine(rot_z(rotation), translate2(origin));
+  fmat4 const       transform = combine(T, R);
+  PSX_Polygon_Shape transformed {.sz = shape.sz};
+  for (u64 i = 0; i < shape.sz; i++) {
+    transformed.v[i] = transformed_point(shape.v[i], transform);
+  }
+  return transformed;
 }
 
 must_use internal bool
