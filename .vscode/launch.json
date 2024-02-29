@@ -10,7 +10,17 @@
       "request": "launch",
       "program": "${workspaceRoot}/build/game.exe",
       "cwd": "${workspaceRoot}/run_tree/",
-      "preLaunchTask": "Game [debug] [clang]"
+      "preLaunchTask": "Game [debug] [clang]",
+      "logging": {
+        "exceptions": false,
+        "moduleLoad": false,
+        "threadExit": false,
+      },
+      "presentation": {
+        "hidden": false,
+        "group": "not-sanitized",
+        "order": 1
+      },
     },
     {
       "name": "Debug [asan]",
@@ -19,6 +29,16 @@
       "program": "${workspaceRoot}/build/game.exe",
       "cwd": "${workspaceRoot}/run_tree/",
       "preLaunchTask": "Game [debug] [asan] [clang]",
+      "logging": {
+        "exceptions": false,
+        "moduleLoad": false,
+        "threadExit": false,
+      },
+      "presentation": {
+        "hidden": false,
+        "group": "sanitized",
+        "order": 1
+      }
     },
     {
       "name": "Debug [ubsan]",
@@ -32,7 +52,17 @@
           "name": "UBSAN_OPTIONS",
           "value": "print_stacktrace=1"
         }
-      ]
+      ],
+      "logging": {
+        "exceptions": false,
+        "moduleLoad": false,
+        "threadExit": false,
+      },
+      "presentation": {
+        "hidden": false,
+        "group": "sanitized",
+        "order": 1
+      }
     },
     {
       "name": "Release",
@@ -40,7 +70,17 @@
       "request": "launch",
       "program": "${workspaceRoot}/build/game.exe",
       "cwd": "${workspaceRoot}/run_tree/",
-      "preLaunchTask": "Game [release] [clang]"
+      "preLaunchTask": "Game [release] [clang]",
+      "logging": {
+        "exceptions": false,
+        "moduleLoad": false,
+        "threadExit": false,
+      },
+      "presentation": {
+        "hidden": false,
+        "group": "not-sanitized",
+        "order": 1
+      }
     },
   ]
 }
