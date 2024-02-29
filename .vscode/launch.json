@@ -21,6 +21,20 @@
       "preLaunchTask": "Game [debug] [asan] [clang]",
     },
     {
+      "name": "Debug [ubsan]",
+      "type": "cppvsdbg",
+      "request": "launch",
+      "program": "${workspaceRoot}/build/game.exe",
+      "cwd": "${workspaceRoot}/run_tree/",
+      "preLaunchTask": "Game [debug] [ubsan] [clang]",
+      "environment": [
+        {
+          "name": "UBSAN_OPTIONS",
+          "value": "print_stacktrace=1"
+        }
+      ]
+    },
+    {
       "name": "Release",
       "type": "cppvsdbg",
       "request": "launch",
