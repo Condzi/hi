@@ -5,17 +5,6 @@ setlocal
 call cls
 cd /D "%~dp0"
 
-call where cl.exe >nul 2>nul
-if not "%ERRORLEVEL%" == "0" (
-  echo [cl not found]
-) else (echo [cl found])
-
-call where clang++.exe >nul 2>nul
-if not "%ERRORLEVEL%" == "0" (
-  echo [clang-++ not found]
-) else (echo [clang-++ found])
-
-
 :: --- Usage Notes (2024/02/14) ------------------------------------------------
 ::
 :: This is a central build script for the game. It takes a list
@@ -40,17 +29,16 @@ if not "%ERRORLEVEL%" == "0" (
 
 :: --- Unpack Arguments -------------------------------------------------------
 for %%a in (%*) do set "%%a=1"
-if not "%clang%"=="1" set msvc=1
-if not "%release%"=="1" set debug=1
 
 if "%clang%"=="1"   echo [compiling with clang++]
 if "%msvc%"=="1"    echo [compiling with cl]
 if "%debug%"=="1"   set release=0 && echo [debug mode]
-if "%release%"=="1" set debug=0 && echo [release mode]
-if "%~1"==""        echo [default mode, assuming `game` build] && set game=1
+if "%release%"=="1" set debug=0   && echo [release mode]
 
 :: --- Unpack Command Line Build Arguments ------------------------------------
 if "%asan%"=="1"    echo [asan enabled]
+if "%ubsan%"=="1"   echo [ubsan enabled]
+
 
 set msvc_sanitizer=
 set clang_sanitizer=
@@ -98,8 +86,8 @@ set clang_misc=       -fno-exceptions -fno-rtti -ferror-limit=0 -Wall -Wextra -W
 set clang_common=     -I..\code\ -I..\code\3rdparty -std=c++20 %clang_defines% %clang_misc% %clang_disabled_warnings%
 set clang_debug=      call clang++ -g -O0 %clang_common% %clang_sanitizer%
 set clang_release=    call clang++ -Ofast -DNDEBUG %clang_common%
-set clang_out=         -o 
-set clang_link=        -fuse-ld=lld-link -Wl,/MANIFEST:EMBED,/INCREMENTAL:NO
+set clang_out=        -o 
+set clang_link=       -fuse-ld=lld-link -Wl,/MANIFEST:EMBED,/INCREMENTAL:NO
 
 :: This is bullshit workaround for broken UBSAN on windows.
 if "%ubsan%"=="1"      set clang_link=%clang_link%,"C:\Program Files\LLVM\lib\clang\18\lib\windows\clang_rt.ubsan_standalone-x86_64.lib","C:\Program Files\LLVM\lib\clang\18\lib\windows\clang_rt.ubsan_standalone_cxx-x86_64.lib"
@@ -127,8 +115,14 @@ if not exist build mkdir build
 :: --- Build Everything (@build_targets) --------------------------------------
 pushd build
 del game.exe
-if "%game%"=="1" %compile%  ..\code\game\game_main.cpp  %compile_link% %out%game.exe %compile_commands%
+%compile%  ..\code\game\game_main.cpp  %compile_link% %out%game.exe %compile_commands%
 popd
+
+if %ERRORLEVEL% neq 0 (
+  echo [compilation failed]
+  goto :end
+)
+echo [compiled]
 
 :: --- Compile Commands Madness  ----------------------------------------------
 :: Clang generates the compile_commands.json, but the tools don't like it because:
@@ -139,11 +133,9 @@ popd
 
 
 if not "%clang%"=="1" (
-    echo [skipping compile_commands.json]
+    echo [compile_commands.json not available]
     goto end
 )
-
-echo [fixing compile_commands.json]
 
 set "file=compile_commands.json"
 set "tempFile=temp_%RANDOM%.txt"
@@ -173,7 +165,8 @@ echo(!lastLine!>>"%tempFile%"
 echo ]>>"%tempFile%"
 
 :: Replace the original file with the new temp file
-move /Y "%tempFile%" "%file%"
+move /Y "%tempFile%" "%file%" >nul
+echo [compile_commands.json generated]
 
 :: --- Unset ------------------------------------------------------------------
 :end
@@ -187,3 +180,7 @@ set debug=
 set msvc_disabled_warnings=
 set msvc_defines=
 set msvc_misc=
+
+if %ERRORLEVEL% neq 0 (
+    exit /b 1
+)
