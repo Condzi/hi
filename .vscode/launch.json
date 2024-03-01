@@ -65,6 +65,30 @@
       }
     },
     {
+      "name": "Debug [asan] [ubsan]",
+      "type": "cppvsdbg",
+      "request": "launch",
+      "program": "${workspaceRoot}/build/game.exe",
+      "cwd": "${workspaceRoot}/run_tree/",
+      "preLaunchTask": "Game [debug] [asan] [ubsan] [clang]",
+      "environment": [
+        {
+          "name": "UBSAN_OPTIONS",
+          "value": "print_stacktrace=1"
+        }
+      ],
+      "logging": {
+        "exceptions": false,
+        "moduleLoad": false,
+        "threadExit": false,
+      },
+      "presentation": {
+        "hidden": false,
+        "group": "sanitized",
+        "order": 1
+      }
+    },
+    {
       "name": "Release",
       "type": "cppvsdbg",
       "request": "launch",

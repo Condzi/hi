@@ -77,6 +77,23 @@
       "problemMatcher": [
         "$gcc"
       ]
+    },
+
+    {
+      "label": "Game [debug] [asan] [ubsan] [clang]",
+      "type": "shell",
+      "command": "build",
+      "args": [
+        "game",
+        "debug",
+        "ubsan",
+        "asan",
+        "clang"
+      ],
+      "group": "build",
+      "problemMatcher": [
+        "$gcc"
+      ]
     }
   ]
 }

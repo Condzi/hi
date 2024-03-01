@@ -48,6 +48,10 @@ if "%asan%"=="1"      set clang_sanitizer=-fsanitize=address -fno-omit-frame-poi
 if "%ubsan%"=="1"     set msvc_sanitizer= -fsanitize=undefined
 if "%ubsan%"=="1"     set clang_sanitizer=-fsanitize=undefined -fno-omit-frame-pointer
 
+if "%asan%"=="1" (
+  if "%ubsan%"=="1"   set clang_sanitizer=-fsanitize=address,undefined -fno-omit-frame-pointer
+)
+
 
 :: --- MSVC  -----------------------------------------------------------
 ::  1. Set Windows Defines (no unicode!)
