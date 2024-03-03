@@ -1,5 +1,6 @@
 #pragma once
 #include "all_inc.hpp"
+#include "os_info_win32.cpp"
 
 // Globals
 //
@@ -35,9 +36,9 @@ os_init(int argc, char const *argv[]) {
 
 must_use global void *
 os_alloc(u64 sz, u64 base_addr) {
-  void *result = VirtualAllocEx(
-      GetCurrentProcess(), (PVOID)base_addr, sz, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+  void *result = VirtualAlloc((PVOID)base_addr, sz, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 
+  Assert(result);
   return result;
 }
 

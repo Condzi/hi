@@ -1,5 +1,7 @@
 #pragma once
 
+#include "os_info.hpp"
+
 // OS Layer initialization (implemented per-os)
 //
 

@@ -105,7 +105,6 @@ main(int argc, char const *argv[]) {
     fvec2            mov_dir = {};
     OS_Window_Event *events = os_gfx_event_pump(gContext.frame_arena);
     for (;events; events = events->next) {
-      LogGame_Debug("some event...");
       if (events->type == OS_EventType_ButtonPressed) {
         if (events->data.button == GameInput_LetterW) {
           mov_dir.y += 1;
@@ -153,6 +152,8 @@ main(int argc, char const *argv[]) {
 
     gfx_set_camera_for_batches(cam);
 
+    OS_Memory_Info mem_info = os_get_memory_info();
+
     gfx_draw_sprite(bg);
     gfx_draw_sprite(sprite_1);
     gfx_draw_rect_color(rect_1, {.v = 0xFF'00'00'FF});
@@ -163,14 +164,17 @@ main(int argc, char const *argv[]) {
         .layer     = l4,
         .string    = str8_sprintf(gContext.frame_arena,
                                "^wtime^=%.3fs\nf^dr^wa^eme^=%zu\n^wdt_min^=%0.3fms "
-                                  "^wdt_max^=%0.3fms ^wdt^=%0.3fms, fps=%zu\n^%S",
+                                  "^wdt_max^=%0.3fms ^wdt^=%0.3fms, fps=%zu\n^Memory reserved: "
+                                  "^d%_$$$zu^, Memory commited: ^d%_$$$zu^\n%S",
                                os_seconds_since_startup(),
                                frame,
                                dt_min * 1000,
                                dt_max * 1000,
                                dt * 1000,
                                u64(1.f / dt),
-                               str8_dump_struct(psx_world->bodies.v[0])),
+                               os_get_memory_stats().reserved,
+                               os_get_memory_stats().commited,
+                               str8_dump_struct(mem_info)),
     });
 
     gfx_renderer_end_frame();
