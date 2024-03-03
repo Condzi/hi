@@ -1,6 +1,6 @@
 #pragma once
 
-enum Log_Severity {
+enum Log_Severity : u32 {
   LogSeverity_Debug   = 0,
   LogSeverity_Info    = 1,
   LogSeverity_Warning = 2,
@@ -10,7 +10,7 @@ enum Log_Severity {
 };
 StaticAssert(LogSeverity__count == 4);
 
-enum Log_Category {
+enum Log_Category : u32 {
   LogCategory_Engine,
   LogCategory_Game,
 
@@ -48,6 +48,7 @@ global read_only u64 LOG_CAPACITY = 4096;
 //  [headers][    messages array    ][         messages values                ]
 struct Log {
   Arena* arena;
+  u64    rewind_pos;
 
   u64                             curr;
   aligned_to_word_size Log_Header headers[LOG_CAPACITY];
@@ -57,3 +58,63 @@ struct Log {
 must_use global Log*
 make_log(Arena* arena);
 
+global void
+log_clear(Log* log);
+
+must_use internal u32
+log_make_timestamp();
+
+must_use global f32
+log_timestamp_to_seconds(u32 timestamp);
+
+template <typename... TArgs>
+internal void
+log_add(Log *log, Log_Severity severity, Log_Category category, char const *fmt, TArgs... args);
+
+//
+// Engine Macros
+//
+
+#define LogEng_Debug(fmt, ...)                                                                     \
+  do {                                                                                             \
+    log_add(gContext.log, LogSeverity_Debug, LogCategory_Engine, fmt, __VA_ARGS__)                 \
+  } while (false)
+
+#define LogEng_Info(fmt, ...)                                                                      \
+  do {                                                                                             \
+    log_add(gContext.log, LogSeverity_Info, LogCategory_Engine, fmt, __VA_ARGS__)                  \
+  } while (false)
+
+#define LogEng_Warn(fmt, ...)                                                                      \
+  do {                                                                                             \
+    log_add(gContext.log, LogSeverity_Warning, LogCategory_Engine, fmt, __VA_ARGS__)               \
+  } while (false)
+
+#define LogEng_Err(fmt, ...)                                                                       \
+  do {                                                                                             \
+    log_add(gContext.log, LogSeverity_Error, LogCategory_Engine, fmt, __VA_ARGS__)                 \
+  } while (false)
+
+//
+// Game Macros
+//
+
+#define LogGame_Debug(fmt, ...)                                                                    \
+  do {                                                                                             \
+    log_add(gContext.log, LogSeverity_Debug, LogCategory_Game, fmt, __VA_ARGS__)                   \
+  } while (false)
+
+#define LogGame_Info(fmt, ...)                                                                     \
+  do {                                                                                             \
+    log_add(gContext.log, LogSeverity_Info, LogCategory_Game, fmt, __VA_ARGS__)                    \
+  } while (false)
+
+#define LogGame_Warn(fmt, ...)                                                                     \
+  do {                                                                                             \
+    log_add(gContext.log, LogSeverity_Warning, LogCategory_Game, fmt, __VA_ARGS__)                 \
+  } while (false)
+
+#define LogGame_Err(fmt, ...)                                                                      \
+  do {                                                                                             \
+    log_add(gContext.log, LogSeverity_Error, LogCategory_Game, fmt, __VA_ARGS__)                   \
+  } while (false)
