@@ -180,8 +180,20 @@
 
 ## Logging
 
-    Basically own layer for writing to a buffer. Multiple severities? Also, error boxes live here? Or what? 
-    Handles logging to file...? And to console?
+- logging fuctions:
+  Warn_Game(fmt, ...)
+  Warn_Eng (fmt, ...)
+
+- storage for logs
+  - arena -- for final formatted output (fmt+args)
+  - block allocator -- for metadata (ptr to final formatted output, severity, timestamp, module)
+    - just allocate in bigger blocks, not 1 block per log!
+- easy way of accessing the log buffer (to flush or show in debug console)
+- multiple catregories (engine/gameplay) and severities (err,wrn,inf,dbg)
+- timestamps
+
+12.034|WRN|ENG| Bla bla bla
+13.531|INF|GAM| ABCDEF!
 
 ## Localization
 

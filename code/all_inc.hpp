@@ -6,6 +6,7 @@
 #include "os/os_inc.hpp"
 #include "gfx/gfx_inc.hpp"
 #include "psx/psx_inc.hpp"
+#include "log/log_inc.hpp"
 
 #include "game/game_main.hpp"
 
@@ -15,3 +16,4 @@
 #include "os/os_inc.cpp"
 #include "gfx/gfx_inc.cpp"
 #include "psx/psx_inc.cpp"
+#include "log/log_inc.cpp"
