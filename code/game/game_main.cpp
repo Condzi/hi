@@ -7,6 +7,7 @@ int
 main(int argc, char const *argv[]) {
   gContext.frame_arena = make_arena(false);
   gContext.misc_arena  = make_arena(true);
+  gContext.log         = make_log(make_arena(false));
 
   Arena *error_context_arena = make_arena(false);
   gContext.error_context     = error_context_init(error_context_arena);
@@ -104,6 +105,7 @@ main(int argc, char const *argv[]) {
     fvec2            mov_dir = {};
     OS_Window_Event *events = os_gfx_event_pump(gContext.frame_arena);
     for (;events; events = events->next) {
+      LogGame_Debug("some event...");
       if (events->type == OS_EventType_ButtonPressed) {
         if (events->data.button == GameInput_LetterW) {
           mov_dir.y += 1;

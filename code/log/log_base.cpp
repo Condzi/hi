@@ -10,6 +10,13 @@ make_log(Arena *arena) {
   return log;
 }
 
+global void
+log_clear(Log *log) {
+  Assert(log);
+  arena_rewind(log->arena, log->rewind_pos);
+  log->curr = 0;
+}
+
 must_use internal u32
 log_make_timestamp() {
   u64 const microseconds     = os_us_since_startup();
@@ -39,6 +46,8 @@ log_add(Log *log, Log_Severity severity, Log_Category category, char const *fmt,
       .timestamp = log_make_timestamp(),
   };
   log->messages[idx] = str8_sprintf(log->arena, fmt, args...);
+
+  os_debug_message(str8_sprintf(gContext.frame_arena, "%.2f| %S\n", log_timestamp_to_seconds(log->headers[idx].timestamp), log->messages[idx]));
 
   log->curr++;
 }
