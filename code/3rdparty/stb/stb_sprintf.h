@@ -158,7 +158,7 @@ PERFORMANCE vs MSVC 2008 32-/64-bit (GCC is even slower than MSVC):
 #if defined(__SANITIZE_ADDRESS__) && __SANITIZE_ADDRESS__
 #define STBSP__ASAN __attribute__((__no_sanitize_address__))
 #endif
-#elif defined(_MSC_VER) && defined (__SANITIZE_ADDRESS__)
+#elif defined(_MSC_VER) && defined(__SANITIZE_ADDRESS__)
 #define STBSP__ASAN __declspec(no_sanitize_address)
 #endif
 
@@ -167,12 +167,12 @@ PERFORMANCE vs MSVC 2008 32-/64-bit (GCC is even slower than MSVC):
 #endif
 
 #ifdef STB_SPRINTF_STATIC
-#define STBSP__PUBLICDEC static STBSP__ASAN
-#define STBSP__PUBLICDEF static STBSP__ASAN
+#define STBSP__PUBLICDEC static STBSP__ASAN __attribute__((no_sanitize("undefined")))
+#define STBSP__PUBLICDEF static STBSP__ASAN __attribute__((no_sanitize("undefined")))
 #else
 #ifdef __cplusplus
-#define STBSP__PUBLICDEC extern "C" STBSP__ASAN
-#define STBSP__PUBLICDEF extern "C" STBSP__ASAN
+#define STBSP__PUBLICDEC extern "C" STBSP__ASAN __attribute__((no_sanitize("undefined")))
+#define STBSP__PUBLICDEF extern "C" STBSP__ASAN __attribute__((no_sanitize("undefined")))
 #else
 #define STBSP__PUBLICDEC extern STBSP__ASAN
 #define STBSP__PUBLICDEF STBSP__ASAN
@@ -205,21 +205,17 @@ typedef char *
 STBSP_SPRINTFCB(const char *buf, void *user, int len);
 
 #ifndef STB_SPRINTF_DECORATE
-#define STB_SPRINTF_DECORATE(name)                                                   \
+#define STB_SPRINTF_DECORATE(name)                                                                 \
   stbsp_##name // define this before including if you want to change the names
 #endif
 
+STBSP__PUBLICDEC int STB_SPRINTF_DECORATE(vsprintf)(char *buf, char const *fmt, va_list va);
 STBSP__PUBLICDEC int
-    STB_SPRINTF_DECORATE(vsprintf)(char *buf, char const *fmt, va_list va);
-STBSP__PUBLICDEC int STB_SPRINTF_DECORATE(vsnprintf)(char       *buf,
-                                                     int         count,
-                                                     char const *fmt,
-                                                     va_list     va);
+    STB_SPRINTF_DECORATE(vsnprintf)(char *buf, int count, char const *fmt, va_list va);
 STBSP__PUBLICDEC int STB_SPRINTF_DECORATE(sprintf)(char *buf, char const *fmt, ...)
     STBSP__ATTRIBUTE_FORMAT(2, 3);
-STBSP__PUBLICDEC int
-    STB_SPRINTF_DECORATE(snprintf)(char *buf, int count, char const *fmt, ...)
-        STBSP__ATTRIBUTE_FORMAT(3, 4);
+STBSP__PUBLICDEC int STB_SPRINTF_DECORATE(snprintf)(char *buf, int count, char const *fmt, ...)
+    STBSP__ATTRIBUTE_FORMAT(3, 4);
 
 STBSP__PUBLICDEC int STB_SPRINTF_DECORATE(vsprintfcb)(
     STBSP_SPRINTFCB *callback, void *user, char *buf, char const *fmt, va_list va);
@@ -230,21 +226,20 @@ STBSP__PUBLICDEC void STB_SPRINTF_DECORATE(set_separators)(char comma, char peri
 #ifdef STB_SPRINTF_IMPLEMENTATION
 
 #define stbsp__uint32 unsigned int
-#define stbsp__int32 signed int
+#define stbsp__int32  signed int
 
 #ifdef _MSC_VER
 #define stbsp__uint64 unsigned __int64
-#define stbsp__int64 signed __int64
+#define stbsp__int64  signed __int64
 #else
 #define stbsp__uint64 unsigned long long
-#define stbsp__int64 signed long long
+#define stbsp__int64  signed long long
 #endif
 #define stbsp__uint16 unsigned short
 
 #ifndef stbsp__uintptr
-#if defined(__ppc64__) || defined(__powerpc64__) || defined(__aarch64__) ||          \
-    defined(_M_X64) || defined(__x86_64__) || defined(__x86_64) ||                   \
-    defined(__s390x__)
+#if defined(__ppc64__) || defined(__powerpc64__) || defined(__aarch64__) || defined(_M_X64) ||     \
+    defined(__x86_64__) || defined(__x86_64) || defined(__s390x__)
 #define stbsp__uintptr stbsp__uint64
 #else
 #define stbsp__uintptr stbsp__uint32
@@ -295,19 +290,19 @@ STB_SPRINTF_DECORATE(set_separators)(char pcomma, char pperiod) {
   stbsp__comma  = pcomma;
 }
 
-#define STBSP__LEFTJUST 1
-#define STBSP__LEADINGPLUS 2
-#define STBSP__LEADINGSPACE 4
-#define STBSP__LEADING_0X 8
-#define STBSP__LEADINGZERO 16
-#define STBSP__INTMAX 32
-#define STBSP__TRIPLET_COMMA 64
-#define STBSP__NEGATIVE 128
-#define STBSP__METRIC_SUFFIX 256
-#define STBSP__HALFWIDTH 512
+#define STBSP__LEFTJUST       1
+#define STBSP__LEADINGPLUS    2
+#define STBSP__LEADINGSPACE   4
+#define STBSP__LEADING_0X     8
+#define STBSP__LEADINGZERO    16
+#define STBSP__INTMAX         32
+#define STBSP__TRIPLET_COMMA  64
+#define STBSP__NEGATIVE       128
+#define STBSP__METRIC_SUFFIX  256
+#define STBSP__HALFWIDTH      512
 #define STBSP__METRIC_NOSPACE 1024
-#define STBSP__METRIC_1024 2048
-#define STBSP__METRIC_JEDEC 4096
+#define STBSP__METRIC_1024    2048
+#define STBSP__METRIC_JEDEC   4096
 
 static void
 stbsp__lead_sign(stbsp__uint32 fl, char *sign) {
@@ -377,29 +372,27 @@ STB_SPRINTF_DECORATE(vsprintfcb)(
     stbsp__uint32 fl;
 
 // macros for the callback buffer stuff
-#define stbsp__chk_cb_bufL(bytes)                                                    \
-  {                                                                                  \
-    int len = (int)(bf - buf);                                                       \
-    if ((len + (bytes)) >= STB_SPRINTF_MIN) {                                        \
-      tlen += len;                                                                   \
-      if (0 == (bf = buf = callback(buf, user, len))) goto done;                     \
-    }                                                                                \
+#define stbsp__chk_cb_bufL(bytes)                                                                  \
+  {                                                                                                \
+    int len = (int)(bf - buf);                                                                     \
+    if ((len + (bytes)) >= STB_SPRINTF_MIN) {                                                      \
+      tlen += len;                                                                                 \
+      if (0 == (bf = buf = callback(buf, user, len))) goto done;                                   \
+    }                                                                                              \
   }
-#define stbsp__chk_cb_buf(bytes)                                                     \
-  {                                                                                  \
-    if (callback) {                                                                  \
-      stbsp__chk_cb_bufL(bytes);                                                     \
-    }                                                                                \
+#define stbsp__chk_cb_buf(bytes)                                                                   \
+  {                                                                                                \
+    if (callback) {                                                                                \
+      stbsp__chk_cb_bufL(bytes);                                                                   \
+    }                                                                                              \
   }
-#define stbsp__flush_cb()                                                            \
-  {                                                                                  \
-    stbsp__chk_cb_bufL(STB_SPRINTF_MIN - 1);                                         \
-  } // flush if there is even one byte in the buffer
-#define stbsp__cb_buf_clamp(cl, v)                                                   \
-  cl = v;                                                                            \
-  if (callback) {                                                                    \
-    int lg = STB_SPRINTF_MIN - (int)(bf - buf);                                      \
-    if (cl > lg) cl = lg;                                                            \
+#define stbsp__flush_cb()                                                                          \
+  { stbsp__chk_cb_bufL(STB_SPRINTF_MIN - 1); } // flush if there is even one byte in the buffer
+#define stbsp__cb_buf_clamp(cl, v)                                                                 \
+  cl = v;                                                                                          \
+  if (callback) {                                                                                  \
+    int lg = STB_SPRINTF_MIN - (int)(bf - buf);                                                    \
+    if (cl > lg) cl = lg;                                                                          \
   }
 
     // fast copy everything up to the next % (or end of string)
@@ -500,8 +493,7 @@ STB_SPRINTF_DECORATE(vsprintfcb)(
           fl |= STBSP__LEADINGZERO;
           ++f;
           goto flags_done;
-        default:
-          goto flags_done;
+        default: goto flags_done;
       }
     }
   flags_done:
@@ -574,8 +566,7 @@ STB_SPRINTF_DECORATE(vsprintfcb)(
           ++f;
         }
         break;
-      default:
-        break;
+      default: break;
     }
 
     // handle each replacement
@@ -609,17 +600,17 @@ STB_SPRINTF_DECORATE(vsprintfcb)(
         // copy the string in
         goto scopy;
 
-      case 'S':
-      {
+      case 'S': {
         Str8 string = va_arg(va, Str8);
-        s = (char *)string.v;
-        l = (u32)string.sz;
-        lead[0] = 0;
-        tail[0] = 0;
-        pr = 0;
-        dp = 0;
-        cs = 0;
-      }goto scopy;
+        s           = (char *)string.v;
+        l           = (u32)string.sz;
+        lead[0]     = 0;
+        tail[0]     = 0;
+        pr          = 0;
+        dp          = 0;
+        cs          = 0;
+      }
+        goto scopy;
 
       case 'c': // char
         // get the character
@@ -663,8 +654,7 @@ STB_SPRINTF_DECORATE(vsprintfcb)(
         fv = va_arg(va, double);
         if (pr == -1) pr = 6; // default is 6
         // read the double into a string
-        if (stbsp__real_to_parts((stbsp__int64 *)&n64, &dp, fv))
-          fl |= STBSP__NEGATIVE;
+        if (stbsp__real_to_parts((stbsp__int64 *)&n64, &dp, fv)) fl |= STBSP__NEGATIVE;
 
         s = num + 64;
 
@@ -732,8 +722,7 @@ STB_SPRINTF_DECORATE(vsprintfcb)(
         else if (pr == 0)
           pr = 1; // default is 6
         // read the double into a string
-        if (stbsp__real_to_str(&sn, &l, num, &dp, fv, (pr - 1) | 0x80000000))
-          fl |= STBSP__NEGATIVE;
+        if (stbsp__real_to_str(&sn, &l, num, &dp, fv, (pr - 1) | 0x80000000)) fl |= STBSP__NEGATIVE;
 
         // clamp the precision and delete extra zeros after clamp
         n = pr;
@@ -765,8 +754,7 @@ STB_SPRINTF_DECORATE(vsprintfcb)(
         fv = va_arg(va, double);
         if (pr == -1) pr = 6; // default is 6
         // read the double into a string
-        if (stbsp__real_to_str(&sn, &l, num, &dp, fv, pr | 0x80000000))
-          fl |= STBSP__NEGATIVE;
+        if (stbsp__real_to_str(&sn, &l, num, &dp, fv, pr | 0x80000000)) fl |= STBSP__NEGATIVE;
       doexpfromg:
         tail[0] = 0;
         stbsp__lead_sign(fl, lead);
@@ -1097,8 +1085,7 @@ STB_SPRINTF_DECORATE(vsprintfcb)(
           if ((fl & STBSP__TRIPLET_COMMA) == 0) {
             do {
               s -= 2;
-              *(stbsp__uint16 *)s =
-                  *(stbsp__uint16 *)&stbsp__digitpair.pair[(n % 100) * 2];
+              *(stbsp__uint16 *)s = *(stbsp__uint16 *)&stbsp__digitpair.pair[(n % 100) * 2];
               n /= 100;
             } while (n);
           }
@@ -1199,9 +1186,7 @@ STB_SPRINTF_DECORATE(vsprintfcb)(
           // copy leading zeros
           c = cs >> 24;
           cs &= 0xffffff;
-          cs = (fl & STBSP__TRIPLET_COMMA)
-                   ? ((stbsp__uint32)(c - ((pr + cs) % (c + 1))))
-                   : 0;
+          cs = (fl & STBSP__TRIPLET_COMMA) ? ((stbsp__uint32)(c - ((pr + cs) % (c + 1)))) : 0;
           while (pr > 0) {
             stbsp__cb_buf_clamp(i, pr);
             pr -= i;
@@ -1404,8 +1389,7 @@ stbsp__clamp_callback(const char *buf, void *user, int len) {
   }
 
   if (c->count <= 0) return c->tmp;
-  return (c->count >= STB_SPRINTF_MIN) ? c->buf
-                                       : c->tmp; // go direct into buffer if you can
+  return (c->count >= STB_SPRINTF_MIN) ? c->buf : c->tmp; // go direct into buffer if you can
 }
 
 static char *
@@ -1468,11 +1452,11 @@ STB_SPRINTF_DECORATE(vsprintf)(char *buf, char const *fmt, va_list va) {
 #ifndef STB_SPRINTF_NOFLOAT
 
 // copies d to bits w/ strict aliasing (this compiles to nothing on /Ox)
-#define STBSP__COPYFP(dest, src)                                                     \
-  {                                                                                  \
-    int cn;                                                                          \
-    for (cn = 0; cn < 8; cn++)                                                       \
-      ((char *)&dest)[cn] = ((char *)&src)[cn];                                      \
+#define STBSP__COPYFP(dest, src)                                                                   \
+  {                                                                                                \
+    int cn;                                                                                        \
+    for (cn = 0; cn < 8; cn++)                                                                     \
+      ((char *)&dest)[cn] = ((char *)&src)[cn];                                                    \
   }
 
 // get float info
@@ -1492,14 +1476,12 @@ stbsp__real_to_parts(stbsp__int64 *bits, stbsp__int32 *expo, double value) {
   return (stbsp__int32)((stbsp__uint64)b >> 63);
 }
 
-static double const stbsp__bot[23] = {1e+000, 1e+001, 1e+002, 1e+003, 1e+004, 1e+005,
-                                      1e+006, 1e+007, 1e+008, 1e+009, 1e+010, 1e+011,
-                                      1e+012, 1e+013, 1e+014, 1e+015, 1e+016, 1e+017,
-                                      1e+018, 1e+019, 1e+020, 1e+021, 1e+022};
+static double const stbsp__bot[23] = {
+    1e+000, 1e+001, 1e+002, 1e+003, 1e+004, 1e+005, 1e+006, 1e+007, 1e+008, 1e+009, 1e+010, 1e+011,
+    1e+012, 1e+013, 1e+014, 1e+015, 1e+016, 1e+017, 1e+018, 1e+019, 1e+020, 1e+021, 1e+022};
 static double const stbsp__negbot[22] = {
-    1e-001, 1e-002, 1e-003, 1e-004, 1e-005, 1e-006, 1e-007, 1e-008,
-    1e-009, 1e-010, 1e-011, 1e-012, 1e-013, 1e-014, 1e-015, 1e-016,
-    1e-017, 1e-018, 1e-019, 1e-020, 1e-021, 1e-022};
+    1e-001, 1e-002, 1e-003, 1e-004, 1e-005, 1e-006, 1e-007, 1e-008, 1e-009, 1e-010, 1e-011,
+    1e-012, 1e-013, 1e-014, 1e-015, 1e-016, 1e-017, 1e-018, 1e-019, 1e-020, 1e-021, 1e-022};
 static double const stbsp__negboterr[22] = {
     -5.551115123125783e-018,  -2.0816681711721684e-019, -2.0816681711721686e-020,
     -4.7921736023859299e-021, -8.1803053914031305e-022, 4.5251888174113741e-023,
@@ -1608,39 +1590,39 @@ static stbsp__uint64 const stbsp__powten[20] = {1,
 #define stbsp__tento19th (1000000000000000000ULL)
 #endif
 
-#define stbsp__ddmulthi(oh, ol, xh, yh)                                              \
-  {                                                                                  \
-    double       ahi = 0, alo, bhi = 0, blo;                                         \
-    stbsp__int64 bt;                                                                 \
-    oh = xh * yh;                                                                    \
-    STBSP__COPYFP(bt, xh);                                                           \
-    bt &= ((~(stbsp__uint64)0) << 27);                                               \
-    STBSP__COPYFP(ahi, bt);                                                          \
-    alo = xh - ahi;                                                                  \
-    STBSP__COPYFP(bt, yh);                                                           \
-    bt &= ((~(stbsp__uint64)0) << 27);                                               \
-    STBSP__COPYFP(bhi, bt);                                                          \
-    blo = yh - bhi;                                                                  \
-    ol  = ((ahi * bhi - oh) + ahi * blo + alo * bhi) + alo * blo;                    \
+#define stbsp__ddmulthi(oh, ol, xh, yh)                                                            \
+  {                                                                                                \
+    double       ahi = 0, alo, bhi = 0, blo;                                                       \
+    stbsp__int64 bt;                                                                               \
+    oh = xh * yh;                                                                                  \
+    STBSP__COPYFP(bt, xh);                                                                         \
+    bt &= ((~(stbsp__uint64)0) << 27);                                                             \
+    STBSP__COPYFP(ahi, bt);                                                                        \
+    alo = xh - ahi;                                                                                \
+    STBSP__COPYFP(bt, yh);                                                                         \
+    bt &= ((~(stbsp__uint64)0) << 27);                                                             \
+    STBSP__COPYFP(bhi, bt);                                                                        \
+    blo = yh - bhi;                                                                                \
+    ol  = ((ahi * bhi - oh) + ahi * blo + alo * bhi) + alo * blo;                                  \
   }
 
-#define stbsp__ddtoS64(ob, xh, xl)                                                   \
-  {                                                                                  \
-    double ahi = 0, alo, vh, t;                                                      \
-    ob         = (stbsp__int64)xh;                                                   \
-    vh         = (double)ob;                                                         \
-    ahi        = (xh - vh);                                                          \
-    t          = (ahi - xh);                                                         \
-    alo        = (xh - (ahi - t)) - (vh + t);                                        \
-    ob += (stbsp__int64)(ahi + alo + xl);                                            \
+#define stbsp__ddtoS64(ob, xh, xl)                                                                 \
+  {                                                                                                \
+    double ahi = 0, alo, vh, t;                                                                    \
+    ob         = (stbsp__int64)xh;                                                                 \
+    vh         = (double)ob;                                                                       \
+    ahi        = (xh - vh);                                                                        \
+    t          = (ahi - xh);                                                                       \
+    alo        = (xh - (ahi - t)) - (vh + t);                                                      \
+    ob += (stbsp__int64)(ahi + alo + xl);                                                          \
   }
 
-#define stbsp__ddrenorm(oh, ol)                                                      \
-  {                                                                                  \
-    double s;                                                                        \
-    s  = oh + ol;                                                                    \
-    ol = ol - (s - oh);                                                              \
-    oh = s;                                                                          \
+#define stbsp__ddrenorm(oh, ol)                                                                    \
+  {                                                                                                \
+    double s;                                                                                      \
+    s  = oh + ol;                                                                                  \
+    ol = ol - (s - oh);                                                                            \
+    oh = s;                                                                                        \
   }
 
 #define stbsp__ddmultlo(oh, ol, xh, xl, yh, yl) ol = ol + (xh * yl + xl * yh);
@@ -1781,8 +1763,7 @@ stbsp__real_to_str(char const   **start,
   }
 
   // now do the rounding in integer land
-  frac_digits = (frac_digits & 0x80000000) ? ((frac_digits & 0x7ffffff) + 1)
-                                           : (tens + frac_digits);
+  frac_digits = (frac_digits & 0x80000000) ? ((frac_digits & 0x7ffffff) + 1) : (tens + frac_digits);
   if ((frac_digits < 24)) {
     stbsp__uint32 dg = 1;
     if ((stbsp__uint64)bits >= stbsp__powten[9]) dg = 10;
