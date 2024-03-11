@@ -209,14 +209,17 @@ win32_window_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
       OS_Window_Event *event =
           win32_push_event(release ? OS_EventType_ButtonReleased : OS_EventType_ButtonPressed);
       switch (uMsg) {
+        default:             break;
         case WM_LBUTTONUP:
         case WM_LBUTTONDOWN: {
           event->data.button = GameInput_MouseLeft;
         } break;
+
         case WM_MBUTTONUP:
         case WM_MBUTTONDOWN: {
           event->data.button = GameInput_MouseMiddle;
         } break;
+
         case WM_RBUTTONUP:
         case WM_RBUTTONDOWN: {
           event->data.button = GameInput_MouseRight;
@@ -226,19 +229,17 @@ win32_window_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
       event->data.pos.y = (f32)HIWORD(lParam);
     } break;
 
-      case WM_MOUSEWHEEL:
-      {
-        s16 wheel_delta = HIWORD(wParam);
-        OS_Window_Event *event = win32_push_event(OS_EventType_MouseScrolled);
-        event->data.scroll = {.y = -(f32)wheel_delta};
-      }break;
-      
-      case WM_MOUSEHWHEEL:
-      {
-        s16 wheel_delta = HIWORD(wParam);
-        OS_Window_Event *event = win32_push_event(OS_EventType_MouseScrolled);
-        event->data.scroll = {.x = (f32)wheel_delta};
-      }break;
+    case WM_MOUSEWHEEL: {
+      s16              wheel_delta = HIWORD(wParam);
+      OS_Window_Event *event       = win32_push_event(OS_EventType_MouseScrolled);
+      event->data.scroll           = {.y = -(f32)wheel_delta};
+    } break;
+
+    case WM_MOUSEHWHEEL: {
+      s16              wheel_delta = HIWORD(wParam);
+      OS_Window_Event *event       = win32_push_event(OS_EventType_MouseScrolled);
+      event->data.scroll           = {.x = (f32)wheel_delta};
+    } break;
 
     case WM_SYSKEYDOWN:
     case WM_SYSKEYUP:   {

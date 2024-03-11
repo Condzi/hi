@@ -27,6 +27,7 @@
     [ ] Render graph visualsation
     [ ] Menu with Entity information...?
     [ ] Debug console (do we need commands if we have debug ui?)
+    [ ] Memory usage
 
 ## Entities & Systems
 
@@ -116,7 +117,7 @@
       [ ] write minidump
       [ ] write log and error context to the crash info
     [ ] OS Information, 
-      [ ] Memory (RAM)
+      [X] Memory (RAM)
       [ ] CPU family, cache, frequency
       [ ] SIMD detection
 
@@ -179,21 +180,6 @@
     We will probably use it later. For now, just take ready made fonts.
 
 ## Logging
-
-- logging fuctions:
-  Warn_Game(fmt, ...)
-  Warn_Eng (fmt, ...)
-
-- storage for logs
-  - arena -- for final formatted output (fmt+args)
-  - block allocator -- for metadata (ptr to final formatted output, severity, timestamp, module)
-    - just allocate in bigger blocks, not 1 block per log!
-- easy way of accessing the log buffer (to flush or show in debug console)
-- multiple catregories (engine/gameplay) and severities (err,wrn,inf,dbg)
-- timestamps
-
-12.034|WRN|ENG| Bla bla bla
-13.531|INF|GAM| ABCDEF!
 
 ## Localization
 

@@ -40,12 +40,12 @@ StaticAssert(Log_Header {.timestamp = -1}.timestamp > (60 * 60 * 24) * 100);
 #pragma clang diagnostic pop
 #endif
 
-global read_only u64 LOG_CAPACITY = 4096;
+global read_only u64 LOG_CAPACITY = KB(4);
 
 // We want to store messages values separately from headers in order to avoid fragmentation
 // of memory by strings. The overall structure looks like this:
 //
-//  [headers][    messages array    ][         messages values                ]
+//  [headers][    messages array    ][                messages values                ]
 struct Log {
   Arena *arena;
   u64    rewind_pos;

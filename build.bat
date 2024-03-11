@@ -5,29 +5,11 @@ setlocal
 call cls
 cd /D "%~dp0"
 
-:: --- Usage Notes (2024/02/14) ------------------------------------------------
-::
-:: This is a central build script for the game. It takes a list
-:: of simple alphanumeric-only arguments which control (a) what is built, (b) extra 
-:: high-level build options. By default, if no options are passed, then the main 
-:: "game" is built.
-::
-:: Below is a non-exhaustive list of possible ways to use the script:
-:: `build game`
-:: `build game release`
-:: `build game asan`
-::
-:: For a full list of possible build targets and their build command lines,
-:: search for @build_targets in this file.
-::
-:: Below is a list of all possible non-target command line options:
-::
-:: - `asan`: enable address sanitizer
-:: - `ubsan`: enable undefined behavior sanitizer
-:: - `msvc`: compile with MSVC (needs x64 native tools cmd prompt)
-:: - `clang`: compile with clang++
-
 :: --- Unpack Arguments -------------------------------------------------------
+if "%1"==""       goto show_help
+if "%1"=="-h"     goto show_help
+if "%1"=="--help" goto show_help
+
 for %%a in (%*) do set "%%a=1"
 
 if "%clang%"=="1"   echo [compiling with clang++]
@@ -35,10 +17,9 @@ if "%msvc%"=="1"    echo [compiling with cl]
 if "%debug%"=="1"   set release=0 && echo [debug mode]
 if "%release%"=="1" set debug=0   && echo [release mode]
 
-:: --- Unpack Command Line Build Arguments ------------------------------------
+:: --- Configure Sanitizers  --------------------------------------------------
 if "%asan%"=="1"    echo [asan enabled]
 if "%ubsan%"=="1"   echo [ubsan enabled]
-
 
 set msvc_sanitizer=
 set clang_sanitizer=
@@ -75,14 +56,14 @@ set msvc_disabled_warnings= /wd4505 /wd5045 /wd4577 /wd4820 /wd4201 /wd5246 /wd4
 set msvc_misc=              /GR- /Wall /WX /external:anglebrackets /external:W0 /GS /sdl /utf-8
 set msvc_all=               %msvc_sanitizer% %msvc_defines% %msvc_disabled_warnings% %msvc_misc%
 
-:: --- Compile/Link Line Definitions ------------------------------------------
+:: --- MSVC Compile/Link Line Definitions -------------------------------------
 set cl_common=        /I..\code\ /I..\code\3rdparty\ /nologo /FC /Z7 /std:c++20
 set cl_debug=         call cl /Od %cl_common% %mscv_all%
 set cl_release=       call cl /O2 /DNDEBUG %cl_common% %mscv_all%
 set cl_link=          /link /MANIFEST:EMBED /INCREMENTAL:NO
 set cl_out=           /out:
 
-:: --- clang++  ---------------------------------------------------------------
+:: --- clang++ Compile/Link Line Definitions -------------------------------------
 set clang_disabled_warnings= -Wno-format -Wno-pragma-once-outside-header -Wno-gcc-compat -Wno-missing-field-initializers -Wno-missing-braces -Wno-unused-function
 
 set clang_defines=    -DWIN32 -D_WINDOWS -D_HAS_EXCEPTIONS=0 -D_CRT_SECURE_NO_WARNING
@@ -95,9 +76,8 @@ set clang_link=       -fuse-ld=lld-link -Wl,/MANIFEST:EMBED,/INCREMENTAL:NO
 
 :: This is bullshit workaround for broken UBSAN on windows.
 if "%ubsan%"=="1"      set clang_link=%clang_link%,"C:\Program Files\LLVM\lib\clang\18\lib\windows\clang_rt.ubsan_standalone-x86_64.lib","C:\Program Files\LLVM\lib\clang\18\lib\windows\clang_rt.ubsan_standalone_cxx-x86_64.lib"
-:: --- Choose Compile/Link Lines ----------------------------------------------
-set compile_commands=
 
+:: --- Choose Compile/Link Lines ----------------------------------------------
 if "%msvc%"=="1"      set compile_debug=   %cl_debug%
 if "%msvc%"=="1"      set compile_release= %cl_release%
 if "%msvc%"=="1"      set compile_link=    %cl_link%
@@ -107,11 +87,16 @@ if "%clang%"=="1"     set compile_debug=     %clang_debug%
 if "%clang%"=="1"     set compile_release=   %clang_release%
 if "%clang%"=="1"     set compile_link=      %clang_link%
 if "%clang%"=="1"     set out=               %clang_out%
+
+set compile_commands=
 if "%clang%"=="1"     set compile_commands=  -MJ ../compile_commands.json
 
 
 if "%debug%"=="1"     set compile=%compile_debug%
 if "%release%"=="1"   set compile=%compile_release%
+
+:: --- Get current Git commit id ----------------------------------------------
+for /f %%i in ('call git describe --always --dirty') do set compile=%compile% -DHI_GIT=\"%%i\"
 
 :: --- Prep Directories -------------------------------------------------------
 if not exist build mkdir build
@@ -188,3 +173,15 @@ set msvc_misc=
 if %ERRORLEVEL% neq 0 (
     exit /b 1
 )
+exit /b
+
+:show_help
+@echo off
+echo Usage: build.bat [-h^|--help] [clang^|msvc] [release^|debug] [asan^|ubsan]
+echo.
+echo Script used for building the game. Example usage:
+echo.
+echo      build.bat clang release
+echo      build.bat clang debug asan ubsan
+echo.
+
