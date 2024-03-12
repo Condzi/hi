@@ -157,6 +157,7 @@ main(int argc, char const *argv[]) {
     gfx_draw_sprite(bg);
     gfx_draw_sprite(sprite_1);
     gfx_draw_rect_color(rect_1, {.v = 0xFF'00'00'FF});
+    gfx_draw_rect_color_ui({.pos = {0, 0}, .sz = {500, 110}, .layer = l4}, {.v = 0x00'00'00'55});
     gfx_draw_rich_text({
         .pos       = {0, 0},
         .height_px = 12,

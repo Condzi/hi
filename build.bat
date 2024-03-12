@@ -64,7 +64,8 @@ set cl_link=          /link /MANIFEST:EMBED /INCREMENTAL:NO
 set cl_out=           /out:
 
 :: --- clang++ Compile/Link Line Definitions -------------------------------------
-set clang_disabled_warnings= -Wno-format -Wno-pragma-once-outside-header -Wno-gcc-compat -Wno-missing-field-initializers -Wno-missing-braces -Wno-unused-function
+set clang_disabled_warnings= -Wno-format -Wno-pragma-once-outside-header -Wno-gcc-compat ^
+                             -Wno-missing-field-initializers -Wno-missing-braces -Wno-unused-function
 
 set clang_defines=    -DWIN32 -D_WINDOWS -D_HAS_EXCEPTIONS=0 -D_CRT_SECURE_NO_WARNING
 set clang_misc=       -fno-exceptions -fno-rtti -ferror-limit=0 -Wall -Wextra -Werror
@@ -75,7 +76,9 @@ set clang_out=        -o
 set clang_link=       -fuse-ld=lld-link -Wl,/MANIFEST:EMBED,/INCREMENTAL:NO
 
 :: This is bullshit workaround for broken UBSAN on windows.
-if "%ubsan%"=="1"      set clang_link=%clang_link%,"C:\Program Files\LLVM\lib\clang\18\lib\windows\clang_rt.ubsan_standalone-x86_64.lib","C:\Program Files\LLVM\lib\clang\18\lib\windows\clang_rt.ubsan_standalone_cxx-x86_64.lib"
+if "%ubsan%"=="1"      set clang_link=%clang_link%, ^
+                      "C:\Program Files\LLVM\lib\clang\18\lib\windows\clang_rt.ubsan_standalone-x86_64.lib", ^
+                      "C:\Program Files\LLVM\lib\clang\18\lib\windows\clang_rt.ubsan_standalone_cxx-x86_64.lib"
 
 :: --- Choose Compile/Link Lines ----------------------------------------------
 if "%msvc%"=="1"      set compile_debug=   %cl_debug%
