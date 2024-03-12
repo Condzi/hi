@@ -16,7 +16,30 @@
 #define read_only            constexpr
 #define must_use             [[nodiscard]]
 #define no_return            [[noreturn]]
-#define aligned_to_word_size alignas(8)
+#define word_aligned         alignas(8)
+
+#ifdef COMPILER_CLANG
+/* Function returns allocated memory, just like malloc. */
+#define like_malloc(arg_id) [[clang::malloc]] [[clang::alloc_size(arg_id)]]
+/* Mark fallthrough of a 'case' in switch as intended */
+#define fallthrough [[clang::fallthrough]]
+/* Function does not examine any values except its parameters and does not produce
+ * any effects except for its return value.
+ */
+#define pure [[clang::pure]]
+/* Function never returns a NULL.
+ */
+#define non_null_return [[clang::returns_nonnull]]
+/* Function is part of a hot path, i.e. executes frequently.
+ */
+#define hot_path [[clang::hot]]
+#else
+#define like_malloc(arg_id)
+#define fallthrough
+#define pure
+#define non_null_return
+#define hot_path
+#endif
 
 // Language layer -- memory operations
 //
