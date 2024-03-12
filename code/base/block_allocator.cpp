@@ -49,13 +49,13 @@ generate_block_size_map() {
 
 internal read_only Block_Size_Map BLOCK_SIZE_MAP = generate_block_size_map();
 
-struct aligned_to_word_size Memory_Block {
+struct word_aligned Memory_Block {
   mem32 prev;
   mem32 next;
   u8    sz;
 };
 
-struct aligned_to_word_size Block_Allocator {
+struct word_aligned Block_Allocator {
   u32 used_blocks;
   u32 free_blocks;
 
@@ -70,7 +70,7 @@ find_or_alloc_block(Block_Allocator *allocator, u8 sz);
 // Public interface
 //
 
-must_use global Block_Allocator *
+must_use Block_Allocator *
 make_block_allocator(Arena *arena, u64 sz) {
   Assert(sz > sizeof(Block_Allocator));
   Assert(sz < MAX_U32);
@@ -88,7 +88,7 @@ make_block_allocator(Arena *arena, u64 sz) {
   return result;
 }
 
-must_use global void *
+must_use void *
 alloc_block(Block_Allocator *allocator, u64 sz) {
   Assert(allocator && allocator->base_pos);
   Assert(sz > 0 && sz <= BLOCK_SIZE_MAX);
@@ -99,7 +99,7 @@ alloc_block(Block_Allocator *allocator, u64 sz) {
   return U64ToPtr(PtrToU64(block) + sizeof(Memory_Block));
 }
 
-global void
+void
 free_block(Block_Allocator *allocator, void *mem) {
   Assert(allocator && allocator->base_pos);
   Assert(mem);

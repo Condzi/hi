@@ -10,10 +10,10 @@ struct Window_Options {
   bool fullscreen;
 };
 
-global void
+void
 os_gfx_open_window(Window_Options opts);
 
-global void
+void
 os_gfx_close_window();
 
 enum Window_Mode {
@@ -23,19 +23,19 @@ enum Window_Mode {
   OS_WindowMode_FullScreen
 };
 
-must_use global Window_Mode
+must_use Window_Mode
 os_gfx_window_mode();
 
-global void
+void
 os_gfx_set_fullscreen(bool fullscreen);
 
-must_use global u32
+must_use u32
 os_gfx_surface_width();
 
-must_use global u32
+must_use u32
 os_gfx_surface_height();
 
-must_use global f32
+must_use f32
 os_gfx_refresh_rate();
 
 enum OS_Event_Type {
@@ -73,7 +73,7 @@ struct OS_Window_Event {
   } data;
 };
 
-must_use global OS_Window_Event *
+must_use OS_Window_Event *
 os_gfx_event_pump(Arena *arena);
 
 no_return void

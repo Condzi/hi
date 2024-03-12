@@ -25,7 +25,7 @@ gfx_renderer_request_node();
 // Public definitions
 //
 
-global void
+void
 gfx_renderer_init() {
   ErrorContext("SPRITE_BATCHES_COUNT=%u, RECT_BATCHES_COUNT=%u",
                GFX_RENDERER_SPRITE_BATCHES_COUNT,
@@ -51,7 +51,7 @@ gfx_renderer_init() {
   gRen.ui_objects_in_frame.cap   = 64;
 }
 
-global void
+void
 gfx_renderer_begin_frame() {
   u64 const   game_obj_cap   = gRen.game_objects_in_frame.cap;
   GFX_Object *game_obj       = arena_alloc_array<GFX_Object>(gContext.frame_arena, game_obj_cap);
@@ -70,7 +70,7 @@ gfx_renderer_begin_frame() {
   gRen.is_accepting_new_objects = true;
 }
 
-global void
+void
 gfx_renderer_end_frame() {
   gRen.is_accepting_new_objects = false;
   // Game objects
@@ -267,12 +267,12 @@ gfx_renderer_end_frame() {
   gRen.used_batches = 0;
 }
 
-global void
+void
 gfx_draw_text(GFX_Text_Opts const &opts) {
   gfx_draw_text_color(opts, {.v = 0xFF'FF'FF'FF});
 }
 
-global void
+void
 gfx_draw_text_color(GFX_Text_Opts const &opts, GFX_Color color) {
   fvec2 pen = opts.pos;
 
@@ -300,12 +300,12 @@ gfx_draw_text_color(GFX_Text_Opts const &opts, GFX_Color color) {
   }
 }
 
-global void
+void
 gfx_draw_rich_text(GFX_Rich_Text_Opts const &opts) {
   gfx_draw_rich_text_color(opts, {.v = 0xFF'FF'FF'FF});
 }
 
-global void
+void
 gfx_draw_rich_text_color(GFX_Rich_Text_Opts const &opts, GFX_Color color) {
   read_only local_persist u32       TAB_SIZE   = 4;
   read_only local_persist GFX_Color COLOR_ERR  = {.v = 0xD04848FF};
@@ -380,12 +380,12 @@ gfx_draw_rich_text_color(GFX_Rich_Text_Opts const &opts, GFX_Color color) {
   }
 }
 
-global void
+void
 gfx_draw_sprite(GFX_Sprite_Opts const &opts) {
   gfx_draw_sprite_color(opts, {.v = 0xFF'FF'FF'FF});
 }
 
-global void
+void
 gfx_draw_sprite_color(GFX_Sprite_Opts const &opts, GFX_Color color) {
   gfx_renderer_push_game_object({
       .pos   = opts.pos,
@@ -406,7 +406,7 @@ gfx_draw_sprite_color(GFX_Sprite_Opts const &opts, GFX_Color color) {
   });
 }
 
-global void
+void
 gfx_draw_rect_color(GFX_Rect_Opts const &opts, GFX_Color color) {
   gfx_renderer_push_game_object({
       .pos   = opts.pos,
@@ -424,7 +424,7 @@ gfx_draw_rect_color(GFX_Rect_Opts const &opts, GFX_Color color) {
   });
 }
 
-global void
+void
 gfx_draw_rect_color_ui(GFX_Rect_Opts const &opts, GFX_Color color) {
   gfx_renderer_push_ui_object({
       .pos   = opts.pos,
@@ -659,7 +659,7 @@ gfx_renderer_request_node() {
   return node;
 }
 
-global void
+void
 gfx_set_camera_for_batches(GFX_Camera cam) {
   gRen.batch_camera->op.input.camera = {
       .center   = cam.center,

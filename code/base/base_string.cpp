@@ -37,33 +37,33 @@ operator""_s8(char const *str, size_t len) {
   return str8((u8 *)str, len);
 }
 
-must_use global Str8
+must_use Str8
 str8(u8 *v, u64 sz) {
   return {.v = v, .sz = sz};
 }
 
-must_use global Str8
+must_use Str8
 str8_range(u8 *beg, u8 *end) {
   return {.v = beg, .sz = PtrToU64(end) - PtrToU64(beg)};
 }
 
-must_use global Str8
+must_use Str8
 str8_cstr(char const *cstr) {
   u64 const len = strlen(cstr);
   return {.v = (u8 *)cstr, .sz = len};
 }
 
-must_use global Str16
+must_use Str16
 str16(u16 *v, u64 sz) {
   return {.v = v, .sz = sz};
 }
 
-must_use global Str16
+must_use Str16
 str16_range(u16 *beg, u16 *end) {
   return {.v = beg, .sz = PtrToU64(end) - PtrToU64(beg)};
 }
 
-must_use global Str16
+must_use Str16
 str16_cstr(wchar_t const *cstr) {
   u64 const len = wcslen(cstr);
   return {.v = (u16 *)cstr, .sz = len};
@@ -72,7 +72,7 @@ str16_cstr(wchar_t const *cstr) {
 // String Operations
 //
 
-must_use global bool
+must_use bool
 str8_compare(Str8 a, Str8 b) {
   if (a.sz != b.sz) {
     return false;
@@ -85,7 +85,7 @@ str8_compare(Str8 a, Str8 b) {
   return MemoryCompare(a.v, b.v, a.sz) == 0;
 }
 
-must_use global bool
+must_use bool
 str8_has_prefix(Str8 str, Str8 prefix) {
   AssertAlways(prefix.sz > 0);
 
@@ -96,7 +96,7 @@ str8_has_prefix(Str8 str, Str8 prefix) {
   return MemoryCompare(str.v, prefix.v, prefix.sz) == 0;
 }
 
-must_use global Str8
+must_use Str8
 str8_concat(Arena *arena, Str8 a, Str8 b) {
   u8 *v = arena_alloc_array<u8>(arena, a.sz + b.sz);
   MemoryCopy(v, a.v, a.sz);
@@ -105,7 +105,7 @@ str8_concat(Arena *arena, Str8 a, Str8 b) {
 }
 
 template <typename... TArgs>
-must_use global Str8
+must_use Str8
 str8_sprintf(Arena *arena, char const *format, TArgs... args) {
   int const isz = hi_snprintf(0, 0, format, args...);
   if (isz <= 0) {
@@ -122,7 +122,7 @@ str8_sprintf(Arena *arena, char const *format, TArgs... args) {
 // Unicode String Conversions
 //
 
-must_use global Str8
+must_use Str8
 str8_from_16(Arena *arena, Str16 in) {
   u64            cap     = in.sz * 3;
   u8            *str     = arena_alloc_array<u8>(arena, cap + 1);
@@ -138,7 +138,7 @@ str8_from_16(Arena *arena, Str16 in) {
   return (str8(str, size));
 }
 
-must_use global Str16
+must_use Str16
 str16_from_8(Arena *arena, Str8 in) {
   u64            cap     = in.sz * 2;
   u16           *str     = arena_alloc_array<u16>(arena, cap + 1);
@@ -267,7 +267,7 @@ utf16_encode(u16 *str, u32 codepoint) {
 }
 
 template <typename T>
-must_use global Str8
+must_use Str8
 str8_dump_struct(T &s) {
 #if COMPILER_CLANG
   Str8       out      = {};

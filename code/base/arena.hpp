@@ -19,40 +19,40 @@ struct Arena {
   bool grow;
 };
 
-must_use global Arena *
+must_use Arena *
 make_arena(bool grow);
 
-global void
+void
 unmake_arena(Arena &arena);
 
-must_use global void *
+must_use void *
 arena_alloc(Arena *arena, u64 size, u64 alignment);
 
 template <typename T>
-must_use global T *
+must_use T *
 arena_alloc(Arena *arena) {
   return (T *)arena_alloc(arena, sizeof(T), alignof(T));
 }
 
 template <typename T>
-must_use global T *
+must_use T *
 arena_alloc_array(Arena *arena, u64 count) {
   return (T *)arena_alloc(arena, sizeof(T) * count, alignof(T));
 }
 
-global void
+void
 arena_rewind(Arena *arena, u64 where);
 
-global void
-arena_clear(Arena* arena);
+void
+arena_clear(Arena *arena);
 
 struct Scratch_Buffer {
   Arena *arena;
   u64    mark;
 };
 
-must_use global Scratch_Buffer
-scratch_begin(Arena* arena);
+must_use Scratch_Buffer
+scratch_begin(Arena *arena);
 
-global void 
-scratch_end(Scratch_Buffer* buff);
+void
+scratch_end(Scratch_Buffer *buff);

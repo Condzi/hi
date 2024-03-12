@@ -39,13 +39,13 @@ struct {
   GFX_RG_Node* batch_camera = 0;
 } global gRen;
 
-global void
+void
 gfx_renderer_init();
 
-global void
+void
 gfx_renderer_begin_frame();
 
-global void
+void
 gfx_renderer_end_frame();
 
 // Drawing frontend
@@ -60,11 +60,11 @@ struct GFX_Text_Opts {
   Str8      string;
 };
 
-global void
-gfx_draw_text(GFX_Text_Opts const& opts);
+void
+gfx_draw_text(GFX_Text_Opts const &opts);
 
-global void
-gfx_draw_text_color(GFX_Text_Opts const& opts, GFX_Color color);
+void
+gfx_draw_text_color(GFX_Text_Opts const &opts, GFX_Color color);
 
 struct GFX_Rich_Text_Opts {
   fvec2     pos;
@@ -74,10 +74,10 @@ struct GFX_Rich_Text_Opts {
   Str8      string;
 };
 
-global void
+void
 gfx_draw_rich_text(GFX_Rich_Text_Opts const &opts);
 
-global void
+void
 gfx_draw_rich_text_color(GFX_Rich_Text_Opts const &opts, GFX_Color color);
 
 struct GFX_Sprite_Opts {
@@ -90,10 +90,10 @@ struct GFX_Sprite_Opts {
   GFX_Sampler_Type sampler = {};
 };
 
-global void
+void
 gfx_draw_sprite(GFX_Sprite_Opts const &opts);
 
-global void
+void
 gfx_draw_sprite_color(GFX_Sprite_Opts const &opts, GFX_Color color);
 
 struct GFX_Rect_Opts {
@@ -103,10 +103,10 @@ struct GFX_Rect_Opts {
   GFX_Layer layer;
 };
 
-global void
+void
 gfx_draw_rect_color(GFX_Rect_Opts const &opts, GFX_Color color);
 
-global void
+void
 gfx_draw_rect_color_ui(GFX_Rect_Opts const &opts, GFX_Color color);
 
 struct GFX_Camera {
@@ -115,5 +115,5 @@ struct GFX_Camera {
   f32 zoom;
 };
 
-global void
+void
 gfx_set_camera_for_batches(GFX_Camera cam);

@@ -6,7 +6,7 @@
 // #define STBI_ASSERT(x) ErrorIf(!(x), "Error in STBI")
 #include <stb/stb_image.h>
 
-global void
+void
 gfx_resize_image_with_framebuffer(GFX_Image *img) {
   D3d_Image_Node *new_node = arena_alloc<D3d_Image_Node>(gfx_arena);
   new_node->img            = img;
@@ -179,7 +179,7 @@ internal D3D11_INPUT_ELEMENT_DESC const INPUT_ELEMENT_LAYOUT_SPRITE[] = {
 };
 
 // pass initial settings
-global void
+void
 gfx_init(GFX_Opts const &opts) {
   ErrorContext("%ux%u px, vsync=%s", opts.vp_width, opts.vp_height, opts.vsync ? "on" : "off");
 
@@ -589,17 +589,17 @@ gfx_init(GFX_Opts const &opts) {
   }
 }
 
-must_use global bool
+must_use bool
 gfx_is_vsync_enabled() {
   return gD3d.vsync;
 }
 
-global void
+void
 gfx_set_vsync(bool v) {
   gD3d.vsync = v;
 }
 
-global void
+void
 gfx_resize(u32 new_width, u32 new_height) {
   ErrorContext("new_width=%u, new_height=%u", new_width, new_height);
 
@@ -668,7 +668,7 @@ gfx_resize(u32 new_width, u32 new_height) {
   gD3d.dxgi_swapchain->Present(1, 0);
 }
 
-global void
+void
 gfx_swap_buffers(GFX_Image final_image) {
   HRESULT hr = 0;
 
@@ -703,12 +703,12 @@ gfx_swap_buffers(GFX_Image final_image) {
   }
 }
 
-must_use global GFX_Image
+must_use GFX_Image
 gfx_make_empty_image() {
   return {};
 }
 
-must_use global GFX_Image
+must_use GFX_Image
 gfx_make_image(u8 *data, u32 width, u32 height) {
   ErrorContext("data=%s, width=%d, height=%d", data ? "yes" : "nope", (int)width, (int)height);
 
@@ -739,13 +739,13 @@ gfx_make_image(u8 *data, u32 width, u32 height) {
   return img;
 }
 
-global void
+void
 gfx_release_image(GFX_Image img) {
   ID3D11Texture2D *tex = (ID3D11Texture2D *)U64ToPtr(img.v[0]);
   tex->Release();
 }
 
-must_use global fvec2
+must_use fvec2
 gfx_image_size(GFX_Image img) {
   ID3D11Texture2D     *tex = (ID3D11Texture2D *)U64ToPtr(img.v[0]);
   D3D11_TEXTURE2D_DESC desc;
@@ -753,7 +753,7 @@ gfx_image_size(GFX_Image img) {
   return {.width = (f32)desc.Width, .height = (f32)desc.Height};
 }
 
-must_use global GFX_Batch *
+must_use GFX_Batch *
 gfx_make_batch(GFX_Material_Type material) {
   ErrorContext("material=%d", (int)material);
 
@@ -791,7 +791,7 @@ gfx_make_batch(GFX_Material_Type material) {
   return batch;
 }
 
-global void
+void
 gfx_batch_push(GFX_Batch *batch, GFX_Object const &object) {
   if (!batch) {
     return;
@@ -808,7 +808,7 @@ gfx_batch_push(GFX_Batch *batch, GFX_Object const &object) {
   batch->objects.sz++;
 }
 
-global void
+void
 gfx_batch_draw(GFX_Batch *batch, GFX_Image target) {
   Assert(batch);
   Assert(target.v[0]);
@@ -1052,7 +1052,7 @@ gfx_rg_execute_operations(GFX_RG_Operation *operations, u32 count) {
   return graph_result;
 }
 
-global void
+void
 gfx_combine_images(GFX_Image a, GFX_Image b, GFX_Image target) {
   ErrorContext("Combining stuff...");
   ErrorIf(!a.v[0], "Image A not set!");

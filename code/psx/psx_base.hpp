@@ -116,26 +116,26 @@ Arena *psx_arena;
 // Arena allocator, maybe space for some kind of performance counters...?
 // Later -- multithreading or some job system setup.
 //
-global void
+void
 psx_init();
 
-must_use global PSX_World_ID
+must_use PSX_World_ID
 psx_make_world(u64 num_objects);
 
-global void
+void
 psx_world_simulate(PSX_World_ID w, f32 dt);
 
-must_use global PSX_Body_ID
+must_use PSX_Body_ID
 psx_world_add(PSX_World_ID world, PSX_Body_Opts const &opts);
 
-global void
+void
 psx_world_remove(PSX_World_ID world, PSX_Body_ID id);
 
-global void
+void
 psx_body_add_force(PSX_World_ID world, PSX_Body_ID id, fvec2 force);
 
-must_use global fvec2
+must_use fvec2
 psx_body_get_position(PSX_World_ID world, PSX_Body_ID body);
 
-global void
+void
 psx_body_add_box_shape(PSX_World_ID world, PSX_Body_ID body, fvec2 pos, fvec2 sz);

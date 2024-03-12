@@ -1,7 +1,7 @@
 #pragma once
 #include "all_inc.hpp"
 
-must_use global Arena *
+must_use Arena *
 make_arena(bool grow) {
   u64 mem = PtrToU64(os_alloc(ARENA_RESERVE_SIZE, 0));
 
@@ -19,7 +19,7 @@ make_arena(bool grow) {
   return arena;
 }
 
-global void
+void
 unmake_arena(Arena &arena) {
   AssertAlways(arena.base_pos);
 
@@ -29,7 +29,7 @@ unmake_arena(Arena &arena) {
   AsanPoisonMemoryRegion(U64ToPtr(arena.base_pos), arena.reserved);
 }
 
-must_use global void *
+must_use void *
 arena_alloc(Arena *arena, u64 size, u64 alignment) {
   AssertAlways(arena);
   AssertAlways(arena->base_pos);
@@ -78,7 +78,7 @@ arena_alloc(Arena *arena, u64 size, u64 alignment) {
   return res;
 }
 
-global void
+void
 arena_rewind(Arena *arena, u64 where) {
   Assert(!arena->next);
   Assert(where <= arena->curr_pos);
@@ -104,12 +104,12 @@ arena_rewind(Arena *arena, u64 where) {
   arena->curr_pos = where;
 }
 
-global void
-arena_clear(Arena* arena) {
+void
+arena_clear(Arena *arena) {
   arena_rewind(arena, sizeof(Arena));
 }
 
-must_use global Scratch_Buffer
+must_use Scratch_Buffer
 scratch_begin(Arena *arena) {
   Assert(!arena->grow);
   return {
@@ -118,7 +118,7 @@ scratch_begin(Arena *arena) {
   };
 }
 
-global void
+void
 scratch_end(Scratch_Buffer *buff) {
   arena_rewind(buff->arena, buff->mark);
 }

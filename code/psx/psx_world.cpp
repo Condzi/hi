@@ -22,12 +22,12 @@ psx_body_from_id(PSX_World &w, PSX_Body_ID id) {
   return body;
 }
 
-global void
+void
 psx_init() {
   psx_arena = make_arena(true);
 }
 
-must_use global PSX_World_ID
+must_use PSX_World_ID
 psx_make_world(u64 num_objects) {
   ErrorContext("num_objects=%zu", num_objects);
   ErrorIf(num_objects < 8, "Why so little objects?");
@@ -53,7 +53,7 @@ psx_make_world(u64 num_objects) {
   return psx_world->id;
 }
 
-must_use global PSX_Body_ID
+must_use PSX_Body_ID
 psx_world_add(PSX_World_ID world, PSX_Body_Opts const &opts) {
   ErrorContext("pos=(%g,%g), center_of_mass=(%g, %g), mass=%g, rot=%g, linear_damping=%g",
                opts.pos.x,
@@ -97,7 +97,7 @@ psx_world_add(PSX_World_ID world, PSX_Body_Opts const &opts) {
   return id;
 }
 
-global void
+void
 psx_world_remove(PSX_World_ID world, PSX_Body_ID id) {
   ErrorContext("idx=%u, world=%u, revision=%u", id.idx, id.world, id.revision);
   ErrorIf(PSX_IS_NULL(id), "Body ID is NULL!");
@@ -119,7 +119,7 @@ psx_world_remove(PSX_World_ID world, PSX_Body_ID id) {
   body.id.revision++;
 }
 
-global void
+void
 psx_body_add_force(PSX_World_ID world, PSX_Body_ID id, fvec2 force) {
   ErrorContext("idx=%u, world=%u, revision=%u", id.idx, id.world, id.revision);
   PSX_World &w    = psx_world_from_id(world);
@@ -130,7 +130,7 @@ psx_body_add_force(PSX_World_ID world, PSX_Body_ID id, fvec2 force) {
   body.force += force;
 }
 
-global void
+void
 psx_body_add_box_shape(PSX_World_ID world, PSX_Body_ID body, fvec2 pos, fvec2 sz) {
   ErrorContext("idx=%u, world=%u, revision=%u, pos=(%g,%g), sz=(%g,%g)",
                body.idx,
@@ -169,7 +169,7 @@ psx_body_add_box_shape(PSX_World_ID world, PSX_Body_ID body, fvec2 pos, fvec2 sz
   b.shapes    = id;
 }
 
-must_use global fvec2
+must_use fvec2
 psx_body_get_position(PSX_World_ID world, PSX_Body_ID body) {
   ErrorContext("idx=%u, world=%u, revision=%u", body.idx, body.world, body.revision);
   PSX_World &w = psx_world_from_id(world);

@@ -151,5 +151,5 @@ enum Game_Input {
   GameInput__count,
 };
 
-must_use global Str8
+must_use Str8
 game_input_to_str8(Game_Input v);

@@ -14,8 +14,8 @@ struct GFX_Glyph {
   f32          advance_x; // How far you need to advance the pen to print next char.
 };
 
-must_use global GFX_Font
+must_use GFX_Font
 gfx_make_font(GFX_Image image, u16 char_width, u16 char_height);
 
-must_use global GFX_Glyph
+must_use GFX_Glyph
 gfx_get_glyph(GFX_Font *font, u8 ch, u16 height_px);

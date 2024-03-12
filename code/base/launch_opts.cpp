@@ -3,7 +3,7 @@
 
 internal Launch_Opt *gOptions;
 
-global void
+void
 parse_launch_opts(Str8 *opts, u64 count) {
   // Launch options have following syntax:
   //
@@ -35,7 +35,7 @@ parse_launch_opts(Str8 *opts, u64 count) {
   }
 }
 
-must_use global bool
+must_use bool
 has_launch_opt(Str8 name) {
   Launch_Opt *it = gOptions;
   while (it) {
@@ -47,7 +47,7 @@ has_launch_opt(Str8 name) {
   return false;
 }
 
-must_use global Str8
+must_use Str8
 get_launch_opt(Str8 name) {
   Launch_Opt *it = gOptions;
   while (it) {
@@ -60,7 +60,7 @@ get_launch_opt(Str8 name) {
   return "none"_s8;
 }
 
-global void
+void
 push_launch_opt(Str8 name, Str8 value) {
   Launch_Opt *opt = arena_alloc<Launch_Opt>(gContext.misc_arena);
   opt->name       = name;

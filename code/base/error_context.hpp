@@ -18,13 +18,13 @@ struct Error_Context {
   Error_Context_Node *last;
 };
 
-must_use global Error_Context *
+must_use Error_Context *
 error_context_init(Arena *arena);
 
-global void
+void
 error_context_push(Error_Context *context, Str8 file, Str8 func, Str8 desc);
 
-global void
+void
 error_context_pop(Error_Context *context);
 
 #define ErrorContext(fmt, ...)                                                                     \

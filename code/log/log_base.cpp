@@ -1,7 +1,7 @@
 #pragma once
 #include "all_inc.hpp"
 
-must_use global Log *
+must_use Log *
 make_log(Arena *arena) {
   Assert(arena);
   Log *log   = (Log *)arena_alloc(arena, sizeof(Log), 8);
@@ -10,7 +10,7 @@ make_log(Arena *arena) {
   return log;
 }
 
-global void
+void
 log_clear(Log *log) {
   Assert(log);
   arena_rewind(log->arena, log->rewind_pos);

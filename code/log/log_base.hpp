@@ -51,20 +51,20 @@ struct Log {
   u64    rewind_pos;
 
   u64                             curr;
-  aligned_to_word_size Log_Header headers[LOG_CAPACITY];
-  aligned_to_word_size Str8       messages[LOG_CAPACITY];
+  word_aligned Log_Header         headers[LOG_CAPACITY];
+  word_aligned Str8               messages[LOG_CAPACITY];
 };
 
-must_use global Log *
+must_use Log *
 make_log(Arena *arena);
 
-global void
+void
 log_clear(Log *log);
 
 must_use internal u32
 log_make_timestamp();
 
-must_use global f32
+must_use f32
 log_timestamp_to_seconds(u32 timestamp);
 
 template <typename... TArgs>

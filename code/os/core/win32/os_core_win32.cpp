@@ -10,7 +10,7 @@ global u64 w32_us_res = 0;
 // Public interface definition
 //
 
-global void
+void
 os_init(int argc, char const *argv[]) {
   // Microsecond counter resolution
   //
@@ -34,7 +34,7 @@ os_init(int argc, char const *argv[]) {
 // Memory Allocation
 //
 
-must_use global void *
+must_use void *
 os_alloc(u64 sz, u64 base_addr) {
   void *result = VirtualAlloc((PVOID)base_addr, sz, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 
@@ -42,7 +42,7 @@ os_alloc(u64 sz, u64 base_addr) {
   return result;
 }
 
-global void
+void
 os_free(void *ptr, u64 sz) {
   // Win32 requires passing 0 as size.
   //
@@ -54,7 +54,7 @@ os_free(void *ptr, u64 sz) {
 // Time
 //
 
-must_use global u64
+must_use u64
 os_now_us() {
   u64           res = 0;
   LARGE_INTEGER large_int_counter;
@@ -64,7 +64,7 @@ os_now_us() {
   return res;
 }
 
-must_use global u64
+must_use u64
 os_us_since_startup() {
   return os_now_us() - w32_startup_time;
 }
@@ -72,7 +72,7 @@ os_us_since_startup() {
 // System Information
 //
 
-must_use global u64
+must_use u64
 os_page_size() {
   SYSTEM_INFO info;
   GetSystemInfo(&info);

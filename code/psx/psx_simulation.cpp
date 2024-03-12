@@ -15,7 +15,7 @@ psx_get_simulation_participants(PSX_World &w) {
   return res;
 }
 
-global void
+void
 psx_world_simulate(PSX_World_ID w, f32 dt) {
   PSX_World &world = psx_world_from_id(w);
   // Remove entities first.

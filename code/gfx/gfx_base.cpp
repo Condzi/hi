@@ -4,7 +4,7 @@
 read_only internal u32 GFX_CHK_LIGHT = 0xFFC3C3C3;
 read_only internal u32 GFX_CHK_DARK  = 0xFF7F7F7F;
 
-must_use global GFX_Image
+must_use GFX_Image
 gfx_checkerboard_image(u32 square_size, u32 width_squares, u32 height_squares) {
   u32 const width_px  = width_squares * square_size;
   u32 const height_px = height_squares * square_size;

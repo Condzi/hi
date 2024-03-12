@@ -1,14 +1,14 @@
 #pragma once
 #include "all_inc.hpp"
 
-must_use global Error_Context *
+must_use Error_Context *
 error_context_init(Arena *arena) {
   Error_Context *res = arena_alloc<Error_Context>(arena);
   *res               = {.arena = arena};
   return res;
 }
 
-global void
+void
 error_context_push(Error_Context *context, Str8 file, Str8 func, Str8 desc) {
   Error_Context_Node *node = arena_alloc<Error_Context_Node>(context->arena);
   node->file               = file;
@@ -26,7 +26,7 @@ error_context_push(Error_Context *context, Str8 file, Str8 func, Str8 desc) {
   }
 }
 
-global void
+void
 error_context_pop(Error_Context *context) {
   if (context->first == context->last) {
     context->first = context->last = 0;

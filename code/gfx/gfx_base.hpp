@@ -35,16 +35,16 @@ struct GFX_Image {
   u64 v[1] = {};
 };
 
-must_use global GFX_Image
+must_use GFX_Image
 gfx_make_empty_image();
 
-must_use global GFX_Image
+must_use GFX_Image
 gfx_make_image(u8 *data, u32 width, u32 height);
 
-global void
+void
 gfx_release_image(GFX_Image img);
 
-must_use global fvec2
+must_use fvec2
 gfx_image_size(GFX_Image img);
 
 struct GFX_Buffer {
@@ -60,19 +60,19 @@ struct GFX_Opts {
   bool vsync;
 };
 
-global void
+void
 gfx_init(GFX_Opts const &opts);
 
-must_use global bool
+must_use bool
 gfx_is_vsync_enabled();
 
-global void
+void
 gfx_set_vsync(bool v);
 
-global void
+void
 gfx_resize(u32 new_width, u32 new_height);
 
-global void
+void
 gfx_swap_buffers(GFX_Image final_image);
 
 // Layering.
@@ -173,13 +173,13 @@ struct GFX_Batch_Node {
   GFX_Batch      *batch;
 };
 
-must_use global GFX_Batch *
+must_use GFX_Batch *
 gfx_make_batch(GFX_Material_Type material);
 
-global void
+void
 gfx_batch_push(GFX_Batch *batch, GFX_Object const &object);
 
-global void
+void
 gfx_batch_draw(GFX_Batch *batch, GFX_Image target);
 
 // Post processing types
@@ -199,14 +199,14 @@ struct GFX_Fx {
   f32              strength = 0;
 };
 
-global void
+void
 gfx_combine_images(GFX_Image a, GFX_Image b, GFX_Image target);
 
-must_use global GFX_Image
+must_use GFX_Image
 gfx_checkerboard_image(u32 square_size, u32 width_squares, u32 height_squares);
 
-global void
+void
 gfx_apply_post_fx(GFX_Fx fx, GFX_Image src, GFX_Image target);
 
-global void
+void
 gfx_resize_image_with_framebuffer(GFX_Image *img);

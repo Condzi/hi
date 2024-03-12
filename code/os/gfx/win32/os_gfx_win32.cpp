@@ -1,7 +1,7 @@
 #pragma once
 #include "all_inc.hpp"
 
-global void
+void
 os_gfx_init() {
   w32_h_instance = GetModuleHandleA(0);
   SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
@@ -31,7 +31,7 @@ os_gfx_init() {
   w32_window_placement.length = sizeof(w32_window_placement);
 }
 
-global void
+void
 os_gfx_open_window(Window_Options opts) {
   AssertAlways(opts.width > 0 && opts.width < 10'000);
   AssertAlways(opts.height > 0 && opts.height < 10'000);
@@ -62,17 +62,17 @@ os_gfx_open_window(Window_Options opts) {
   }
 }
 
-global void
+void
 os_gfx_close_window() {
   PostMessageW(w32_hwnd, WM_CLOSE, 0, 0);
 }
 
-must_use global Window_Mode
+must_use Window_Mode
 os_gfx_window_mode() {
   return w32_mode;
 }
 
-global void
+void
 os_gfx_set_fullscreen(bool fullscreen) {
   DWORD window_style          = (DWORD)GetWindowLong(w32_hwnd, GWL_STYLE);
   bool  is_fullscreen_already = (w32_mode == OS_WindowMode_FullScreen);
@@ -105,7 +105,7 @@ os_gfx_set_fullscreen(bool fullscreen) {
   }
 }
 
-must_use global u32
+must_use u32
 os_gfx_surface_width() {
   ::RECT rect = {};
   ::GetClientRect(w32_hwnd, &rect);
@@ -114,7 +114,7 @@ os_gfx_surface_width() {
   return h;
 }
 
-must_use global u32
+must_use u32
 os_gfx_surface_height() {
   ::RECT rect = {};
   ::GetClientRect(w32_hwnd, &rect);
@@ -123,12 +123,12 @@ os_gfx_surface_height() {
   return h;
 }
 
-must_use global f32
+must_use f32
 os_gfx_refresh_rate() {
   return w32_refresh_rate;
 }
 
-must_use global OS_Window_Event *
+must_use OS_Window_Event *
 os_gfx_event_pump(Arena *arena) {
   w32_event_arena = arena;
   w32_event_list  = 0;

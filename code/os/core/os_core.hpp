@@ -5,34 +5,34 @@
 // OS Layer initialization (implemented per-os)
 //
 
-global void
+void
 os_init(int argc, char const *argv[]);
 
 // Memory Allocation
 //
 
-must_use global void *
+must_use void *
 os_alloc(u64 sz, u64 base_addr);
 
-global void
+void
 os_free(void *ptr, u64 sz);
 
 // Time
 //
 
-must_use global u64
+must_use u64
 os_now_us();
 
-must_use global u64
+must_use u64
 os_us_since_startup();
 
-must_use global f32
+must_use f32
 os_seconds_since_startup();
 
 // System Information
 //
 
-must_use global u64
+must_use u64
 os_page_size();
 
 // Misc

@@ -1,13 +1,13 @@
 #pragma once
 #include "all_inc.hpp"
 
-must_use global GFX_Render_Graph *
+must_use GFX_Render_Graph *
 gfx_make_render_graph() {
   GFX_Render_Graph *rg = arena_alloc<GFX_Render_Graph>(gfx_arena);
   return rg;
 }
 
-must_use global GFX_RG_Node *
+must_use GFX_RG_Node *
 gfx_rg_make_node(GFX_Render_Graph *rg) {
   Assert(rg);
 
@@ -16,7 +16,7 @@ gfx_rg_make_node(GFX_Render_Graph *rg) {
   return node;
 }
 
-global void
+void
 gfx_rg_attach_node_to_parent(GFX_RG_Node *parent, GFX_RG_Node *child) {
   Assert(parent);
   Assert(child);
@@ -29,7 +29,7 @@ gfx_rg_attach_node_to_parent(GFX_RG_Node *parent, GFX_RG_Node *child) {
   child->parents_count++;
 }
 
-must_use global GFX_RG_Node *
+must_use GFX_RG_Node *
 gfx_rg_add_root(GFX_Render_Graph *rg) {
   Assert(rg);
   Assert(rg->roots_count != GFX_RG_MAX_ROOTS);
@@ -66,7 +66,7 @@ gfx_dsf(GFX_RG_Node *node, u8 visit_cookie, GFX_RG_Operation *op_arr, u32 &op_ar
   }
 }
 
-must_use global GFX_Image
+must_use GFX_Image
 gfx_rg_evaluate(GFX_Render_Graph *rg) {
   Assert(rg);
   ErrorContext("roots=%d, operations=%d (MAX), visit_counter=%d",
