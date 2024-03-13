@@ -65,7 +65,9 @@
 ## GFX
 
   [ ] Refactor plz
-    The code is full of repetitions and not robust. Also, fix poor resource handling, or actually lack of it.
+    - The code is full of repetitions and not robust. Also, fix poor resource handling, or actually lack of it.
+    - Perhaps render graph nodes can be dealt with similarly to how UI_Widget is being constructed -
+      instaed of doing tagged union maybe we could have a `Graph_Node_Flag` or something?
   [ ] Common shapes rendering, mostly for debugging support.
     [ ] Arrow
     [ ] Filled arrow
@@ -208,17 +210,12 @@
 
   I guess we should develop this simoultaneusly with Debug Tools layer (the debug console).
 
-    [ ] Window
-      [ ] Handle moving by mouse
-      [ ] Resizing
-        Have some minimal size, so we don't make it too small.
-    [ ] Text box (automatically wraps)
-    [ ] Panels
-    [ ] Lists
-    [ ] Button
-    [ ] Auto layout
-    [ ] Plots (for example frame time)
-    [ ] Event charts (or at least ability to make one), for example for flame graphs or input recordings
+  [ ] Widget with basic functionalities
+    [ ] Text
+    [ ] Background that scales to the text
+  [ ] Input handling
+  [ ] Checkbox Widget flags
+
 
 ### UI Implementation notes
 
