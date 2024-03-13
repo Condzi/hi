@@ -11,3 +11,4 @@
 #include "base_math.hpp"
 #include "bit_array.hpp"
 #include "block_allocator.hpp"
+#include "hash.hpp"

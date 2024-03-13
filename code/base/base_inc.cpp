@@ -10,3 +10,4 @@
 #include "bit_array.cpp"
 #include "block_allocator.cpp"
 #include "list.cpp"
+#include "hash.cpp"

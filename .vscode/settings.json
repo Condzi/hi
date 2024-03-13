@@ -31,7 +31,7 @@
   "clangd.arguments": [
     "--clang-tidy",
     "--background-index",
-    "--background-index-priority=high",
+    "--background-index-priority=normal",
     "-j=8",
     "--header-insertion=never"
   ],
