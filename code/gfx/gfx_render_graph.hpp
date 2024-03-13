@@ -1,6 +1,6 @@
 #pragma once
 
-read_only global u32 GFX_RG_MAX_RENDER_TARGETS_TO_CLEAR = 4;
+u32 read_only global GFX_RG_MAX_RENDER_TARGETS_TO_CLEAR = 4;
 
 enum GFX_RG_Op_Type {
   GFX_RG_OpType_None,
@@ -67,8 +67,8 @@ struct GFX_RG_Operation {
 // We have max 2 parents (combine_images depends on 2 images)
 // and max 4 children (this is arbitrary, but for now I guess we don't need more).
 //
-read_only global u64 GFX_RG_MAX_PARENTS  = 2;
-read_only global u64 GFX_RG_MAX_CHILDREN = 4;
+u64 read_only global GFX_RG_MAX_PARENTS  = 2;
+u64 read_only global GFX_RG_MAX_CHILDREN = 4;
 
 struct GFX_RG_Node {
   // When used as a single-link list, we use this. Otherwise, we use parents and
@@ -90,7 +90,7 @@ struct GFX_RG_Node {
   u8 visit_cookie = 0;
 };
 
-read_only global u64 GFX_RG_MAX_ROOTS = 2;
+u64 read_only global GFX_RG_MAX_ROOTS = 2;
 struct GFX_Render_Graph {
   GFX_RG_Node *roots[GFX_RG_MAX_ROOTS] = {};
   u32          roots_count             = 0;

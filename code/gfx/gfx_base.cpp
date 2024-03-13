@@ -1,8 +1,8 @@
 #pragma once
 #include "all_inc.hpp"
 
-read_only internal u32 GFX_CHK_LIGHT = 0xFFC3C3C3;
-read_only internal u32 GFX_CHK_DARK  = 0xFF7F7F7F;
+u32 read_only internal GFX_CHK_LIGHT = 0xFFC3C3C3;
+u32 read_only internal GFX_CHK_DARK  = 0xFF7F7F7F;
 
 must_use GFX_Image
 gfx_checkerboard_image(u32 square_size, u32 width_squares, u32 height_squares) {

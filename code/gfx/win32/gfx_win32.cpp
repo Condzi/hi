@@ -20,7 +20,7 @@ compile_shader(Str8       src,
                ID3DBlob **blob) {
   ErrorContext("entry_point=%S, profile=%S", entry_point, profile);
 
-  read_only local_persist UINT SHADER_FLAGS = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_DEBUG;
+  UINT read_only local_persist SHADER_FLAGS = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_DEBUG;
 
   ID3DBlob *err_blob = 0;
   HRESULT   hr       = 0;

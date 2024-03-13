@@ -2,11 +2,11 @@
 
 // Constants
 //
-read_only global f32 PSX_STEP_HZ = 60;
-read_only global f32 PSX_STEP    = 1 / PSX_STEP_HZ;
+f32 read_only global PSX_STEP_HZ = 60;
+f32 read_only global PSX_STEP    = 1 / PSX_STEP_HZ;
 
-read_only global f32 PSX_SCALE     = 100.f;
-read_only global f32 PSX_SCALE_INV = 1 / PSX_SCALE;
+f32 read_only global PSX_SCALE     = 100.f;
+f32 read_only global PSX_SCALE_INV = 1 / PSX_SCALE;
 
 // Common types
 //
@@ -15,7 +15,7 @@ struct PSX_World_ID {
   u16 idx;
   u16 is_set   : 1;
   u16 revision : 15;
-};
+ };
 
 struct PSX_Body_ID {
   u16 idx;

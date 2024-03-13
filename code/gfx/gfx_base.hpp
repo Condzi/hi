@@ -147,7 +147,7 @@ struct GFX_Object_Array {
 // Batching
 //
 
-read_only global u64 GFX_BATCH_MAX_INSTANCES = 64;
+u64 read_only global GFX_BATCH_MAX_INSTANCES = 64;
 
 // Batches are specialized per-material type. They have hard limit on how many
 // objects they can render, because we have to allocate some known amount of space

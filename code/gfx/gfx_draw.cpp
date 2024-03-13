@@ -307,10 +307,10 @@ gfx_draw_rich_text(GFX_Rich_Text_Opts const &opts) {
 
 void
 gfx_draw_rich_text_color(GFX_Rich_Text_Opts const &opts, GFX_Color color) {
-  read_only local_persist u32       TAB_SIZE   = 4;
-  read_only local_persist GFX_Color COLOR_ERR  = {.v = 0xD04848FF};
-  read_only local_persist GFX_Color COLOR_WRN  = {.v = 0xF3B95FFF};
-  read_only local_persist GFX_Color COLOR_DBG  = {.v = 0x6895D2FF};
+  u32 read_only local_persist       TAB_SIZE   = 4;
+  GFX_Color read_only local_persist COLOR_ERR  = {.v = 0xD04848FF};
+  GFX_Color read_only local_persist COLOR_WRN  = {.v = 0xF3B95FFF};
+  GFX_Color read_only local_persist COLOR_DBG  = {.v = 0x6895D2FF};
   GFX_Color const                   color_base = color;
 
   GFX_Object obj = {

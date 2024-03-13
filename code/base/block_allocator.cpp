@@ -7,7 +7,7 @@
 // Original code by Erin Catto, Box2c. I just removed dynamic allocation in favor of static
 // arena-like buffer.
 
-internal read_only u64 BLOCK_SIZES[] = {
+u64 internal read_only BLOCK_SIZES[] = {
     16,  // 0
     32,  // 1
     64,  // 2
@@ -24,8 +24,8 @@ internal read_only u64 BLOCK_SIZES[] = {
     640, // 13
 };
 
-internal read_only u64 BLOCK_SIZES_COUNT = ArrayCount(BLOCK_SIZES);
-internal read_only u64 BLOCK_SIZE_MAX    = BLOCK_SIZES[BLOCK_SIZES_COUNT - 1];
+u64 internal read_only BLOCK_SIZES_COUNT = ArrayCount(BLOCK_SIZES);
+u64 internal read_only BLOCK_SIZE_MAX    = BLOCK_SIZES[BLOCK_SIZES_COUNT - 1];
 
 struct Block_Size_Map {
   u8 values[BLOCK_SIZE_MAX + 1];
@@ -47,7 +47,7 @@ generate_block_size_map() {
   return map;
 }
 
-internal read_only Block_Size_Map BLOCK_SIZE_MAP = generate_block_size_map();
+Block_Size_Map internal read_only BLOCK_SIZE_MAP = generate_block_size_map();
 
 struct word_aligned Memory_Block {
   mem32 prev;

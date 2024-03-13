@@ -3,9 +3,9 @@
 // Constants
 //
 
-read_only internal u32 GFX_RENDERER_SPRITE_BATCHES_COUNT = 8;
-read_only internal u32 GFX_RENDERER_RECT_BATCHES_COUNT   = 2;
-read_only internal u32 GFX_RENDERER_BATCHES_TOTAL =
+u32 read_only internal GFX_RENDERER_SPRITE_BATCHES_COUNT = 8;
+u32 read_only internal GFX_RENDERER_RECT_BATCHES_COUNT   = 2;
+u32 read_only internal GFX_RENDERER_BATCHES_TOTAL =
     GFX_RENDERER_SPRITE_BATCHES_COUNT + GFX_RENDERER_RECT_BATCHES_COUNT;
 
 struct {
