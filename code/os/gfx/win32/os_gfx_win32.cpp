@@ -33,8 +33,8 @@ os_gfx_init() {
 
 void
 os_gfx_open_window(Window_Options opts) {
-  AssertAlways(opts.width > 0 && opts.width < 10'000);
-  AssertAlways(opts.height > 0 && opts.height < 10'000);
+  AssertAlways(opts.width > 200 && opts.width < 10'000);
+  AssertAlways(opts.height > 500 && opts.height < 10'000);
 
   Str16      title = str16_from_8(gContext.frame_arena, opts.title);
   UINT const style = WS_OVERLAPPEDWINDOW;
@@ -169,7 +169,7 @@ win32_window_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
         case SC_MINIMIZE: {
           w32_mode = OS_WindowMode_Minimized;
         } break;
-        case SC_MAXIMIZE: // fallthrough
+        case SC_MAXIMIZE: fallthrough;
         case SC_RESTORE: {
           w32_mode = OS_WindowMode_Open;
         } break;
@@ -202,7 +202,8 @@ win32_window_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     case WM_MBUTTONUP:
     case WM_RBUTTONUP: {
       release = true;
-    } // fallthrough;
+    }
+      fallthrough;
     case WM_LBUTTONDOWN:
     case WM_MBUTTONDOWN:
     case WM_RBUTTONDOWN: {
@@ -246,7 +247,8 @@ win32_window_proc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
       if (wParam != VK_MENU && (wParam < VK_F1 || VK_F24 < wParam || wParam == VK_F4)) {
         result = DefWindowProcW(hwnd, uMsg, wParam, lParam);
       }
-    } // fallthrough;
+    }
+      fallthrough;
     case WM_KEYDOWN:
     case WM_KEYUP:   {
       if (wParam == VK_ESCAPE) {

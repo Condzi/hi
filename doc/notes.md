@@ -202,7 +202,11 @@
       [X] color (maybe escape codes?)
       [ ] Figure out styles bold, italic, underline etc?
 
+    [ ] Functionality to precalculate text size without rendering it (useful for UI)
+
 ## UI
+
+  I guess we should develop this simoultaneusly with Debug Tools layer (the debug console).
 
     [ ] Window
       [ ] Handle moving by mouse
@@ -215,6 +219,22 @@
     [ ] Auto layout
     [ ] Plots (for example frame time)
     [ ] Event charts (or at least ability to make one), for example for flame graphs or input recordings
+
+### UI Implementation notes
+
+- UI pass starts with translating input events to its relevant representation.
+- Event pass is one frame late compared to rendering because of auto layout.
+- **There is no button.** Everything is composed from small blocks, set as bitfields in the widget.
+- Widget is rendered only if the cached value of frame (`last_frame_touched_idx`) is equal to
+  current frame idx.
+- UI elements are cached in a hash map with keys that are strings. Like in Dear IMGUI, value after
+  `##` is not displayed but also hashed. This allows for widgets in loops.
+- Unlike Dear IMGUI, `UI_Button` returns not a `bool` but a state struct with fields (not limited
+  to): `pressed`, `held`, `released`, `hovered`.
+- We `push`/`pop` parents to the stack to allow embedding.
+- Do not worry about memory footprint. Even large UIs are not actually large since they are not
+  a hot path.
+- Widgets are in a tree. Rendered from back to top, input from top to back layer.
 
 ## Misc
 

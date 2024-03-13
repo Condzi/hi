@@ -50,9 +50,9 @@ struct Log {
   Arena *arena;
   u64    rewind_pos;
 
-  u64                             curr;
-  word_aligned Log_Header         headers[LOG_CAPACITY];
-  word_aligned Str8               messages[LOG_CAPACITY];
+  u64                     curr;
+  word_aligned Log_Header headers[LOG_CAPACITY];
+  word_aligned Str8       messages[LOG_CAPACITY];
 };
 
 must_use Log *
