@@ -7,20 +7,31 @@ cd /D "%~dp0"
 
 :: --- Unpack Arguments -------------------------------------------------------
 if "%1"==""       goto show_help
+if "%1"=="?"      goto show_help
+if "%1"=="help"   goto show_help
 if "%1"=="-h"     goto show_help
 if "%1"=="--help" goto show_help
 
 for %%a in (%*) do set "%%a=1"
 
-if "%clang%"=="1"   echo [compiling with clang++]
-if "%msvc%"=="1"    echo [compiling with cl]
-if "%debug%"=="1"   set release=0 && echo [debug mode]
-if "%release%"=="1" set debug=0   && echo [release mode]
+if "%clang%"=="1"   echo [clang++]
+if "%msvc%"=="1"    echo [cl]
+if "%debug%"=="1"   set release=0 && echo [debug]
+if "%release%"=="1" set debug=0   && echo [release]
+
+if "%asan%"=="1" (   
+  echo [asan]
+) else ( 
+  echo [asan  -- disabled]
+)
+
+if "%ubsan%"=="1" (   
+  echo [ubsan]
+) else ( 
+  echo [ubsan -- disabled]
+)
 
 :: --- Configure Sanitizers  --------------------------------------------------
-if "%asan%"=="1"    echo [asan enabled]
-if "%ubsan%"=="1"   echo [ubsan enabled]
-
 set msvc_sanitizer=
 set clang_sanitizer=
 if "%asan%"=="1"      set msvc_sanitizer= -fsanitize=address 
@@ -76,8 +87,8 @@ set clang_out=        -o
 set clang_link=       -fuse-ld=lld-link -Wl,/MANIFEST:EMBED,/INCREMENTAL:NO
 
 :: This is bullshit workaround for broken UBSAN on windows.
-if "%ubsan%"=="1"      set clang_link=%clang_link%, ^
-                      "C:\Program Files\LLVM\lib\clang\18\lib\windows\clang_rt.ubsan_standalone-x86_64.lib", ^
+if "%ubsan%"=="1"      set clang_link=%clang_link% ^
+                      "C:\Program Files\LLVM\lib\clang\18\lib\windows\clang_rt.ubsan_standalone-x86_64.lib" ^
                       "C:\Program Files\LLVM\lib\clang\18\lib\windows\clang_rt.ubsan_standalone_cxx-x86_64.lib"
 
 :: --- Choose Compile/Link Lines ----------------------------------------------
@@ -126,7 +137,7 @@ echo [compiled]
 
 if not "%clang%"=="1" (
     echo [compile_commands.json not available]
-    goto end
+    goto :end
 )
 
 set "file=compile_commands.json"
@@ -135,7 +146,7 @@ set "tempFile=temp_%RANDOM%.txt"
 :: Check if the compile_commands.json file exists
 if not exist "%file%" (
     echo [%file% not found]
-    goto end
+    goto :end
 )
 
 :: Create a new temp file with '[' at the beginning
@@ -179,12 +190,13 @@ if %ERRORLEVEL% neq 0 (
 exit /b
 
 :show_help
-@echo off
-echo Usage: build.bat [-h^|--help] [clang^|msvc] [release^|debug] [asan^|ubsan]
+echo Usage: build [-h^|--help] [clang^|msvc] [release^|debug] [asan^|ubsan]
 echo.
-echo Script used for building the game. Example usage:
+echo Script used for building the game. When using clang, it generates `compile_commands.json`.
+echo It is assuming that `clang++` (or `cl` for MSVC) is present in the program PATH.
+echo Example usage:
 echo.
-echo      build.bat clang release
-echo      build.bat clang debug asan ubsan
+echo      build clang release
+echo      build clang debug asan ubsan
 echo.
 
