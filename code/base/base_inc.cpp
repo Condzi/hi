@@ -12,3 +12,5 @@
 #include "list.cpp"
 #include "hash.cpp"
 #include "hash_table.cpp"
+#include "tree.cpp"
+

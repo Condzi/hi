@@ -13,3 +13,4 @@
 #include "block_allocator.hpp"
 #include "hash.hpp"
 #include "hash_table.hpp"
+#include "tree.hpp"
