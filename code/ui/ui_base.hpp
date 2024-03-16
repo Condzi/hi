@@ -1,20 +1,3 @@
-/**
-  1. (Any order)  Calculate standalone sizes.
-  2. (Pre-Order)  Calculate upward-depend sizes (Percent of parent)
-  3. (Post-Order) Calculate downward-dependent sizes (ChildrenSum),
-  4. (Pre-Order)  Solve size violations (using semantic size info). Ensure children do not extend
-                  past the boundaries of a given parent (unless it is scrollable) to the best of
-                  algorithm ability. In case of violation, take a proportion of *each* child
-                  widget's size (on the given axis) proportional to both the size of the violation,
-                  and `(1 - strictness)`.
-  5. (Pre-Order)  Calculate relative size of each widget and final on-screen coordinates.
-*/
-
-/*
-  I guess the idea is that we can have some pool of preallocated Widget nodes which we
-  can reuse, similarly to nodes in render graph.
-*/
-
 #pragma once
 
 enum Axis2 {
@@ -50,21 +33,21 @@ enum UI_Widget_Flag : u32 {
 };
 
 struct UI_Widget {
-  // Tree links
+  // Tree links. Reassigned every frame because cache is vollatile etc.
   //
   UI_Widget *next   = 0;
   UI_Widget *prev   = 0;
   UI_Widget *parent = 0;
 
-  // Key and generation info
+  // Key and generation info. Key is relevant to the cache.
   //
   UI_Key key;
   u64    last_frame_touched_idx = 0;
 
   // Per-frame info provided by Builders
   //
-  UI_Widget_Flag flags = {};
-  Str8           string;
+  UI_Widget_Flag flags  = {};
+  Str8           string = {};
   UI_Size        semantic_size[Axis2__count];
 
   // Computed every frame
@@ -78,25 +61,42 @@ struct UI_Widget {
   fvec2 sz_final;
 };
 
-void
-ui_init();
+struct UI_Context {
+  // Rebuilt every frame
+  UI_Widget *widgets;
+  // Lookup for widgets that lived in last frame
+  Hash_Table *widgets_hash_table;
+  // doubly-linked list of free widgets to use to avoid allocation
+  UI_Widget *free_widgets;
+  u64        widgets_cap;
 
-// @Todo: We only care about mouse clicks at the moment, so we just filter them out.
-//        Remember that we can have multiple mouse click events.
-//
+  // Pop just replaces it with its parent.
+  // Now, do all widgets override this? Only panel widgets?
+  UI_Widget *widget_stack;
+
+  u64 frame_id;
+} internal gUI;
+
+// Just hashes the string.
+must_use UI_Key
+ui_make_key(Str8 string);
+
 void
-ui_begin(OS_Window_Event *events);
+ui_init(Arena *arena, u64 widgets_cap);
+
+void
+ui_begin();
 
 struct UI_Widget_Opts {
   UI_Key         key;
-  UI_Widget_Flag flags = {};
-  Str8           string;
+  UI_Widget_Flag flags  = {};
+  Str8           string = {};
   UI_Size        semantic_size[Axis2__count];
 };
 
 must_use UI_Widget *
 ui_push_widget(UI_Widget_Opts const &opts);
 
-// Render to render graph.
+// Size the widgets. Render to render graph. Refresh hash table.
 void
 ui_end();

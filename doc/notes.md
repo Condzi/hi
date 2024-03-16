@@ -216,7 +216,6 @@
   [ ] Input handling
   [ ] Checkbox Widget flags
 
-
 ### UI Implementation notes
 
 - UI pass starts with translating input events to its relevant representation.
