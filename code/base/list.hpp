@@ -20,7 +20,11 @@ concept SLLNode = requires(T a) {
 
 template <DLLNode T>
 void
-DLL_insert_at_end(T *&root, T *&node);
+DLL_insert_at_front(T *&root, T *node);
+
+template <DLLNode T>
+void
+DLL_insert_at_end(T *&root, T *node);
 
 template <DLLNode T>
 void

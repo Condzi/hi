@@ -6,7 +6,16 @@
 
 template <DLLNode T>
 void
-DLL_insert_at_end(T *&root, T *&node) {
+DLL_insert_at_front(T *&root, T *node) {
+  Assert(node);
+  node->next = root;
+  root->prev = node;
+  root       = node;
+}
+
+template <DLLNode T>
+void
+DLL_insert_at_end(T *&root, T *node) {
   Assert(node);
 
   if (root) {

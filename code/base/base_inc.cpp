@@ -11,3 +11,4 @@
 #include "block_allocator.cpp"
 #include "list.cpp"
 #include "hash.cpp"
+#include "hash_table.cpp"

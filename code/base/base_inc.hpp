@@ -12,3 +12,4 @@
 #include "bit_array.hpp"
 #include "block_allocator.hpp"
 #include "hash.hpp"
+#include "hash_table.hpp"
