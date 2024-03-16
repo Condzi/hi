@@ -261,7 +261,7 @@ gfx_renderer_end_frame() {
     batch->batch->objects.sz = 0;
     GFX_Batch_Node *next     = batch->next;
     DLL_remove(gRen.used_batches, batch);
-    DLL_insert_at_end(gRen.free_batches, batch);
+    DLL_insert_at_front(gRen.free_batches, batch);
     batch = next;
   }
   gRen.used_batches = 0;
@@ -464,14 +464,14 @@ gfx_renderer_init_reuseable_resources() {
     GFX_Batch      *batch = gfx_make_batch(GFX_MaterialType_Sprite);
     GFX_Batch_Node *node  = arena_alloc<GFX_Batch_Node>(gfx_arena);
     node->batch           = batch;
-    DLL_insert_at_end(gRen.free_batches, node);
+    DLL_insert_at_front(gRen.free_batches, node);
   }
 
   for (u32 i = 0; i < GFX_RENDERER_RECT_BATCHES_COUNT; i++) {
     GFX_Batch      *batch = gfx_make_batch(GFX_MaterialType_Rect);
     GFX_Batch_Node *node  = arena_alloc<GFX_Batch_Node>(gfx_arena);
     node->batch           = batch;
-    DLL_insert_at_end(gRen.free_batches, node);
+    DLL_insert_at_front(gRen.free_batches, node);
   }
 }
 
@@ -628,7 +628,7 @@ gfx_renderer_request_batch(GFX_Material_Type type) {
     node->batch = gfx_make_batch(type);
   }
 
-  DLL_insert_at_end(gRen.used_batches, node);
+  DLL_insert_at_front(gRen.used_batches, node);
   return node->batch;
 }
 

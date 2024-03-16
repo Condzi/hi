@@ -60,7 +60,7 @@ arena_alloc(Arena *arena, u64 size, u64 alignment) {
   // Arena is full - add a new one and retry.
   //
   Arena *new_arena = make_arena(true);
-  DLL_insert_at_end(arena, new_arena);
+  DLL_insert_at_front(arena, new_arena);
 
   u64 new_pos = new_arena->curr_pos + ARENA_SAFETY_SIZE;
   new_pos     = AlignPow2(new_pos, alignment);
