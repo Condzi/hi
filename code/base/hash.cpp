@@ -12,7 +12,7 @@ hash_to_u32_alternative(u64 x) {
 
   u32 const low  = (u32)x;
   u32 const high = (u32)(x >> 32);
-  return (u32)(a * low + b * high + c);
+  return (u32)((a * low + b * high + c ) >> 32);
 }
 
 must_use u32
@@ -23,7 +23,7 @@ hash_to_u32(u64 x) {
 
   u32 const low  = (u32)x;
   u32 const high = (u32)(x >> 32);
-  u32 const res  = (u32)(a * low + b * high + c);
+  u32 const res  = (u32)((a * low + b * high + c) >> 32);
   return res;
 }
 
@@ -31,7 +31,7 @@ must_use u64
 hash_to_u64(u64 x) {
   u64 const res_a = hash_to_u32(x);
   u64 const res_b = hash_to_u32_alternative(x);
-  u64 const res   = (res_a >> 32) | (res_b & 0xFFFFFFFF00000000L);
+  u64 const res   = (res_a >> 32) | ((res_b << 32) & 0xFFFFFFFF00000000L);
   return res;
 }
 

@@ -2,8 +2,9 @@
 
 template <typename T>
 concept TreeNode = requires(T a) {
-  { a.next };
   { a.parent };
+  { a.first_child };
+  { a.next };
 };
 
 template <TreeNode T>
@@ -17,7 +18,7 @@ void Tree_pre_order(T* node, process_node_proc<T> f) {
 
   f(node);
   
-  T* child = node->next;
+  T* child = node->first_child;
   while (child) {
     Tree_pre_order(child, f);
     child = child->next;
@@ -30,7 +31,7 @@ void Tree_post_order(T* node, process_node_proc<T> f) {
     return;
   }
 
-  T* child = node->next;
+  T* child = node->first_child;
   while (child) {
     Tree_post_order(child, f);
     child = child->next;
