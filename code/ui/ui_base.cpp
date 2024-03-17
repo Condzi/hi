@@ -164,18 +164,18 @@ calculate_final_positions(UI_Widget *widget) {
   }
 
   fvec2 const parent_pos = widget->parent->pos_final;
-  fvec2 const rel_pos = widget->pos_rel;
-  fvec2 final_pos = {};
-  final_pos.x = parent_pos.x + rel_pos.x;
-  final_pos.y = parent_pos.y - rel_pos.y;
-  widget->pos_final = final_pos;
+  fvec2 const rel_pos    = widget->pos_rel;
+  fvec2       final_pos  = {};
+  final_pos.x            = parent_pos.x + rel_pos.x;
+  final_pos.y            = parent_pos.y - rel_pos.y;
+  widget->pos_final      = final_pos;
 }
 
 internal void
 render(UI_Widget *widget) {
-  u32 const flags = widget->flags;
-  fvec2 const pos = widget->pos_final;
-  fvec2 const sz = widget->sz_final;
+  u32 const   flags = widget->flags;
+  fvec2 const pos   = widget->pos_final;
+  fvec2 const sz    = widget->sz_final;
 
   if (flags & UI_WidgetFlag_DrawBackground) {
     gfx_draw_rect_color_ui({.pos = pos, .sz = sz}, {.v = 0x00'00'00'55});
@@ -221,11 +221,60 @@ ui_init(Arena *arena, u64 widgets_cap) {
 
 void
 ui_begin() {
+  ErrorContext("frame_id=%zu", gUI.frame_id);
+
   // Reset widget tree.
   //
   Tree_post_order(gUI.widgets, cleanup_pointers);
-  gUI.widgets = 0;
+  gUI.widgets      = 0;
+  gUI.widget_stack = 0;
   gUI.frame_id++;
+}
+
+must_use UI_Widget *
+ui_push_widget(UI_Widget_Opts const &opts) {
+  ErrorContext("frame_id=%zu", gUI.frame_id);
+  ErrorIf(!opts.key.hash, "Widget without key.");
+  if (opts.flags & UI_WidgetFlag_DrawText) {
+    ErrorIf(!opts.string.sz, "Widget wants to draw text, but no text given.");
+  }
+
+  UI_Widget *widget = (UI_Widget *)ht_find(gUI.widgets_hash_table, opts.key.hash);
+  if (!widget) {
+    ErrorIf(!gUI.free_widgets, "No free widgets available. Increase the cache size!");
+    widget                 = gUI.free_widgets;
+    gUI.free_widgets       = widget->next;
+    gUI.free_widgets->prev = 0;
+  }
+
+  *widget = {
+      .key                    = opts.key,
+      .last_frame_touched_idx = gUI.frame_id,
+      .flags                  = opts.flags,
+      .string                 = opts.string,
+      .semantic_size          = {opts.semantic_size[0], opts.semantic_size[1]},
+  };
+
+  if (gUI.widget_stack) {
+    widget->parent = gUI.widget_stack;
+    DLL_insert_at_end(gUI.widget_stack->first_child, widget);
+  } else {
+    // It's the first widget in this pass, so assume it's the root.
+    ui_push_to_stack(widget);
+  }
+  return widget;
+}
+
+void
+ui_push_to_stack(UI_Widget *widget) {
+  Assert(widget);
+  gUI.widget_stack = widget;
+}
+
+void
+ui_pop_stack() {
+  ErrorIf(!gUI.widget_stack, "Mismatched call to ui_pop_stack");
+  gUI.widget_stack = gUI.widget_stack->parent;
 }
 
 void

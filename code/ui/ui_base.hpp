@@ -75,7 +75,6 @@ struct UI_Context {
   u64        widgets_cap;
 
   // Pop just replaces it with its parent.
-  // Now, do all widgets override this? Only panel widgets?
   UI_Widget *widget_stack;
 
   u64 frame_id;
@@ -108,6 +107,11 @@ struct UI_Widget_Opts {
 
 must_use UI_Widget *
 ui_push_widget(UI_Widget_Opts const &opts);
+
+void
+ui_push_to_stack(UI_Widget *widget);
+void
+ui_pop_stack();
 
 // Size the widgets. Render to render graph. Refresh hash table.
 void
