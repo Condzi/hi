@@ -38,7 +38,7 @@ hash_to_u64(u64 x) {
 must_use u64
 hash_str8(Str8 string) {
   u64 read_only multiplier  = 0xff51afd7ed558ccdL;
-  u64           hash_result = 0;
+  u64           hash_result = multiplier;
 
   // For performance, we try to hash 8 bytes / characters at a time.
   //

@@ -31,7 +31,7 @@ ht_find(Hash_Table *ht, u64 hash) {
   Assert(ht);
   Assert(ht->free_entries_cap > 1 && ht->buckets);
 
-  u64 const idx = (hash % ht->free_entries_cap);
+  u64 const idx = (hash % ht->buckets_sz);
   HT_Entry *it  = ht->buckets[idx].root;
   while (it) {
     if (it->hash == hash) {
