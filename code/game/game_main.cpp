@@ -220,7 +220,7 @@ main(int argc, char const *argv[]) {
                                              .string        = "This is one text"_s8,
                                              .semantic_size = {
                                                  {
-                                                     .kind       = UI_SizeKind_PercentOfParent,
+                                                     .kind       = UI_SizeKind_TextContent,
                                                      .strictness = 0,
                                                  },
                                                  {
@@ -229,38 +229,37 @@ main(int argc, char const *argv[]) {
                                                  },
                                              }});
     Unused(txt_widget2);
-    /*
-UI_Widget *txt_widget3 =
-ui_push_widget({.key           = ui_make_key("debug_text3"_s8),
-.flags         = UI_WidgetFlag_DrawText | UI_WidgetFlag_HorizontalLayout,
-.string        = " | This is second text"_s8,
-.semantic_size = {
-{
-.kind       = UI_SizeKind_PercentOfParent,
-.strictness = 0,
-},
-{
-.kind       = UI_SizeKind_TextContent,
-.strictness = 1,
-},
-}});
-Unused(txt_widget3);
-    */
 
-    ui_end();
-    gfx_renderer_end_frame();
+    UI_Widget *txt_widget3 =
+        ui_push_widget({.key           = ui_make_key("debug_text3"_s8),
+                        .flags         = UI_WidgetFlag_DrawText | UI_WidgetFlag_HorizontalLayout,
+                        .string        = "| This is second text"_s8,
+                        .semantic_size = {
+                            {
+                                .kind       = UI_SizeKind_TextContent,
+                                .strictness = 0,
+                            },
+                            {
+                                .kind       = UI_SizeKind_TextContent,
+                                .strictness = 1,
+                            },
+                        }});
+    Unused(txt_widget3);
 
-    // State cleanup
-    //
+ui_end();
+gfx_renderer_end_frame();
 
-    arena_clear(gContext.frame_arena);
-    scratch_end(&error_context_scratch);
-    gContext.error_context->first = gContext.error_context->last = 0;
-    frame++;
-    f32 frame_end = os_seconds_since_startup();
-    dt            = frame_end - frame_begin;
-    frame_begin   = frame_end;
-    dt_min        = Min(dt, dt_min);
-    dt_max        = Max(dt, dt_max);
+// State cleanup
+//
+
+arena_clear(gContext.frame_arena);
+scratch_end(&error_context_scratch);
+gContext.error_context->first = gContext.error_context->last = 0;
+frame++;
+f32 frame_end = os_seconds_since_startup();
+dt            = frame_end - frame_begin;
+frame_begin   = frame_end;
+dt_min        = Min(dt, dt_min);
+dt_max        = Max(dt, dt_max);
   }
 }
