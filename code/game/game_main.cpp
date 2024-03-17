@@ -180,26 +180,34 @@ main(int argc, char const *argv[]) {
                                            }});
     Unused(bg_widget);
 
-    // gfx_draw_rect_color_ui({.pos = {0, 0}, .sz = {500, 110}, .layer = l4}, {.v = 0x00'00'00'55});
-    gfx_draw_rich_text({
-        .pos       = {0, 0},
-        .height_px = 12,
-        .font      = &font,
-        .layer     = l4,
-        .string    = str8_sprintf(gContext.frame_arena,
-                               "^wtime^=%.3fs\nf^dr^wa^eme^=%zu\n^wdt_min^=%0.3fms "
-                                  "^wdt_max^=%0.3fms ^wdt^=%0.3fms, fps=%zu\n^Memory reserved: "
-                                  "^d%_$$$zu^, Memory commited: ^d%_$$$zu^\n%S",
-                               os_seconds_since_startup(),
-                               frame,
-                               dt_min * 1000,
-                               dt_max * 1000,
-                               dt * 1000,
-                               u64(1.f / dt),
-                               os_get_memory_stats().reserved,
-                               os_get_memory_stats().commited,
-                               str8_dump_struct(mem_info)),
-    });
+    Str8 dbg_text = str8_sprintf(gContext.frame_arena,
+                                 "^wtime^=%.3fs\nf^dr^wa^eme^=%zu\n^wdt_min^=%0.3fms "
+                                 "^wdt_max^=%0.3fms ^wdt^=%0.3fms, fps=%zu\n^Memory reserved: "
+                                 "^d%_$$$zu^, Memory commited: ^d%_$$$zu^\n%S",
+                                 os_seconds_since_startup(),
+                                 frame,
+                                 dt_min * 1000,
+                                 dt_max * 1000,
+                                 dt * 1000,
+                                 u64(1.f / dt),
+                                 os_get_memory_stats().reserved,
+                                 os_get_memory_stats().commited,
+                                 str8_dump_struct(mem_info));
+
+    UI_Widget *txt_widget = ui_push_widget({.key           = ui_make_key("debug_text"_s8),
+                                            .flags         = UI_WidgetFlag_DrawText,
+                                            .string        = dbg_text,
+                                            .semantic_size = {
+                                                {
+                                                    .kind       = UI_SizeKind_PercentOfParent,
+                                                    .strictness = 0,
+                                                },
+                                                {
+                                                    .kind       = UI_SizeKind_TextContent,
+                                                    .strictness = 1,
+                                                },
+                                            }});
+    Unused(txt_widget);
 
     ui_end();
     gfx_renderer_end_frame();

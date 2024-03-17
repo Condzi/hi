@@ -6,7 +6,7 @@ get_free_entry(Hash_Table *ht) {
   Assert(ht);
   Assert(ht->free_entries_cap > 1 && ht->buckets);
   HT_Entry *entry = ht->free_list;
-  ErrorIf(entry, "Hash Table has no free nodes! (all %zu taken)", ht->free_entries_cap);
+  ErrorIf(!entry, "Hash Table has no free nodes! (all %zu taken)", ht->free_entries_cap);
   DLL_remove(ht->free_list, entry);
   return entry;
 }

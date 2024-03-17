@@ -258,6 +258,7 @@ ui_push_widget(UI_Widget_Opts const &opts) {
     if (gUI.free_widgets) {
       gUI.free_widgets->prev = 0;
     }
+    ht_insert(gUI.widgets_hash_table, opts.key.hash, widget);
   }
 
   *widget = {
