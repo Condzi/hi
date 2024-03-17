@@ -88,6 +88,10 @@ main(int argc, char const *argv[]) {
       });
   psx_body_add_box_shape(world, body, {0, 0}, sprite_1.sz * PSX_SCALE_INV);
 
+  ui_init(gContext.misc_arena, 512);
+  gUI.font = &font;
+  gUI.text_height = 12;
+
   u64 frame       = 0;
   f32 psx_acc     = 0;
   f32 dt          = 0;
@@ -99,6 +103,8 @@ main(int argc, char const *argv[]) {
     //
     ErrorContext("frame=%zu", frame);
     gfx_renderer_begin_frame();
+
+    ui_begin();
 
     // Event handling
     //
@@ -156,6 +162,7 @@ main(int argc, char const *argv[]) {
 
     gfx_draw_sprite(bg);
     gfx_draw_sprite(sprite_1);
+
     gfx_draw_rect_color(rect_1, {.v = 0xFF'00'00'FF});
     gfx_draw_rect_color_ui({.pos = {0, 0}, .sz = {500, 110}, .layer = l4}, {.v = 0x00'00'00'55});
     gfx_draw_rich_text({
@@ -178,6 +185,7 @@ main(int argc, char const *argv[]) {
                                str8_dump_struct(mem_info)),
     });
 
+    ui_end();
     gfx_renderer_end_frame();
 
     // State cleanup
