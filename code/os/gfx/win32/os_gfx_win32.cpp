@@ -328,6 +328,21 @@ win32_os_hard_fail_dialog_callback(
   return S_OK;
 }
 
+must_use internal Str8
+crop_filename(Str8 file) {
+  // Look for last '/' or '\\' in the sequence.
+  Str8 result = file;
+  for (s64 i = (s64)file.sz - 1; i >= 0; i--) {
+    if (file.v[i] == '/' || file.v[i] == '\\') {
+      result.v  = file.v + i + 1;
+      result.sz = file.sz - i - 1;
+      break;
+    }
+  }
+
+  return result;
+}
+
 no_return void
 os_hard_fail(Str8 file, Str8 func, Str8 cnd, Str8 desc) {
   // Constants
@@ -342,9 +357,9 @@ os_hard_fail(Str8 file, Str8 func, Str8 cnd, Str8 desc) {
       "You can use ⊞ Win + ⇧ Shift + S to take a screenshot.\n\n"
       "       %S\n"
       "       %S\n"
-      "       (%S → <a href=\"%S\">%s</a>)\n"
+      "       (%S → <a href=\"%S\">%S</a>)\n"
       "\n%S";
-  local_persist char const entry_fmt[] = "%S  %*s↪ %d. %S (%S → <a href=\"%S\">%s</a>)\n";
+  local_persist char const entry_fmt[] = "%S  %*s↪ %d. %S (%S → <a href=\"%S\">%S</a>)\n";
 
   TASKDIALOGCONFIG dialog = {
       .cbSize  = sizeof(dialog),
@@ -383,21 +398,15 @@ os_hard_fail(Str8 file, Str8 func, Str8 cnd, Str8 desc) {
                              node->desc,
                              node->function,
                              node->file,
-                             node->file.v + ArrayCount("W:\\hi\\code"));
+                             crop_filename(node->file));
       counter++;
     }
   }
 
   // Assemble and set final content for the dialog.
   //
-  Str8  final_message    = str8_sprintf(gContext.frame_arena,
-                                    message_fmt,
-                                    desc,
-                                    cnd,
-                                    func,
-                                    file,
-                                    file.v + ArrayCount("W:\\hi\\code"),
-                                    err_ctx);
+  Str8 final_message = str8_sprintf(
+      gContext.frame_arena, message_fmt, desc, cnd, func, file, crop_filename(file), err_ctx);
   Str16 final_message_16 = str16_from_8(gContext.frame_arena, final_message);
   dialog.pszContent      = (LPCWSTR)final_message_16.v;
 
