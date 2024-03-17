@@ -117,7 +117,7 @@ if not exist build mkdir build
 
 :: --- Build Everything (@build_targets) --------------------------------------
 pushd build
-del game.exe
+del game.exe >nul
 %compile%  ..\code\game\game_main.cpp  %compile_link% %out%game.exe %compile_commands%
 popd
 
