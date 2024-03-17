@@ -90,6 +90,6 @@ gfx_size_rich_text(GFX_Rich_Text_Opts const &opts) {
 
   // Advance to get the bottom-right corner.
   pen.x += glyph.sz.x;
-  pen.y += glyph.sz.y;
+  pen.y -= glyph.sz.y;
   return pen;
 }

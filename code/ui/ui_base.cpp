@@ -88,9 +88,9 @@ calculate_downward_depend_size(UI_Widget *widget) {
 
 internal void
 solve_size_violations(UI_Widget *widget) {
+  widget->sz_final = widget->sz_px;
   if (!widget->parent) {
     // It's the root node.
-    widget->sz_final = widget->sz_px;
     return;
   }
   fvec2 const parent_sz = widget->parent->sz_final;
@@ -144,8 +144,7 @@ calculate_relative_positions(UI_Widget *widget) {
     } else {
       pen.x = 0;
       pen.y += prev_sz.y;
-      prev_sz.x = 0;
-      prev_sz.y = it->sz_final.y;
+      prev_sz = it->sz_final;
     }
     it->pos_rel = pen;
     it          = it->next;
@@ -154,15 +153,14 @@ calculate_relative_positions(UI_Widget *widget) {
 
 internal void
 calculate_final_positions(UI_Widget *widget) {
-  // @Note: We need to remember that we're using Cartesian coordinate system (X-> Y^) in renderer,
-  // but X-> Y\/ in UI.
-
   if (!widget->parent) {
     // Root
     widget->pos_final = {}; // Top - left
     return;
   }
 
+  // @Note: We need to remember that we're using Cartesian coordinate system (X-> Y^) in renderer,
+  // but X-> Y\/ in UI.
   fvec2 const parent_pos = widget->parent->pos_final;
   fvec2 const rel_pos    = widget->pos_rel;
   fvec2       final_pos  = {};
@@ -216,7 +214,7 @@ ui_size_text(Str8 text) {
       .string    = text,
   };
   fvec2 const sz = gfx_size_rich_text(opts);
-  return sz;
+  return {sz.x, sz.y * -1};
 }
 
 void
@@ -253,8 +251,8 @@ ui_push_widget(UI_Widget_Opts const &opts) {
   UI_Widget *widget = (UI_Widget *)ht_find(gUI.widgets_hash_table, opts.key.hash);
   if (!widget) {
     ErrorIf(!gUI.free_widgets, "No free widgets available. Increase the cache size!");
-    widget                 = gUI.free_widgets;
-    gUI.free_widgets       = widget->next;
+    widget           = gUI.free_widgets;
+    gUI.free_widgets = widget->next;
     if (gUI.free_widgets) {
       gUI.free_widgets->prev = 0;
     }
@@ -264,7 +262,7 @@ ui_push_widget(UI_Widget_Opts const &opts) {
   *widget = {
       .key                    = opts.key,
       .last_frame_touched_idx = gUI.frame_id,
-      .flags                  = opts.flags,
+      .flags                  = (UI_Widget_Flag)opts.flags,
       .string                 = opts.string,
       .semantic_size          = {opts.semantic_size[0], opts.semantic_size[1]},
   };

@@ -24,6 +24,12 @@ main(int argc, char const *argv[]) {
   GFX_Layer l4 = {.category = GFX_Layer_Background, .priority = 1};
   ErrorIf(l3.v > l4.v, "l3.v=0x%X, l4.v=0x%X", (u32)l3.v, (u32)l4.v);
 
+  u64 const hash_1   = hash_str8("hash1"_s8);
+  u64 const hash_2   = hash_str8("hash2"_s8);
+  u64 const hash_1_2 = hash_str8("hash1"_s8);
+
+  Assert(hash_1 != hash_2);
+  Assert(hash_1 == hash_1_2);
 
   os_gfx_open_window({
       .title      = GAME_TITLE_LITERAL ""_s8,
@@ -208,6 +214,38 @@ main(int argc, char const *argv[]) {
                                                 },
                                             }});
     Unused(txt_widget);
+
+    UI_Widget *txt_widget2 = ui_push_widget({.key           = ui_make_key("debug_text2"_s8),
+                                             .flags         = UI_WidgetFlag_DrawText,
+                                             .string        = "This is one text"_s8,
+                                             .semantic_size = {
+                                                 {
+                                                     .kind       = UI_SizeKind_PercentOfParent,
+                                                     .strictness = 0,
+                                                 },
+                                                 {
+                                                     .kind       = UI_SizeKind_TextContent,
+                                                     .strictness = 1,
+                                                 },
+                                             }});
+    Unused(txt_widget2);
+    /*
+UI_Widget *txt_widget3 =
+ui_push_widget({.key           = ui_make_key("debug_text3"_s8),
+.flags         = UI_WidgetFlag_DrawText | UI_WidgetFlag_HorizontalLayout,
+.string        = " | This is second text"_s8,
+.semantic_size = {
+{
+.kind       = UI_SizeKind_PercentOfParent,
+.strictness = 0,
+},
+{
+.kind       = UI_SizeKind_TextContent,
+.strictness = 1,
+},
+}});
+Unused(txt_widget3);
+    */
 
     ui_end();
     gfx_renderer_end_frame();

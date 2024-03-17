@@ -25,10 +25,10 @@ struct UI_Key {
 };
 
 enum UI_Widget_Flag : u32 {
- // UI_WidgetFlag_Clickable        = bit1,
-  //UI_WidgetFlag_ViewScroll       = bit2,
-  UI_WidgetFlag_DrawText         = bit3,
-  //UI_WidgetFlag_DrawBorder       = bit4,
+  // UI_WidgetFlag_Clickable        = bit1,
+  // UI_WidgetFlag_ViewScroll       = bit2,
+  UI_WidgetFlag_DrawText = bit3,
+  // UI_WidgetFlag_DrawBorder       = bit4,
   UI_WidgetFlag_DrawBackground   = bit5,
   UI_WidgetFlag_HorizontalLayout = bit6,
 };
@@ -99,10 +99,10 @@ void
 ui_begin();
 
 struct UI_Widget_Opts {
-  UI_Key         key;
-  UI_Widget_Flag flags  = {};
-  Str8           string = {};
-  UI_Size        semantic_size[Axis2__count];
+  UI_Key  key;
+  u32     flags  = {};
+  Str8    string = {};
+  UI_Size semantic_size[Axis2__count];
 };
 
 must_use UI_Widget *
