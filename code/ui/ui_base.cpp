@@ -18,13 +18,15 @@ calculate_standalone_size(UI_Widget *widget) {
   if (sz_x.kind == UI_SizeKind_Pixels) {
     sz_px_x = sz_x.value;
   } else if (sz_x.kind == UI_SizeKind_TextContent) {
-    NotImplemented;
+    f32 const w = ui_size_text(widget->string).x;
+    sz_px_x     = w;
   }
 
   if (sz_y.kind == UI_SizeKind_Pixels) {
     sz_px_y = sz_y.value;
   } else if (sz_y.kind == UI_SizeKind_TextContent) {
-    NotImplemented;
+    f32 const h = ui_size_text(widget->string).y;
+    sz_px_y     = h;
   }
 }
 
@@ -55,9 +57,13 @@ calculate_downward_depend_size(UI_Widget *widget) {
 
   if (sz_x.kind == UI_SizeKind_ChildrenSum) {
     f32        sum = 0;
-    UI_Widget *it  = widget->next;
+    UI_Widget *it  = widget->first_child;
     while (it) {
-      sum += it->sz_px.x;
+      if (it->flags & UI_WidgetFlag_HorizontalLayout) {
+        sum += it->sz_px.x;
+      } else if (it->sz_px.x > sum) {
+        sum = it->sz_px.x;
+      }
       it = it->next;
     }
     sz_px_x = sum;
@@ -65,9 +71,15 @@ calculate_downward_depend_size(UI_Widget *widget) {
 
   if (sz_y.kind == UI_SizeKind_ChildrenSum) {
     f32        sum = 0;
-    UI_Widget *it  = widget->next;
+    UI_Widget *it  = widget->first_child;
     while (it) {
-      sum += it->sz_px.y;
+      if (it->flags & UI_WidgetFlag_HorizontalLayout) {
+        if (it->sz_px.y > sum) {
+          sum = it->sz_px.y;
+        }
+      } else {
+        sum += it->sz_px.y;
+      }
       it = it->next;
     }
     sz_px_y = sum;
@@ -76,20 +88,107 @@ calculate_downward_depend_size(UI_Widget *widget) {
 
 internal void
 solve_size_violations(UI_Widget *widget) {
-  Unused(widget);
-  NotImplemented;
+  if (!widget->parent) {
+    // It's the root node.
+    widget->sz_final = widget->sz_px;
+    return;
+  }
+  fvec2 const parent_sz = widget->parent->sz_final;
+
+  // How big children want to be.
+  fvec2      wanted = {};
+  UI_Widget *it     = widget->first_child;
+  while (it) {
+    if (it->flags & UI_WidgetFlag_HorizontalLayout) {
+      wanted.x += it->sz_px.x;
+    } else {
+      wanted.y += it->sz_px.y;
+    }
+    if (it->sz_px.x > wanted.x) {
+      wanted.x = it->sz_px.x;
+    }
+    it = it->next;
+  }
+
+  if (wanted.x > parent_sz.x) {
+    f32 const violation = wanted.x - parent_sz.x;
+    it                  = widget->first_child;
+    while (it) {
+      f32 const multiplier = 1 - it->semantic_size[Axis2_X].strictness;
+      f32 const adjustment = violation * multiplier;
+      it->sz_final.x -= adjustment;
+      it = it->next;
+    }
+  }
+  if (wanted.y > parent_sz.y) {
+    f32 const violation = wanted.y - parent_sz.y;
+    it                  = widget->first_child;
+    while (it) {
+      f32 const multiplier = 1 - it->semantic_size[Axis2_Y].strictness;
+      f32 const adjustment = violation * multiplier;
+      it->sz_final.y -= adjustment;
+      it = it->next;
+    }
+  }
 }
 
 internal void
-calculate_positions(UI_Widget *widget) {
-  Unused(widget);
-  NotImplemented;
+calculate_relative_positions(UI_Widget *widget) {
+  fvec2      pen     = {};
+  UI_Widget *it      = widget->first_child;
+  fvec2      prev_sz = {};
+  while (it) {
+    if (it->flags & UI_WidgetFlag_HorizontalLayout) {
+      pen.x += prev_sz.x;
+      prev_sz.y = Max(it->sz_final.y, prev_sz.y);
+    } else {
+      pen.x = 0;
+      pen.y += prev_sz.y;
+      prev_sz.x = 0;
+      prev_sz.y = it->sz_final.y;
+    }
+    it->pos_rel = pen;
+    it          = it->next;
+  }
+}
+
+internal void
+calculate_final_positions(UI_Widget *widget) {
+  // @Note: We need to remember that we're using Cartesian coordinate system (X-> Y^) in renderer,
+  // but X-> Y\/ in UI.
+
+  if (!widget->parent) {
+    widget->parent->pos_final = {}; // Top - left
+    // Root
+    return;
+  }
+
+  fvec2 const parent_pos = widget->parent->pos_final;
+  fvec2 const rel_pos = widget->pos_rel;
+  fvec2 final_pos = {};
+  final_pos.x = parent_pos.x + rel_pos.x;
+  final_pos.y = parent_pos.y - rel_pos.y;
+  widget->pos_final = final_pos;
 }
 
 internal void
 render(UI_Widget *widget) {
-  Unused(widget);
-  NotImplemented;
+  u32 const flags = widget->flags;
+  fvec2 const pos = widget->pos_final;
+  fvec2 const sz = widget->sz_final;
+
+  if (flags & UI_WidgetFlag_DrawBackground) {
+    gfx_draw_rect_color_ui({.pos = pos, .sz = sz}, {.v = 0x00'00'00'55});
+  }
+
+  if (flags & UI_WidgetFlag_DrawText) {
+    gfx_draw_rich_text({
+        .pos       = pos,
+        .height_px = gUI.text_height,
+        .font      = gUI.font,
+        .string    = widget->string,
+    });
+  }
 }
 
 must_use UI_Key
@@ -98,10 +197,22 @@ ui_make_key(Str8 string) {
   return {.hash = result};
 }
 
+must_use fvec2
+ui_size_text(Str8 text) {
+  GFX_Rich_Text_Opts const opts = {
+      .height_px = gUI.text_height,
+      .font      = gUI.font,
+      .string    = text,
+  };
+  fvec2 const sz = gfx_size_rich_text(opts);
+  return sz;
+}
+
 void
 ui_init(Arena *arena, u64 widgets_cap) {
   gUI.widgets_cap        = widgets_cap;
   gUI.widgets_hash_table = make_hash_table(arena, widgets_cap);
+  gUI.text_height        = 12;
   UI_Widget *widgets     = arena_alloc_array<UI_Widget>(arena, widgets_cap);
   for (u64 i = 0; i < widgets_cap; i++) {
     DLL_insert_at_front(gUI.free_widgets, &(widgets[i]));
@@ -134,7 +245,8 @@ ui_end() {
   Tree_pre_order(gUI.widgets, calculate_upward_depend_size);
   Tree_post_order(gUI.widgets, calculate_downward_depend_size);
   Tree_pre_order(gUI.widgets, solve_size_violations);
-  Tree_pre_order(gUI.widgets, calculate_positions);
+  Tree_pre_order(gUI.widgets, calculate_relative_positions);
+  Tree_pre_order(gUI.widgets, calculate_final_positions);
 
   // Render, back-to-front.
   //

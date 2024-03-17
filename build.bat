@@ -114,10 +114,11 @@ for /f %%i in ('call git describe --always --dirty') do set compile=%compile% -D
 
 :: --- Prep Directories -------------------------------------------------------
 if not exist build mkdir build
+if exist game.exe del game.exe >nul
 
 :: --- Build Everything (@build_targets) --------------------------------------
 pushd build
-del game.exe >nul
+
 %compile%  ..\code\game\game_main.cpp  %compile_link% %out%game.exe %compile_commands%
 popd
 

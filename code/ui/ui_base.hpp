@@ -25,19 +25,23 @@ struct UI_Key {
 };
 
 enum UI_Widget_Flag : u32 {
-  UI_WidgetFlag_Clickable      = bit1,
-  UI_WidgetFlag_ViewScroll     = bit2,
-  UI_WidgetFlag_DrawText       = bit3,
-  UI_WidgetFlag_DrawBorder     = bit4,
-  UI_WidgetFlag_DrawBackground = bit5,
+ // UI_WidgetFlag_Clickable        = bit1,
+  //UI_WidgetFlag_ViewScroll       = bit2,
+  UI_WidgetFlag_DrawText         = bit3,
+  //UI_WidgetFlag_DrawBorder       = bit4,
+  UI_WidgetFlag_DrawBackground   = bit5,
+  UI_WidgetFlag_HorizontalLayout = bit6,
 };
 
 struct UI_Widget {
   // Tree links. Reassigned every frame because cache is vollatile etc.
   //
-  UI_Widget *next   = 0;
-  UI_Widget *prev   = 0;
-  UI_Widget *parent = 0;
+  UI_Widget *parent      = 0;
+  UI_Widget *first_child = 0; // n-ary tree children
+
+  // Links sibilings together.
+  UI_Widget *next = 0;
+  UI_Widget *prev = 0;
 
   // Key and generation info. Key is relevant to the cache.
   //
@@ -50,7 +54,7 @@ struct UI_Widget {
   Str8           string = {};
   UI_Size        semantic_size[Axis2__count];
 
-  // Computed every frame
+  // Computed every frame. This is how big the widget wants to be, before sizing.
   //
   fvec2 pos_rel;
   fvec2 sz_px;
@@ -75,11 +79,19 @@ struct UI_Context {
   UI_Widget *widget_stack;
 
   u64 frame_id;
+
+  // Style
+  //
+  GFX_Font *font;
+  u16       text_height;
 } internal gUI;
 
 // Just hashes the string.
 must_use UI_Key
 ui_make_key(Str8 string);
+
+must_use fvec2
+ui_size_text(Str8 text);
 
 void
 ui_init(Arena *arena, u64 widgets_cap);
