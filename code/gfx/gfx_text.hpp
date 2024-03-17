@@ -19,3 +19,6 @@ gfx_make_font(GFX_Image image, u16 char_width, u16 char_height);
 
 must_use GFX_Glyph
 gfx_get_glyph(GFX_Font *font, u8 ch, u16 height_px);
+
+must_use fvec2
+gfx_size_rich_text(GFX_Rich_Text_Opts const& opts);

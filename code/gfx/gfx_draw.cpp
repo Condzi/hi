@@ -307,6 +307,7 @@ gfx_draw_rich_text(GFX_Rich_Text_Opts const &opts) {
 
 void
 gfx_draw_rich_text_color(GFX_Rich_Text_Opts const &opts, GFX_Color color) {
+  Assert(opts.string.sz);
   u32 read_only local_persist       TAB_SIZE   = 4;
   GFX_Color read_only local_persist COLOR_ERR  = {.v = 0xD04848FF};
   GFX_Color read_only local_persist COLOR_WRN  = {.v = 0xF3B95FFF};

@@ -38,3 +38,58 @@ gfx_get_glyph(GFX_Font *font, u8 ch, u16 height_px) {
       .advance_x = w,
   };
 }
+
+must_use fvec2
+gfx_size_rich_text(GFX_Rich_Text_Opts const &opts) {
+  Assert(opts.string.sz);
+
+  //@Note: This code must match gfX_draw_rich_text_color.
+  u32 read_only local_persist TAB_SIZE = 4;
+  // Ignore the starting position - we only want to size the text.
+  fvec2     pen   = {};
+  GFX_Glyph glyph = {};
+  for (u64 i = 0; i < opts.string.sz; i++) {
+    u8 const ch = opts.string.v[i];
+    glyph       = gfx_get_glyph(opts.font, ch, opts.height_px);
+
+    switch (ch) {
+      default: {
+        pen.x += glyph.advance_x;
+      } break;
+
+      case '\n': {
+        pen.x = opts.pos.x;
+        pen.y -= glyph.sz.height;
+      } break;
+
+      case '\t': {
+        pen.x += glyph.advance_x * TAB_SIZE;
+      } break;
+
+      case '^': {
+        if (i + 1 < opts.string.sz) {
+          i++;
+          u8 const modifier = opts.string.v[i];
+          switch (modifier) {
+            default: {
+              i--; // the char does not set the color, so we render it.
+            } break;
+
+            case 'E':
+            case 'e':
+            case 'W':
+            case 'w':
+            case 'D':
+            case 'd': {
+            } break;
+          }
+        }
+      } break;
+    }
+  }
+
+  // Advance to get the bottom-right corner.
+  pen.x += glyph.sz.x;
+  pen.y += glyph.sz.y;
+  return pen;
+}
