@@ -164,7 +164,23 @@ main(int argc, char const *argv[]) {
     gfx_draw_sprite(sprite_1);
 
     gfx_draw_rect_color(rect_1, {.v = 0xFF'00'00'FF});
-    gfx_draw_rect_color_ui({.pos = {0, 0}, .sz = {500, 110}, .layer = l4}, {.v = 0x00'00'00'55});
+    UI_Widget *bg_widget = ui_push_widget({.key           = ui_make_key("background"_s8),
+                                           .flags         = UI_WidgetFlag_DrawBackground,
+                                           .semantic_size = {
+                                               {
+                                                   .kind       = UI_SizeKind_Pixels,
+                                                   .value      = (f32)os_gfx_surface_width(),
+                                                   .strictness = 1,
+                                               },
+                                               {
+                                                   .kind       = UI_SizeKind_Pixels,
+                                                   .value      = (f32)os_gfx_surface_height(),
+                                                   .strictness = 1,
+                                               },
+                                           }});
+    Unused(bg_widget);
+
+    // gfx_draw_rect_color_ui({.pos = {0, 0}, .sz = {500, 110}, .layer = l4}, {.v = 0x00'00'00'55});
     gfx_draw_rich_text({
         .pos       = {0, 0},
         .height_px = 12,

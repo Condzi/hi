@@ -65,6 +65,7 @@
 ## GFX
 
   [ ] Refactor plz
+    - why the fuck do we silently fail when layer is not specified??
     - The code is full of repetitions and not robust. Also, fix poor resource handling, or actually lack of it.
     - Perhaps render graph nodes can be dealt with similarly to how UI_Widget is being constructed -
       instaed of doing tagged union maybe we could have a `Graph_Node_Flag` or something?
