@@ -75,8 +75,8 @@ main(int argc, char const *argv[]) {
   };
 
   GFX_Camera cam = {
-    .center = {200, 200},
-    .zoom = 0.8f,
+      .center = {200, 200},
+      .zoom   = 0.8f,
   };
 
   GFX_Image font_img = d3d_load_png("W:/hi/run_tree/tex/pixel_font_basic_latin_ascii.png"_s8);
@@ -95,7 +95,7 @@ main(int argc, char const *argv[]) {
   psx_body_add_box_shape(world, body, {0, 0}, sprite_1.sz * PSX_SCALE_INV);
 
   ui_init(gContext.misc_arena, 512);
-  gUI.font = &font;
+  gUI.font        = &font;
   gUI.text_height = 12;
 
   u64 frame       = 0;
@@ -115,8 +115,8 @@ main(int argc, char const *argv[]) {
     // Event handling
     //
     fvec2            mov_dir = {};
-    OS_Window_Event *events = os_gfx_event_pump(gContext.frame_arena);
-    for (;events; events = events->next) {
+    OS_Window_Event *events  = os_gfx_event_pump(gContext.frame_arena);
+    for (; events; events = events->next) {
       if (events->type == OS_EventType_ButtonPressed) {
         if (events->data.button == GameInput_LetterW) {
           mov_dir.y += 1;
@@ -155,7 +155,6 @@ main(int argc, char const *argv[]) {
     //  obj2.material.rect.color.a += 1;
     sprite_1.pos = psx_body_get_position(world, body) * PSX_SCALE;
     rect_1.rot += 0.1f;
-
 
     // Draw stuff
     //
@@ -246,20 +245,20 @@ main(int argc, char const *argv[]) {
                         }});
     Unused(txt_widget3);
 
-ui_end();
-gfx_renderer_end_frame();
+    ui_end();
+    gfx_renderer_end_frame();
 
-// State cleanup
-//
+    // State cleanup
+    //
 
-arena_clear(gContext.frame_arena);
-scratch_end(&error_context_scratch);
-gContext.error_context->first = gContext.error_context->last = 0;
-frame++;
-f32 frame_end = os_seconds_since_startup();
-dt            = frame_end - frame_begin;
-frame_begin   = frame_end;
-dt_min        = Min(dt, dt_min);
-dt_max        = Max(dt, dt_max);
+    arena_clear(gContext.frame_arena);
+    scratch_end(&error_context_scratch);
+    gContext.error_context->first = gContext.error_context->last = 0;
+    frame++;
+    f32 frame_end = os_seconds_since_startup();
+    dt            = frame_end - frame_begin;
+    frame_begin   = frame_end;
+    dt_min        = Min(dt, dt_min);
+    dt_max        = Max(dt, dt_max);
   }
 }
