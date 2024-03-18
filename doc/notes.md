@@ -20,13 +20,13 @@
 
 ## Debug Tools
 
+    [ ] Debug console (do we need commands if we have debug ui?)
     [ ] Physics visualisation - shapes, AABBs, contacts, origin points
     [ ] Frame Time Graph
     [ ] Menu with toggable flags, for example for debug view of physics system
     [ ] Debug text rendering (at least maybe boxes around text?)
     [ ] Render graph visualsation
     [ ] Menu with Entity information...?
-    [ ] Debug console (do we need commands if we have debug ui?)
     [ ] Memory usage
 
 ## Entities & Systems
@@ -211,9 +211,9 @@
 
   I guess we should develop this simoultaneusly with Debug Tools layer (the debug console).
 
-  [ ] Widget with basic functionalities
-    [ ] Text
-    [ ] Background that scales to the text
+  [X] Widget with basic functionalities
+    [X] Text
+    [X] Background that scales to the text
   [ ] Input handling
   [ ] Checkbox Widget flags
 

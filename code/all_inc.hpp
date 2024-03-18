@@ -8,6 +8,7 @@
 #include "psx/psx_inc.hpp"
 #include "log/log_inc.hpp"
 #include "ui/ui_inc.hpp"
+#include "tools/tools_inc.hpp"
 
 #include "game/game_main.hpp"
 
@@ -19,3 +20,4 @@
 #include "psx/psx_inc.cpp"
 #include "log/log_inc.cpp"
 #include "ui/ui_inc.cpp"
+#include "tools/tools_inc.cpp"

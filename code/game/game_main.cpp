@@ -118,6 +118,7 @@ main(int argc, char const *argv[]) {
     OS_Window_Event *events  = os_gfx_event_pump(gContext.frame_arena);
     for (; events; events = events->next) {
       if (events->type == OS_EventType_ButtonPressed) {
+        LogEng_Info("Event key: %S", game_input_to_str8((Game_Input)events->data.button));
         if (events->data.button == GameInput_LetterW) {
           mov_dir.y += 1;
         } else if (events->data.button == GameInput_LetterS) {
@@ -131,6 +132,8 @@ main(int argc, char const *argv[]) {
         } else if (events->data.button == GameInput_LetterR) {
           dt_min = FLT_MAX;
           dt_max = 0;
+        } else if (events->data.button == GameInput_F1) {
+          gDbgConsole.is_open = !gDbgConsole.is_open;
         }
       }
     }
@@ -163,51 +166,54 @@ main(int argc, char const *argv[]) {
 
     gfx_set_camera_for_batches(cam);
 
-    OS_Memory_Info mem_info = os_get_memory_info();
+    //OS_Memory_Info mem_info = os_get_memory_info();
 
     gfx_draw_sprite(bg);
     gfx_draw_sprite(sprite_1);
 
     gfx_draw_rect_color(rect_1, {.v = 0xFF'00'00'FF});
-    UI_Widget *bg_widget = ui_push_widget({.key           = "background"_s8,
-                                           .flags         = UI_WidgetFlag_DrawBackground,
-                                           .semantic_size = {
-                                               {
-                                                   .kind       = UI_SizeKind_Pixels,
-                                                   .value      = (f32)os_gfx_surface_width(),
-                                                   .strictness = 1,
-                                               },
-                                               {
-                                                   .kind       = UI_SizeKind_Pixels,
-                                                   .value      = (f32)os_gfx_surface_height(),
-                                                   .strictness = 1,
-                                               },
-                                           }});
-    Unused(bg_widget);
+      UI_Widget *bg_widget = ui_push_widget({.key           = "background"_s8,
+                                             .flags         = UI_WidgetFlag_DrawBackground,
+                                             .semantic_size = {
+                                                 {
+                                                     .kind       = UI_SizeKind_Pixels,
+                                                     .value      = (f32)os_gfx_surface_width(),
+                                                     .strictness = 1,
+                                                 },
+                                                 {
+                                                     .kind       = UI_SizeKind_Pixels,
+                                                     .value      = (f32)os_gfx_surface_height(),
+                                                     .strictness = 1,
+                                                 },
+                                             }});
+      Unused(bg_widget);
 
-    Str8 dbg_text = str8_sprintf(gContext.frame_arena,
-                                 "^wtime^=%.3fs\nf^dr^wa^eme^=%zu\n^wdt_min^=%0.3fms "
-                                 "^wdt_max^=%0.3fms ^wdt^=%0.3fms, fps=%zu\n^Memory reserved: "
-                                 "^d%_$$$zu^, Memory commited: ^d%_$$$zu^\n%S",
-                                 os_seconds_since_startup(),
-                                 frame,
-                                 dt_min * 1000,
-                                 dt_max * 1000,
-                                 dt * 1000,
-                                 u64(1.f / dt),
-                                 os_get_memory_stats().reserved,
-                                 os_get_memory_stats().commited,
-                                 str8_dump_struct(mem_info));
+    /*
+      Str8 dbg_text = str8_sprintf(gContext.frame_arena,
+                                   "^wtime^=%.3fs\nf^dr^wa^eme^=%zu\n^wdt_min^=%0.3fms "
+                                   "^wdt_max^=%0.3fms ^wdt^=%0.3fms, fps=%zu\n^Memory reserved: "
+                                   "^d%_$$$zu^, Memory commited: ^d%_$$$zu^\n%S",
+                                   os_seconds_since_startup(),
+                                   frame,
+                                   dt_min * 1000,
+                                   dt_max * 1000,
+                                   dt * 1000,
+                                   u64(1.f / dt),
+                                   os_get_memory_stats().reserved,
+                                   os_get_memory_stats().commited,
+                                   str8_dump_struct(mem_info));
 
-    UI_Widget *txt_widget = ui_text("debug_text"_s8, dbg_text, 0);
-    Unused(txt_widget);
+      UI_Widget *txt_widget = ui_text("debug_text"_s8, dbg_text, 0);
+      Unused(txt_widget);
 
-    UI_Widget *txt_widget2 = ui_text("debug_text2"_s8, "This is one text"_s8, 0);
-    Unused(txt_widget2);
-    UI_Widget *txt_widget3 =
-        ui_text("debug_text3"_s8, "This is second text"_s8, UI_WidgetFlag_HorizontalLayout);
-    Unused(txt_widget3);
+      UI_Widget *txt_widget2 = ui_text("debug_text2"_s8, "This is one text"_s8, 0);
+      Unused(txt_widget2);
+      UI_Widget *txt_widget3 =
+          ui_text("debug_text3"_s8, "This is second text"_s8, UI_WidgetFlag_HorizontalLayout);
+      Unused(txt_widget3);
+    */
 
+    tools_update();
     ui_end();
     gfx_renderer_end_frame();
 

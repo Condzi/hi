@@ -47,7 +47,7 @@ log_add(Log *log, Log_Severity severity, Log_Category category, char const *fmt,
   };
   log->messages[idx] = str8_sprintf(log->arena, fmt, args...);
 
-  os_debug_message(str8_sprintf(gContext.frame_arena, "%.2f| %S\n", log_timestamp_to_seconds(log->headers[idx].timestamp), log->messages[idx]));
+  // os_debug_message(str8_sprintf(gContext.frame_arena, "%.2f| %S\n", log_timestamp_to_seconds(log->headers[idx].timestamp), log->messages[idx]));
 
   log->curr++;
 }
