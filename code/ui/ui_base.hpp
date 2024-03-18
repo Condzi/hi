@@ -26,11 +26,13 @@ struct UI_Key {
 
 enum UI_Widget_Flag : u32 {
   // UI_WidgetFlag_Clickable        = bit1,
-  // UI_WidgetFlag_ViewScroll       = bit2,
+  // UI_WidgetFlag_ViewScroll = bit2,
   UI_WidgetFlag_DrawText = bit3,
   // UI_WidgetFlag_DrawBorder       = bit4,
-  UI_WidgetFlag_DrawBackground   = bit5,
-  UI_WidgetFlag_HorizontalLayout = bit6,
+  UI_WidgetFlag_DrawBackground    = bit5,
+  UI_WidgetFlag_HorizontalLayout  = bit6,
+  UI_WidgetFlag_AnimateVertical   = bit7,
+  UI_WidgetFlag_AnimateHorizontal = bit8,
 };
 
 struct UI_Widget {
@@ -63,6 +65,10 @@ struct UI_Widget {
   //
   fvec2 pos_final;
   fvec2 sz_final;
+
+  // Animation (0-1)
+  //
+  f32 hot_anim;
 };
 
 struct UI_Context {
@@ -83,6 +89,11 @@ struct UI_Context {
   //
   GFX_Font *font;
   u16       text_height;
+
+  // Animation
+  //
+  f32 anim_speed;
+  f32 frame_dt;
 } internal gUI;
 
 // Just hashes the string.
@@ -96,7 +107,7 @@ void
 ui_init(Arena *arena, u64 widgets_cap);
 
 void
-ui_begin();
+ui_begin(f32 dt);
 
 struct UI_Widget_Opts {
   Str8    key    = {};

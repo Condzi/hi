@@ -5,10 +5,9 @@ internal void
 cleanup_pointers(UI_Widget *widget) {
   widget->parent      = 0;
   widget->first_child = 0;
-  widget->next   = 0;
+  widget->next        = 0;
   widget->prev        = 0;
 }
-
 
 internal void
 render(UI_Widget *widget) {
@@ -72,10 +71,12 @@ ui_init(Arena *arena, u64 widgets_cap) {
   for (u64 i = 0; i < widgets_cap; i++) {
     DLL_insert_at_front(gUI.free_widgets, &(widgets[i]));
   }
+
+  gUI.anim_speed = 16.f; // HZ
 }
 
 void
-ui_begin() {
+ui_begin(f32 dt) {
   ErrorContext("frame_id=%zu", gUI.frame_id);
 
   // Reset widget tree.
@@ -84,6 +85,7 @@ ui_begin() {
   gUI.widgets      = 0;
   gUI.widget_stack = 0;
   gUI.frame_id++;
+  gUI.frame_dt = dt;
 }
 
 must_use UI_Widget *
@@ -94,7 +96,7 @@ ui_push_widget(UI_Widget_Opts const &opts) {
     ErrorIf(!opts.string.sz, "Widget wants to draw text, but no text given.");
   }
 
-  UI_Key key = ui_make_key(opts.key);
+  UI_Key     key    = ui_make_key(opts.key);
   UI_Widget *widget = (UI_Widget *)ht_find(gUI.widgets_hash_table, key.hash);
   if (!widget) {
     ErrorIf(!gUI.free_widgets, "No free widgets available. Increase the cache size!");
@@ -112,6 +114,7 @@ ui_push_widget(UI_Widget_Opts const &opts) {
       .flags                  = (UI_Widget_Flag)opts.flags,
       .string                 = opts.string,
       .semantic_size          = {opts.semantic_size[0], opts.semantic_size[1]},
+      .hot_anim               = ClampTop(widget->hot_anim + gUI.frame_dt * gUI.anim_speed, 1.0f),
   };
 
   if (gUI.widget_stack) {

@@ -79,9 +79,22 @@ calculate_downward_depend_size(UI_Widget *widget) {
   }
 }
 
+must_use internal f32
+anim_curve(f32 t) {
+  f32 const ttt = (1 - t) * (1 - t) * (1 - t);
+  return 1 - ttt;
+}
+
 void
 solve_size_violations(UI_Widget *widget) {
   widget->sz_final = widget->sz_px;
+  if (widget->flags & UI_WidgetFlag_AnimateHorizontal) {
+    widget->sz_final.x *= anim_curve(widget->hot_anim);
+  }
+  if (widget->flags & UI_WidgetFlag_AnimateVertical) {
+    widget->sz_final.y *= anim_curve(widget->hot_anim);
+  }
+
   if (!widget->parent) {
     // It's the root node.
     return;

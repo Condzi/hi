@@ -9,7 +9,7 @@ tools_update() {
 
   UI_Widget *bg = ui_push_widget({
       .key   = "debug_console_bg"_s8,
-      .flags = UI_WidgetFlag_DrawBackground,
+      .flags = UI_WidgetFlag_DrawBackground | UI_WidgetFlag_AnimateVertical,
       .semantic_size =
           {
               {
@@ -39,7 +39,7 @@ tools_update() {
                                        log_timestamp_to_seconds(headers[i].timestamp),
                                        messages[i]);
 
-    UI_Widget *log_widget = ui_text(widget_key, log_text, 0);
+    UI_Widget *log_widget = ui_text(widget_key, log_text, UI_WidgetFlag_AnimateVertical);
     Unused(log_widget);
   }
 }

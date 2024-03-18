@@ -114,7 +114,7 @@ main(int argc, char const *argv[]) {
     ErrorContext("frame=%zu", frame);
     gfx_renderer_begin_frame();
 
-    ui_begin();
+    ui_begin(dt);
 
     // Event handling
     //
