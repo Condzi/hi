@@ -3,9 +3,10 @@
 
 internal void
 cleanup_pointers(UI_Widget *widget) {
+  widget->parent      = 0;
+  widget->first_child = 0;
   widget->next   = 0;
-  widget->prev   = 0;
-  widget->parent = 0;
+  widget->prev        = 0;
 }
 
 
@@ -34,7 +35,12 @@ render(UI_Widget *widget) {
         .pos       = pos,
         .height_px = gUI.text_height,
         .font      = gUI.font,
-        .string    = widget->string,
+        .layer =
+            {
+                .category = GFX_Layer_Background,
+                .priority = 1,
+            },
+        .string = widget->string,
     });
   }
 }

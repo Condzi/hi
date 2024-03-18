@@ -98,6 +98,9 @@ main(int argc, char const *argv[]) {
   gUI.font        = &font;
   gUI.text_height = 12;
 
+  LogEng_Info("Hello, World!");
+  gDbgConsole.is_open = true;
+
   u64 frame       = 0;
   f32 psx_acc     = 0;
   f32 dt          = 0;

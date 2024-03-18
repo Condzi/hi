@@ -48,6 +48,7 @@ gfx_size_rich_text(GFX_Rich_Text_Opts const &opts) {
   // Ignore the starting position - we only want to size the text.
   fvec2     pen   = {};
   GFX_Glyph glyph = {};
+  fvec2     max_extents = {};
   for (u64 i = 0; i < opts.string.sz; i++) {
     u8 const ch = opts.string.v[i];
     glyph       = gfx_get_glyph(opts.font, ch, opts.height_px);
@@ -86,10 +87,10 @@ gfx_size_rich_text(GFX_Rich_Text_Opts const &opts) {
         }
       } break;
     }
+
+    max_extents.x = Max(max_extents.x, pen.x);
+    max_extents.y = Min(max_extents.y, pen.y);
   }
 
-  // Advance to get the bottom-right corner.
-  pen.x += glyph.sz.x;
-  pen.y -= glyph.sz.y;
-  return pen;
+  return max_extents;
 }
