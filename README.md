@@ -18,6 +18,11 @@ Since You're most likeley here from my CV, here are some details:
 
 My current ideas are written in [game notes](doc/game.md). Basically, I want a Hotline Miami with zombies and tower defence kind of stuff.
 
+## Building
+
+You need `clang++` (my default) or `cl` (I used it before clang, but not sure if still works).  
+Run `build.bat`, probably the simplest is just `build clang debug`. See `build --help` for other options.
+
 ## Screens
 
 It's in early stage...! But at least does not crash ;)
