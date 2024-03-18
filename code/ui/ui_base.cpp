@@ -121,6 +121,20 @@ ui_push_widget(UI_Widget_Opts const &opts) {
   return widget;
 }
 
+must_use UI_Widget *
+ui_text(Str8 key, Str8 text, u32 flags) {
+  UI_Widget_Opts const opts = {.key           = key,
+                               .flags         = flags | UI_WidgetFlag_DrawText,
+                               .string        = text,
+                               .semantic_size = {
+                                   {.kind = UI_SizeKind_TextContent, .strictness = 0},
+                                   {.kind = UI_SizeKind_TextContent, .strictness = 1},
+                               }};
+
+  UI_Widget *result = ui_push_widget(opts);
+  return result;
+}
+
 void
 ui_push_to_stack(UI_Widget *widget) {
   Assert(widget);

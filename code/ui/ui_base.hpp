@@ -108,6 +108,9 @@ struct UI_Widget_Opts {
 must_use UI_Widget *
 ui_push_widget(UI_Widget_Opts const &opts);
 
+must_use UI_Widget *
+ui_text(Str8 key, Str8 text, u32 flags);
+
 void
 ui_push_to_stack(UI_Widget *widget);
 void
