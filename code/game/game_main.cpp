@@ -98,7 +98,11 @@ main(int argc, char const *argv[]) {
   gUI.font        = &font;
   gUI.text_height = 12;
 
+  LogEng_Debug("Hello, World!");
   LogEng_Info("Hello, World!");
+  LogEng_Warn("Hello, World!");
+  LogEng_Err("Hello, World!");
+
   gDbgConsole.is_open = true;
   gDbgConsole.logs_max = 24;
 
@@ -138,6 +142,8 @@ main(int argc, char const *argv[]) {
           dt_max = 0;
         } else if (events->data.button == GameInput_F1) {
           gDbgConsole.is_open = !gDbgConsole.is_open;
+        } else if (events->data.button == GameInput_F2) {
+          gDbgMemoryConsumption.is_open = !gDbgMemoryConsumption.is_open;
         }
       }
     }

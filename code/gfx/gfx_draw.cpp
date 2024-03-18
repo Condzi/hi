@@ -362,15 +362,19 @@ gfx_draw_rich_text_color(GFX_Rich_Text_Opts const &opts, GFX_Color color) {
               color = color_base;
             } break;
 
-            case 'E':
+            case 'E': fallthrough;
             case 'e': {
               color = COLOR_ERR;
             } break;
-            case 'W':
+            case 'W': fallthrough;
             case 'w': {
               color = COLOR_WRN;
             } break;
-            case 'D':
+            case 'I': fallthrough;
+            case 'i': {
+              color = color_base;
+            } break;
+            case 'D': fallthrough;
             case 'd': {
               color = COLOR_DBG;
             } break;

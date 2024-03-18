@@ -5,4 +5,8 @@ struct Debug_Console {
   u64  logs_max;
 } global gDbgConsole;
 
+struct Debug_Memory_Consumption {
+  bool is_open;
+} global gDbgMemoryConsumption;
+
 void tools_update();

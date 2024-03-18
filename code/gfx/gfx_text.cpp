@@ -92,5 +92,6 @@ gfx_size_rich_text(GFX_Rich_Text_Opts const &opts) {
     max_extents.y = Min(max_extents.y, pen.y);
   }
 
+  max_extents.y -= glyph.sz.height;
   return max_extents;
 }
