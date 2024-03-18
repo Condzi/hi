@@ -99,7 +99,7 @@ void
 ui_begin();
 
 struct UI_Widget_Opts {
-  UI_Key  key;
+  Str8    key    = {};
   u32     flags  = {};
   Str8    string = {};
   UI_Size semantic_size[Axis2__count];

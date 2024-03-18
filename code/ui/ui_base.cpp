@@ -242,13 +242,14 @@ ui_begin() {
 
 must_use UI_Widget *
 ui_push_widget(UI_Widget_Opts const &opts) {
-  ErrorContext("frame_id=%zu, key=0x%X", gUI.frame_id, opts.key.hash);
-  ErrorIf(!opts.key.hash, "Widget without key.");
+  ErrorContext("frame_id=%zu, key=%S", gUI.frame_id, opts.key);
+  ErrorIf(!opts.key.sz, "Widget without key.");
   if (opts.flags & UI_WidgetFlag_DrawText) {
     ErrorIf(!opts.string.sz, "Widget wants to draw text, but no text given.");
   }
 
-  UI_Widget *widget = (UI_Widget *)ht_find(gUI.widgets_hash_table, opts.key.hash);
+  UI_Key key = ui_make_key(opts.key);
+  UI_Widget *widget = (UI_Widget *)ht_find(gUI.widgets_hash_table, key.hash);
   if (!widget) {
     ErrorIf(!gUI.free_widgets, "No free widgets available. Increase the cache size!");
     widget           = gUI.free_widgets;
@@ -256,11 +257,11 @@ ui_push_widget(UI_Widget_Opts const &opts) {
     if (gUI.free_widgets) {
       gUI.free_widgets->prev = 0;
     }
-    ht_insert(gUI.widgets_hash_table, opts.key.hash, widget);
+    ht_insert(gUI.widgets_hash_table, key.hash, widget);
   }
 
   *widget = {
-      .key                    = opts.key,
+      .key                    = key,
       .last_frame_touched_idx = gUI.frame_id,
       .flags                  = (UI_Widget_Flag)opts.flags,
       .string                 = opts.string,

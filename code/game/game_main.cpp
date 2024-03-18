@@ -169,7 +169,7 @@ main(int argc, char const *argv[]) {
     gfx_draw_sprite(sprite_1);
 
     gfx_draw_rect_color(rect_1, {.v = 0xFF'00'00'FF});
-    UI_Widget *bg_widget = ui_push_widget({.key           = ui_make_key("background"_s8),
+    UI_Widget *bg_widget = ui_push_widget({.key           = "background"_s8,
                                            .flags         = UI_WidgetFlag_DrawBackground,
                                            .semantic_size = {
                                                {
@@ -199,7 +199,7 @@ main(int argc, char const *argv[]) {
                                  os_get_memory_stats().commited,
                                  str8_dump_struct(mem_info));
 
-    UI_Widget *txt_widget = ui_push_widget({.key           = ui_make_key("debug_text"_s8),
+    UI_Widget *txt_widget = ui_push_widget({.key           = "debug_text"_s8,
                                             .flags         = UI_WidgetFlag_DrawText,
                                             .string        = dbg_text,
                                             .semantic_size = {
@@ -214,7 +214,7 @@ main(int argc, char const *argv[]) {
                                             }});
     Unused(txt_widget);
 
-    UI_Widget *txt_widget2 = ui_push_widget({.key           = ui_make_key("debug_text2"_s8),
+    UI_Widget *txt_widget2 = ui_push_widget({.key           = "debug_text2"_s8,
                                              .flags         = UI_WidgetFlag_DrawText,
                                              .string        = "This is one text"_s8,
                                              .semantic_size = {
@@ -230,7 +230,7 @@ main(int argc, char const *argv[]) {
     Unused(txt_widget2);
 
     UI_Widget *txt_widget3 =
-        ui_push_widget({.key           = ui_make_key("debug_text3"_s8),
+        ui_push_widget({.key           = "debug_text3"_s8,
                         .flags         = UI_WidgetFlag_DrawText | UI_WidgetFlag_HorizontalLayout,
                         .string        = "| This is second text"_s8,
                         .semantic_size = {
