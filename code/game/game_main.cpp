@@ -100,6 +100,7 @@ main(int argc, char const *argv[]) {
 
   LogEng_Info("Hello, World!");
   gDbgConsole.is_open = true;
+  gDbgConsole.logs_max = 24;
 
   u64 frame       = 0;
   f32 psx_acc     = 0;
@@ -176,7 +177,7 @@ main(int argc, char const *argv[]) {
 
     gfx_draw_rect_color(rect_1, {.v = 0xFF'00'00'FF});
       UI_Widget *bg_widget = ui_push_widget({.key           = "background"_s8,
-                                             .flags         = UI_WidgetFlag_DrawBackground,
+                                             .flags         = 0,
                                              .semantic_size = {
                                                  {
                                                      .kind       = UI_SizeKind_Pixels,

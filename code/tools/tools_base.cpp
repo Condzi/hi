@@ -18,8 +18,7 @@ tools_update() {
                   .strictness = 1,
               },
               {
-                  .kind       = UI_SizeKind_PercentOfParent,
-                  .value      = 0.35,
+                  .kind       = UI_SizeKind_ChildrenSum,
                   .strictness = 1,
               },
           },
@@ -31,8 +30,9 @@ tools_update() {
   u64 const         log_count = gContext.log->curr;
   Log_Header const *headers   = gContext.log->headers;
   Str8 const       *messages  = gContext.log->messages;
+  u64 const         begin     = Max((int)log_count - (int)gDbgConsole.logs_max, 0);
 
-  for (u64 i = 0; i < log_count; i++) {
+  for (u64 i = begin; i < log_count; i++) {
     Str8 const widget_key = str8_sprintf(gContext.frame_arena, "log_entry_%zu", i);
     Str8 const log_text   = str8_sprintf(gContext.frame_arena,
                                        "^w%.2f^| %S\n",
