@@ -66,7 +66,7 @@ void
 ui_init(Arena *arena, u64 widgets_cap) {
   gUI.widgets_cap        = widgets_cap;
   gUI.widgets_hash_table = make_hash_table(arena, widgets_cap);
-  gUI.text_height        = 12;
+  gUI.text_height        = 18;
   UI_Widget *widgets     = arena_alloc_array<UI_Widget>(arena, widgets_cap);
   for (u64 i = 0; i < widgets_cap; i++) {
     DLL_insert_at_front(gUI.free_widgets, &(widgets[i]));

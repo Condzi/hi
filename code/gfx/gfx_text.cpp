@@ -24,7 +24,7 @@ gfx_get_glyph(GFX_Font *font, u8 ch, u16 height_px) {
 
   // Calculate the desired width
   //
-  f32 const w = ffloor(((f32)font->char_width * (f32)height_px) / (f32)font->char_height);
+  f32 const w = ((f32)font->char_width * (f32)height_px) / (f32)font->char_height;
 
   return {
       .rect =

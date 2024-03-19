@@ -96,8 +96,7 @@ main(int argc, char const *argv[]) {
 
   ui_init(gContext.misc_arena, 512);
   gUI.font        = &font;
-  gUI.text_height = 12;
-
+  
   LogEng_Debug("Hello, World!");
   LogEng_Info("Hello, World!");
   LogEng_Warn("Hello, World!");
@@ -126,7 +125,7 @@ main(int argc, char const *argv[]) {
     OS_Window_Event *events  = os_gfx_event_pump(gContext.frame_arena);
     for (; events; events = events->next) {
       if (events->type == OS_EventType_ButtonPressed) {
-        LogEng_Info("Event key: %S", game_input_to_str8((Game_Input)events->data.button));
+        LogEng_Info("tvent key: %S", game_input_to_str8((Game_Input)events->data.button));
         if (events->data.button == GameInput_LetterW) {
           mov_dir.y += 1;
         } else if (events->data.button == GameInput_LetterS) {
