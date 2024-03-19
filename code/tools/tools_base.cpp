@@ -27,21 +27,19 @@ tools_update() {
   ui_push_to_stack(bg);
   Defer { ui_pop_stack(); };
 
-  {
-    Str8 const console_header = str8_sprintf(gContext.frame_arena,
-                                             "%.3fs | dt=todo | dt_min=todo | dt_max=todo",
-                                             os_seconds_since_startup());
-    ui_text("console_header"_s8, console_header, 0);
-  }
+  ui_textf("console_header"_s8,
+           0,
+           "%.3fs | dt=todo | dt_min=todo | dt_max=todo",
+           os_seconds_since_startup());
 
   if (gDbgMemoryConsumption.is_open) {
-    OS_Memory_Stats const stats         = os_get_memory_stats();
-    Str8 const            memory_header = str8_sprintf(gContext.frame_arena,
-                                            " Memory reserved: %_$$$zu | Commited: %_$$$zu",
-                                            stats.reserved,
-                                            stats.commited);
+    OS_Memory_Stats const stats = os_get_memory_stats();
 
-    ui_text("memory_header"_s8, memory_header, UI_WidgetFlag_HorizontalLayout);
+    ui_textf("memory_header"_s8,
+             UI_WidgetFlag_HorizontalLayout,
+             " Memory reserved: %_$$$zu | Commited: %_$$$zu",
+             stats.reserved,
+             stats.commited);
   }
 
   if (gDbgConsole.is_open) {
@@ -60,13 +58,8 @@ tools_update() {
         case LogSeverity_Error:   severity = 'e'; break;
       }
       Str8 const widget_key = str8_sprintf(gContext.frame_arena, "log_entry_%zu", i);
-      Str8 const log_text   = str8_sprintf(gContext.frame_arena,
-                                         "^%c%.2f^| %S",
-                                         severity,
-                                         log_timestamp_to_seconds(headers[i].timestamp),
-                                         messages[i]);
-
-      ui_text(widget_key, log_text, 0);
+      f32 const  timestamp  = log_timestamp_to_seconds(headers[i].timestamp);
+      ui_textf(widget_key, 0, "^%c%.2f^| %S", severity, timestamp, messages[i]);
     }
   }
 }

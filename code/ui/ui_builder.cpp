@@ -2,7 +2,7 @@
 #include "all_inc.hpp"
 
 UI_Comm
-ui_text(Str8 key, Str8 text, u32 flags) {
+ui_text(Str8 key, u32 flags, Str8 text) {
   UI_Widget_Opts const opts = {.key           = key,
                                .flags         = flags | UI_WidgetFlag_DrawText,
                                .string        = text,
@@ -13,4 +13,11 @@ ui_text(Str8 key, Str8 text, u32 flags) {
 
   UI_Widget *result = ui_push_widget(opts);
   return {.widget = result};
+}
+
+template <typename... TArgs>
+UI_Comm
+ui_textf(Str8 key, u32 flags, char const* text, TArgs... args) {
+  Str8 fmt = str8_sprintf(gContext.frame_arena, text, args...);
+  return ui_text(key, flags, fmt);
 }
