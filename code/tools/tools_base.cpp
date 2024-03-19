@@ -31,8 +31,7 @@ tools_update() {
     Str8 const console_header = str8_sprintf(gContext.frame_arena,
                                              "%.3fs | dt=todo | dt_min=todo | dt_max=todo",
                                              os_seconds_since_startup());
-    UI_Widget *w              = ui_text("console_header"_s8, console_header, 0);
-    Unused(w);
+    ui_text("console_header"_s8, console_header, 0);
   }
 
   if (gDbgMemoryConsumption.is_open) {
@@ -42,8 +41,7 @@ tools_update() {
                                             stats.reserved,
                                             stats.commited);
 
-    UI_Widget *w = ui_text("memory_header"_s8, memory_header, UI_WidgetFlag_HorizontalLayout);
-    Unused(w);
+    ui_text("memory_header"_s8, memory_header, UI_WidgetFlag_HorizontalLayout);
   }
 
   if (gDbgConsole.is_open) {
@@ -68,8 +66,7 @@ tools_update() {
                                          log_timestamp_to_seconds(headers[i].timestamp),
                                          messages[i]);
 
-      UI_Widget *log_widget = ui_text(widget_key, log_text, 0);
-      Unused(log_widget);
+      ui_text(widget_key, log_text, 0);
     }
   }
 }
