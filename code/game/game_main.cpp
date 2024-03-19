@@ -176,27 +176,15 @@ main(int argc, char const *argv[]) {
 
     gfx_set_camera_for_batches(cam);
 
-    //OS_Memory_Info mem_info = os_get_memory_info();
-
     gfx_draw_sprite(bg);
     gfx_draw_sprite(sprite_1);
 
     gfx_draw_rect_color(rect_1, {.v = 0xFF'00'00'FF});
-      UI_Widget *bg_widget = ui_push_widget({.key           = "background"_s8,
-                                             .flags         = 0,
-                                             .semantic_size = {
-                                                 {
-                                                     .kind       = UI_SizeKind_Pixels,
-                                                     .value      = (f32)os_gfx_surface_width(),
-                                                     .strictness = 1,
-                                                 },
-                                                 {
-                                                     .kind       = UI_SizeKind_Pixels,
-                                                     .value      = (f32)os_gfx_surface_height(),
-                                                     .strictness = 1,
-                                                 },
-                                             }});
-      Unused(bg_widget);
+
+    ui_rect("background"_s8,
+            0,
+            {.kind = UI_SizeKind_Pixels, .value = (f32)os_gfx_surface_width(), .strictness = 1},
+            {.kind = UI_SizeKind_Pixels, .value = (f32)os_gfx_surface_height(), .strictness = 1});
 
     /*
       Str8 dbg_text = str8_sprintf(gContext.frame_arena,

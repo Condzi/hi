@@ -7,24 +7,12 @@ tools_update() {
     return;
   }
 
-  UI_Widget *bg = ui_push_widget({
-      .key   = "debug_console_bg"_s8,
-      .flags = UI_WidgetFlag_DrawBackground | UI_WidgetFlag_AnimateVertical,
-      .semantic_size =
-          {
-              {
-                  .kind       = UI_SizeKind_PercentOfParent,
-                  .value      = 1,
-                  .strictness = 1,
-              },
-              {
-                  .kind       = UI_SizeKind_ChildrenSum,
-                  .strictness = 1,
-              },
-          },
-  });
+  UI_Comm bg = ui_rect("debug_console_bg"_s8,
+                       UI_WidgetFlag_DrawBackground | UI_WidgetFlag_AnimateVertical,
+                       {.kind = UI_SizeKind_PercentOfParent, .value = 1, .strictness = 1},
+                       {.kind = UI_SizeKind_ChildrenSum, .strictness = 1});
 
-  ui_push_to_stack(bg);
+  ui_push_to_stack(bg.widget);
   Defer { ui_pop_stack(); };
 
   ui_textf("console_header"_s8,
