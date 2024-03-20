@@ -1,5 +1,3 @@
-#pragma once
-#include "all_inc.hpp"
 
 #define STB_SPRINTF_DECORATE(name) hi_##name
 #define STB_SPRINTF_IMPLEMENTATION

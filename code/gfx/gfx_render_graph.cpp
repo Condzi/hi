@@ -1,5 +1,3 @@
-#pragma once
-#include "all_inc.hpp"
 
 must_use GFX_Render_Graph *
 gfx_make_render_graph() {

@@ -1,5 +1,3 @@
-#pragma once
-#include "all_inc.hpp"
 
 must_use internal HT_Entry *
 get_free_entry(Hash_Table *ht) {

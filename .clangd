@@ -1,9 +1,0 @@
-If:
-  PathMatch: code/.*
-  PathExclude: [code/3rdparty/.*, code/base/base_types.hpp]
-
-CompileFlags:
-  Add: -includeall_inc.hpp
-  Compiler: clang++
-Diagnostics:
-  UnusedIncludes: None

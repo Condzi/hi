@@ -1,5 +1,3 @@
-#pragma once
-#include "all_inc.hpp"
 
 must_use Str8
 game_input_to_str8(Game_Input v) {

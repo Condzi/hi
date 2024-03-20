@@ -1,5 +1,3 @@
-#pragma once
-#include "all_inc.hpp"
 
 void
 calculate_standalone_size(UI_Widget *widget) {

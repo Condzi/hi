@@ -1,5 +1,3 @@
-#pragma once
-#include "all_inc.hpp"
 
 #include "core/os_core.cpp"
 #include "gfx/os_gfx_keys.cpp"

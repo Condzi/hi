@@ -1,5 +1,3 @@
-#pragma once
-#include "all_inc.hpp"
 
 must_use Arena *
 make_arena(bool grow) {

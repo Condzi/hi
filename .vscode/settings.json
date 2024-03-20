@@ -28,13 +28,5 @@
   "C_Cpp.errorSquiggles": "disabled",
   "cSpell.enabled": false,
   "C_Cpp.intelliSenseEngineFallback": "disabled",
-  "clangd.arguments": [
-    "--clang-tidy",
-    "--background-index",
-    "--background-index-priority=normal",
-    "-j=8",
-    "--header-insertion=never"
-  ],
-  "clangd.checkUpdates": true,
   "debug.onTaskErrors": "abort"
 }

@@ -1,5 +1,3 @@
-#pragma once
-#include "all_inc.hpp"
 
 // @ToDo: support for more physics worlds.
 PSX_World *psx_world;

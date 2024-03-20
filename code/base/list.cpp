@@ -1,6 +1,3 @@
-#pragma once 
-#include "all_inc.hpp"
-
 // Doubly Linked List
 //
 

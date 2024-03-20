@@ -1,5 +1,3 @@
-#pragma once
-#include "all_inc.hpp"
 
 void
 os_gfx_init() {

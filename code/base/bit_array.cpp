@@ -1,5 +1,3 @@
-#pragma once
-#include "all_inc.hpp"
 
 must_use Bit_Array *
 make_bit_array(Arena *arena, u64 num_bits) {

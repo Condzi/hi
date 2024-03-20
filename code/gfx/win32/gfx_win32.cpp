@@ -1,5 +1,3 @@
-#pragma once
-#include "all_inc.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #define STBI_ONLY_PNG

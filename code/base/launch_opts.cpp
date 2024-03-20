@@ -1,5 +1,3 @@
-#pragma once
-#include "all_inc.hpp"
 
 internal Launch_Opt *gOptions;
 

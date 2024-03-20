@@ -1,5 +1,3 @@
-#pragma once
-#include "all_inc.hpp"
 
 internal Key_Bindings *gKeyBindings;
 
@@ -165,7 +163,7 @@ kb_update(OS_Window_Event *events) {
         }
       }
     }
-
+  
     bool const is_released = (it->type == OS_EventType_ButtonReleased);
     bool const is_pressed  = (it->type == OS_EventType_ButtonPressed);
     if (!is_released && !is_pressed) {

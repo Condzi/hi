@@ -1,5 +1,3 @@
-#pragma once
-#include "all_inc.hpp"
 
 // Based on:
 // https://lemire.me/blog/2018/08/15/fast-strongly-universal-64-bit-hashing-everywhere/

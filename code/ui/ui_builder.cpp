@@ -1,5 +1,3 @@
-#pragma once
-#include "all_inc.hpp"
 
 UI_Comm
 ui_text(Str8 key, u32 flags, Str8 text) {

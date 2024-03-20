@@ -1,5 +1,3 @@
-#pragma once
-#include "all_inc.hpp"
 #include "os_info_win32.cpp"
 
 // Globals

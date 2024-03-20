@@ -1,5 +1,3 @@
-#pragma once
-#include "all_inc.hpp"
 
 must_use Error_Context *
 error_context_init(Arena *arena) {

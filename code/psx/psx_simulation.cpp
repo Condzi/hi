@@ -1,5 +1,3 @@
-#pragma once
-#include "all_inc.hpp"
 
 must_use internal PSX_Participants_Array
 psx_get_simulation_participants(PSX_World &w) {

@@ -1,6 +1,3 @@
-#pragma once 
-#include "all_inc.hpp"
-
 #include "gfx_base.cpp"
 #include "gfx_render_graph.cpp"
 #include "gfx_draw.cpp"

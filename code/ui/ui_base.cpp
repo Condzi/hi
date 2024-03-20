@@ -1,5 +1,3 @@
-#pragma once
-#include "all_inc.hpp"
 
 internal void
 cleanup_pointers(UI_Widget *widget) {

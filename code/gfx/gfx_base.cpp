@@ -1,5 +1,3 @@
-#pragma once
-#include "all_inc.hpp"
 
 u32 read_only internal GFX_CHK_LIGHT = 0xFFC3C3C3;
 u32 read_only internal GFX_CHK_DARK  = 0xFF7F7F7F;

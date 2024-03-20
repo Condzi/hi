@@ -1,5 +1,3 @@
-#pragma once
-#include "all_inc.hpp"
 
 must_use OS_Memory_Stats
 os_get_memory_stats() {

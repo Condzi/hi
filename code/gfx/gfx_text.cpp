@@ -1,5 +1,3 @@
-#pragma once
-#include "all_inc.hpp"
 
 must_use GFX_Font
 gfx_make_font(GFX_Image image, u16 char_width, u16 char_height) {

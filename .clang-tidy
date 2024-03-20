@@ -56,7 +56,3 @@ Checks:
 HeaderFileExtensions:         ['', 'hpp','hxx']
 ImplementationFileExtensions: ['cpp','cxx']
 FormatStyle: none
-ExtraArgs: 
-  [
-  '-includeall_inc.hpp', 
-  ]

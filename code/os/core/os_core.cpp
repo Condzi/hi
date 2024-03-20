@@ -1,5 +1,3 @@
-#pragma once
-#include "all_inc.hpp"
 
 must_use f32
 os_seconds_since_startup() {

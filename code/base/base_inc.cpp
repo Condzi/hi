@@ -1,5 +1,3 @@
-#pragma once
-#include "all_inc.hpp"
 
 #include "arena.cpp"
 #include "base_string.cpp"

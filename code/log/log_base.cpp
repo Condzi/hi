@@ -1,5 +1,3 @@
-#pragma once
-#include "all_inc.hpp"
 
 must_use Log *
 make_log(Arena *arena) {

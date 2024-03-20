@@ -1,5 +1,3 @@
-#pragma once
-#include "all_inc.hpp"
 
 // Common math functions
 //
