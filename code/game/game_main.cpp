@@ -102,14 +102,14 @@ main(int argc, char const *argv[]) {
   LogEng_Warn("Hello, World!");
   LogEng_Err("Hello, World!");
 
+  kb_set_key_bindings(make_key_bindings(gContext.misc_arena));
+
   gDbgConsole.is_open = true;
   gDbgConsole.logs_max = 24;
 
   u64 frame       = 0;
   f32 psx_acc     = 0;
   f32 dt          = 0;
-  f32 dt_min      = FLT_MAX;
-  f32 dt_max      = 0;
   f32 frame_begin = os_seconds_since_startup();
   while (os_gfx_window_mode() != OS_WindowMode_Closed) {
     // Frame start
@@ -121,32 +121,36 @@ main(int argc, char const *argv[]) {
 
     // Event handling
     //
-    fvec2            mov_dir = {};
     OS_Window_Event *events  = os_gfx_event_pump(gContext.frame_arena);
-    for (; events; events = events->next) {
-      if (events->type == OS_EventType_ButtonPressed) {
-        LogEng_Info("tvent key: %S", game_input_to_str8((Game_Input)events->data.button));
-        if (events->data.button == GameInput_LetterW) {
-          mov_dir.y += 1;
-        } else if (events->data.button == GameInput_LetterS) {
-          mov_dir.y -= 1;
-        } else if (events->data.button == GameInput_LetterA) {
-          mov_dir.x -= 1;
-        } else if (events->data.button == GameInput_LetterD) {
-          mov_dir.x += 1;
-        } else if (events->data.button == GameInput_LetterV) {
-          gfx_set_vsync(!gfx_is_vsync_enabled());
-        } else if (events->data.button == GameInput_LetterR) {
-          dt_min = FLT_MAX;
-          dt_max = 0;
-        } else if (events->data.button == GameInput_F1) {
-          gDbgConsole.is_open = !gDbgConsole.is_open;
-        } else if (events->data.button == GameInput_F2) {
-          gDbgMemoryConsumption.is_open = !gDbgMemoryConsumption.is_open;
-        }
-      }
+    kb_update(events);
+
+    fvec2            mov_dir = {};
+    if (kb_state(KB_MoveUp).held) {
+      mov_dir.y += 1;
     }
-    psx_body_add_force(world, body, mov_dir * 1000.f);
+    if (kb_state(KB_MoveDown).held) {
+      mov_dir.y -= 1;
+    }
+    if (kb_state(KB_MoveLeft).held) {
+      mov_dir.x -= 1;
+    }
+    if (kb_state(KB_MoveRight).held) {
+      mov_dir.x += 1;
+    }
+
+    if (kb_state(KB_Debug1).pressed) {
+      gDbgConsole.is_open = !gDbgConsole.is_open;
+    }
+
+    if (kb_state(KB_Debug2).pressed) {
+      gDbgMemoryConsumption.is_open = !gDbgMemoryConsumption.is_open;
+    }
+
+    if (kb_state(KB_Debug3).pressed) {
+      gfx_set_vsync(!gfx_is_vsync_enabled());
+    }
+
+    psx_body_add_force(world, body, mov_dir * 100.f);
 
     // Simulation update
     //
@@ -224,7 +228,5 @@ main(int argc, char const *argv[]) {
     f32 frame_end = os_seconds_since_startup();
     dt            = frame_end - frame_begin;
     frame_begin   = frame_end;
-    dt_min        = Min(dt, dt_min);
-    dt_max        = Max(dt, dt_max);
   }
 }
