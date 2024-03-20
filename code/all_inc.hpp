@@ -7,8 +7,10 @@
 #include "gfx/gfx_inc.hpp"
 #include "psx/psx_inc.hpp"
 #include "log/log_inc.hpp"
-#include "ui/ui_inc.hpp"
 #include "kb/kb_inc.hpp"
+
+#include "ui/ui_inc.hpp"
+#include "sys/sys_inc.hpp"
 #include "tools/tools_inc.hpp"
 
 #include "game/game_main.hpp"
@@ -20,6 +22,8 @@
 #include "gfx/gfx_inc.cpp"
 #include "psx/psx_inc.cpp"
 #include "log/log_inc.cpp"
-#include "ui/ui_inc.cpp"
 #include "kb/kb_inc.cpp"
+
+#include "ui/ui_inc.cpp"
+#include "sys/sys_inc.cpp"
 #include "tools/tools_inc.cpp"
