@@ -81,3 +81,17 @@ struct Trap_System {
 
 // ... and similar structures for other entity types, such as level geometry and guns (although with
 // smaller COUNTs).
+
+using Sys_timed_logic_proc_t = void (*)(f32);
+using Sys_logic_proc_t       = void (*)();
+
+struct Sys_Logic {
+  Sys_Logic *next;
+  Sys_Logic *prev;
+
+  Sys_logic_proc_t init;
+  Sys_logic_proc_t shutdown;
+
+  Sys_timed_logic_proc_t update;
+  Sys_timed_logic_proc_t fixed_update;
+};
