@@ -9,4 +9,8 @@ struct Debug_Memory_Consumption {
   bool is_open;
 } global gDbgMemoryConsumption;
 
-void tools_update();
+void
+tools_update();
+
+void
+tools_init();

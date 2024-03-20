@@ -1,12 +1,10 @@
 #pragma once
 
-#include "os_info.hpp"
-
 // OS Layer initialization (implemented per-os)
 //
 
 void
-os_init(int argc, char const *argv[]);
+os_init();
 
 // Memory Allocation
 //

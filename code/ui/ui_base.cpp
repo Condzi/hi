@@ -71,6 +71,10 @@ ui_init(Arena *arena, u64 widgets_cap) {
   }
 
   gUI.anim_speed = 10.f; // HZ
+
+  GFX_Image font_img = d3d_load_png("W:/hi/run_tree/tex/pixel_font_basic_latin_ascii.png"_s8);
+  GFX_Font  font     = gfx_make_font(font_img, 7, 9);
+  gUI.font = &font;
 }
 
 void

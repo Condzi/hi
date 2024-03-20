@@ -49,3 +49,9 @@ tools_update() {
     }
   }
 }
+
+void
+tools_init() {
+  gDbgConsole.is_open  = true;
+  gDbgConsole.logs_max = 24;
+}

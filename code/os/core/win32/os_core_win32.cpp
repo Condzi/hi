@@ -9,7 +9,7 @@ global u64 w32_us_res = 0;
 //
 
 void
-os_init(int argc, char const *argv[]) {
+os_init() {
   // Microsecond counter resolution
   //
   LARGE_INTEGER large_int_resolution;
@@ -20,6 +20,7 @@ os_init(int argc, char const *argv[]) {
 
   // Parse launch options, if any.
   //
+  /*
   if (argc > 1) {
     Str8 *opts_raw = arena_alloc_array<Str8>(gContext.frame_arena, (u64)(argc - 1));
     for (int i = 1; i < argc; i++) {
@@ -27,6 +28,7 @@ os_init(int argc, char const *argv[]) {
     }
     parse_launch_opts(opts_raw, (u64)(argc - 1));
   }
+  */
 }
 
 // Memory Allocation
