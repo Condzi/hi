@@ -16,6 +16,11 @@ make_key_bindings(Arena *arena) {
   b[KB_MenuBack].primary = b[KB_MenuBack].def = GameInput_Escape;
   b[KB_MenuEnter].primary = b[KB_MenuEnter].def = GameInput_Enter;
 
+  b[KB_Debug1].primary = b[KB_Debug1].def = GameInput_F1;
+  b[KB_Debug2].primary = b[KB_Debug2].def = GameInput_F2;
+  b[KB_Debug3].primary = b[KB_Debug3].def = GameInput_F3;
+  b[KB_Debug4].primary = b[KB_Debug4].def = GameInput_F4;
+
   return kb;
 }
 
@@ -36,6 +41,10 @@ kb_to_str8(KB_Type kb) {
     case KB_MoveRight: return "Move Right"_s8;
     case KB_MenuBack:  return "Menu Back"_s8;
     case KB_MenuEnter: return "Menu Enter"_s8;
+    case KB_Debug1:    return "Debug 1"_s8;
+    case KB_Debug2:    return "Debug 2"_s8;
+    case KB_Debug3:    return "Debug 3"_s8;
+    case KB_Debug4:    return "Debug 4"_s8;
   }
 }
 
@@ -136,15 +145,29 @@ kb_update(OS_Window_Event *events) {
   ErrorIf(!gKeyBindings, "Key Bindings are not set.");
 
   // All keys that were 'released' in previous frame, now are not.
+  // Keys that had been pressed now are considered 'held' (unless ButtonReleased arrives).
   //
   for (u64 i = 0; i < gKeyBindings->sz; i++) {
-    gKeyBindings->states[i].released = false;
+    KB_State &state = gKeyBindings->states[i];
+    if (state.pressed) {
+      state = {.held = true};
+    }
+    state.released = false;
   }
 
-  OS_Window_Event *it = events;
-  while (it) {
+  for (OS_Window_Event *it = events; it; it = it->next) {
+    bool const lost_focus = (it->type == OS_EventType_WindowLostFocus);
+    if (lost_focus) {
+      for (u64 i = 0; i < gKeyBindings->sz; i++) {
+        KB_State &state = gKeyBindings->states[i];
+        if (state.held || state.pressed) {
+          state = {.released = true};
+        }
+      }
+    }
+
     bool const is_released = (it->type == OS_EventType_ButtonReleased);
-    bool const is_pressed  = (it->type != OS_EventType_ButtonPressed);
+    bool const is_pressed  = (it->type == OS_EventType_ButtonPressed);
     if (!is_released && !is_pressed) {
       // We don't care.
       continue;
@@ -159,16 +182,12 @@ kb_update(OS_Window_Event *events) {
       }
       KB_State &state = gKeyBindings->states[i];
       if (is_pressed) {
-        if (state.pressed) {
-          state = {.held = true};
-        } else {
-          state = {.pressed = true};
-        }
-      } else {
+        state = {.pressed = true};
+      }
+
+      if (is_released) {
         state = {.released = true};
       }
     }
-
-    it = it->next;
   }
 }

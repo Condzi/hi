@@ -9,6 +9,11 @@ enum KB_Type {
   KB_MenuBack,
   KB_MenuEnter,
 
+  KB_Debug1,
+  KB_Debug2,
+  KB_Debug3,
+  KB_Debug4,
+
   KB__count
 };
 
