@@ -16,7 +16,6 @@
 ## Base
 
     [ ] Rand (perlin noise, random range)
-    [ ] Add list inserting that puts nodes at the beginning, not at the end. What was I thinking? lol
 
 ## Debug Tools
 
@@ -30,6 +29,10 @@
 ## Entities & Systems
 
     [ ] List of systems to update. Maybe sort by priority?
+    [ ] Game state machine
+      - pause
+      - game
+      - menu
 
     Rough system ideas:
     - physics system
@@ -109,18 +112,19 @@
 
 ## OS Core
 
-    [ ] Filesystem 
-    [ ] Threads
-    [ ] Mutexes
-    [ ] File Watch (notify when file updates) / Hot Reload
-    [ ] SEH / crash handling
-      [ ] Determine what exceptions to catch
-      [ ] write minidump
-      [ ] write log and error context to the crash info
-    [ ] OS Information, 
-      [X] Memory (RAM)
-      [ ] CPU family, cache, frequency
-      [ ] SIMD detection
+  [ ] OS layer callbacks (init/loop/shutdown)
+  [ ] Filesystem 
+  [ ] Threads
+  [ ] Mutexes
+  [ ] File Watch (notify when file updates) / Hot Reload
+  [ ] SEH / crash handling
+    [ ] Determine what exceptions to catch
+    [ ] write minidump
+    [ ] write log and error context to the crash info
+  [ ] OS Information, 
+    [X] Memory (RAM)
+    [ ] CPU family, cache, frequency
+    [ ] SIMD detection
 
 ## OS Gfx
 
