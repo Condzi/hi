@@ -97,9 +97,78 @@ kb_reset_all() {
   LogEng_Info("[kb] All set to default.");
 }
 
+must_use bool
+kb_set_primary(KB_Type kb, Game_Input key) {
+  ErrorContext("kb=%S, key=%S", kb_to_str8(kb), game_input_to_str8(key));
+  ErrorIf(!gKeyBindings, "Key Bindings are not set.");
+
+  if (kb_query_key_usage(key).sz) {
+    return false;
+  }
+  gKeyBindings->binds[(u16)kb].primary = key;
+  LogEng_Info("[kb] New primary for '%S': '%S'.", kb_to_str8(kb), game_input_to_str8(key));
+  return true;
+}
+
+must_use bool
+kb_set_secondary(KB_Type kb, Game_Input key) {
+  ErrorContext("kb=%S, key=%S", kb_to_str8(kb), game_input_to_str8(key));
+  ErrorIf(!gKeyBindings, "Key Bindings are not set.");
+
+  if (kb_query_key_usage(key).sz) {
+    return false;
+  }
+  gKeyBindings->binds[(u16)kb].secondary = key;
+  LogEng_Info("[kb] New secondsary for '%S': '%S'.", kb_to_str8(kb), game_input_to_str8(key));
+  return true;
+}
+
 must_use KB_State
 kb_state(KB_Type which) {
   ErrorContext("which=0x%X", (u32)which);
   ErrorIf(!gKeyBindings, "Key Bindings are not set.");
   return gKeyBindings->states[(u16)which];
+}
+
+void
+kb_update(OS_Window_Event *events) {
+  ErrorContext("");
+  ErrorIf(!gKeyBindings, "Key Bindings are not set.");
+
+  // All keys that were 'released' in previous frame, now are not.
+  //
+  for (u64 i = 0; i < gKeyBindings->sz; i++) {
+    gKeyBindings->states[i].released = false;
+  }
+
+  OS_Window_Event *it = events;
+  while (it) {
+    bool const is_released = (it->type == OS_EventType_ButtonReleased);
+    bool const is_pressed  = (it->type != OS_EventType_ButtonPressed);
+    if (!is_released && !is_pressed) {
+      // We don't care.
+      continue;
+    }
+
+    Game_Input const button = (Game_Input)it->data.button;
+    for (u64 i = 0; i < gKeyBindings->sz; i++) {
+      Game_Input const primary   = (Game_Input)gKeyBindings->binds[i].primary;
+      Game_Input const secondary = (Game_Input)gKeyBindings->binds[i].secondary;
+      if (button != primary && button != secondary) {
+        continue;
+      }
+      KB_State &state = gKeyBindings->states[i];
+      if (is_pressed) {
+        if (state.pressed) {
+          state = {.held = true};
+        } else {
+          state = {.pressed = true};
+        }
+      } else {
+        state = {.released = true};
+      }
+    }
+
+    it = it->next;
+  }
 }

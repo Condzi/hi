@@ -55,5 +55,14 @@ kb_reset_one(KB_Type which);
 void
 kb_reset_all();
 
+must_use bool
+kb_set_primary(KB_Type kb, Game_Input key);
+
+must_use bool
+kb_set_secondary(KB_Type kb, Game_Input key);
+
 must_use KB_State
 kb_state(KB_Type which);
+
+void
+kb_update(OS_Window_Event* events);
