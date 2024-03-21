@@ -16,6 +16,7 @@
 ## Base
 
     [ ] Rand (perlin noise, random range)
+    [ ] Pool allocator -- it should work like the cache of reusable objects
 
 ## Debug Tools
 

@@ -43,8 +43,7 @@ startup() {
 
 f32 psx_acc;
 bool
-update(f32 dt) {
-
+loop(f32 dt) {
   gfx_renderer_begin_frame();
 
   ui_begin(dt);
@@ -88,11 +87,6 @@ update(f32 dt) {
 
   ui_end();
 
-  return os_gfx_window_mode() != OS_WindowMode_Closed;
-}
-
-void
-render() {
   gfx_renderer_end_frame();
 
   // State cleanup
@@ -101,6 +95,8 @@ render() {
   arena_clear(gContext.frame_arena);
   scratch_end(&error_context_scratch);
   gContext.error_context->first = gContext.error_context->last = 0;
+
+  return os_gfx_window_mode() != OS_WindowMode_Closed;
 }
 
   void
@@ -108,4 +104,4 @@ render() {
     LogGame_Info("Teardown");
   }
 
-  HI_ENTRY_POINT(startup, update, render, teardown);
+  HI_ENTRY_POINT(startup, loop, teardown);
