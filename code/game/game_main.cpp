@@ -99,9 +99,9 @@ loop(f32 dt) {
   return os_gfx_window_mode() != OS_WindowMode_Closed;
 }
 
-  void
-  teardown() {
-    LogGame_Info("Teardown");
-  }
+void
+teardown() {
+  LogGame_Info("Teardown");
+}
 
-  HI_ENTRY_POINT(startup, loop, teardown);
+HI_ENTRY_POINT(startup, loop, teardown);

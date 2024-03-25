@@ -10,7 +10,7 @@
 #include "kb/kb_inc.hpp"
 
 #include "ui/ui_inc.hpp"
-#include "sys/sys_inc.hpp"
+#include "ecs/ecs_inc.hpp"
 #include "tools/tools_inc.hpp"
 
 #include "game/game_main.hpp"
@@ -25,5 +25,5 @@
 #include "kb/kb_inc.cpp"
 
 #include "ui/ui_inc.cpp"
-#include "sys/sys_inc.cpp"
+#include "ecs/ecs_inc.cpp"
 #include "tools/tools_inc.cpp"
