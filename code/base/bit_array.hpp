@@ -3,6 +3,7 @@
 struct Bit_Array {
   u64  sz; // in bits
   u64 *v;
+  u64  num_set;
 };
 
 must_use Bit_Array *
@@ -30,6 +31,12 @@ ba_is_any_unset(Bit_Array *array);
 must_use u64
 ba_find_first_set(Bit_Array *array);
 
+must_use u64
+ba_find_first_set_from(Bit_Array *array, u64 beg);
+
 // Returns MAX_U64 if not found.
 must_use u64
 ba_find_first_unset(Bit_Array *array);
+
+must_use u64
+ba_find_first_unset_from(Bit_Array *array, u64 beg);
