@@ -10,7 +10,7 @@
       "request": "launch",
       "program": "${workspaceRoot}/build/game.exe",
       "cwd": "${workspaceRoot}/run_tree/",
-      "preLaunchTask": "Game [debug] [clang]",
+      "preLaunchTask": "[debug] [clang]",
       "logging": {
         "exceptions": false,
         "moduleLoad": false,
@@ -28,7 +28,7 @@
       "request": "launch",
       "program": "${workspaceRoot}/build/game.exe",
       "cwd": "${workspaceRoot}/run_tree/",
-      "preLaunchTask": "Game [debug] [asan] [clang]",
+      "preLaunchTask": "[debug] [asan] [clang]",
       "logging": {
         "exceptions": false,
         "moduleLoad": false,
@@ -46,7 +46,7 @@
       "request": "launch",
       "program": "${workspaceRoot}/build/game.exe",
       "cwd": "${workspaceRoot}/run_tree/",
-      "preLaunchTask": "Game [debug] [ubsan] [clang]",
+      "preLaunchTask": "[debug] [ubsan] [clang]",
       "environment": [
         {
           "name": "UBSAN_OPTIONS",
@@ -70,7 +70,7 @@
       "request": "launch",
       "program": "${workspaceRoot}/build/game.exe",
       "cwd": "${workspaceRoot}/run_tree/",
-      "preLaunchTask": "Game [debug] [asan] [ubsan] [clang]",
+      "preLaunchTask": "[debug] [asan] [ubsan] [clang]",
       "environment": [
         {
           "name": "UBSAN_OPTIONS",
@@ -94,7 +94,7 @@
       "request": "launch",
       "program": "${workspaceRoot}/build/game.exe",
       "cwd": "${workspaceRoot}/run_tree/",
-      "preLaunchTask": "Game [release] [clang]",
+      "preLaunchTask": "[release] [clang]",
       "logging": {
         "exceptions": false,
         "moduleLoad": false,

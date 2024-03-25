@@ -7,11 +7,9 @@ enum Sys_Type {
   Sys_Type__count,
 };
 
-// @ToDo: replace void* with pointer to ECS instance 
-//
-using Sys_init_proc     = void (*)(void *);
-using Sys_shutdown_proc = void (*)(void *);
-using Sys_update_proc   = void (*)(void *, f32);
+using Sys_init_proc     = void (*)(ECS_World *);
+using Sys_shutdown_proc = void (*)(ECS_World *);
+using Sys_update_proc   = void (*)(ECS_World *, f32);
 
 struct Sys_Logic {
   Sys_Logic *next;

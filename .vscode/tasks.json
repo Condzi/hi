@@ -15,7 +15,7 @@
   // },
   "tasks": [
     {
-      "label": "Game [debug] [clang]",
+      "label": "[debug] [clang]",
       "type": "shell",
       "command": "build",
       "args": [
@@ -32,7 +32,7 @@
       }
     },
     {
-      "label": "Game [release] [clang]",
+      "label": "[release] [clang]",
       "type": "shell",
       "command": "build",
       "args": [
@@ -48,7 +48,7 @@
       ]
     },
     {
-      "label": "Game [debug] [asan] [clang]",
+      "label": "[debug] [asan] [clang]",
       "type": "shell",
       "command": "build",
       "args": [
@@ -64,7 +64,7 @@
     },
 
     {
-      "label": "Game [debug] [ubsan] [clang]",
+      "label": "[debug] [ubsan] [clang]",
       "type": "shell",
       "command": "build",
       "args": [
@@ -80,7 +80,7 @@
     },
 
     {
-      "label": "Game [debug] [asan] [ubsan] [clang]",
+      "label": "[debug] [asan] [ubsan] [clang]",
       "type": "shell",
       "command": "build",
       "args": [
