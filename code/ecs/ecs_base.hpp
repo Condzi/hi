@@ -15,7 +15,7 @@ struct ECS_Entity_ID {
 
 #define ECS_IS_NULL(id) ((id).is_set == 0)
 #define ECS_ID_EQUALS(a, b)                                                                        \
-  (((a).idx == (b).idx) && ((a).world == (b).world) && ((a).revision == (b).revision))
+  (!ECS_IS_NULL(a) && !ECS_IS_NULL(b) && ((a).idx == (b).idx) && ((a).revision == (b).revision))
 
 struct ECS_Sprite_Component {
   // Relative to physics body
@@ -34,7 +34,9 @@ struct ECS_Physics_Body_Component {
 };
 
 struct ECS_World {
+  Arena* arena;
   // Status
+  //
   Bit_Array *alive;
   Bit_Array *to_remove;
 
@@ -43,7 +45,7 @@ struct ECS_World {
   ECS_Entity_ID              id[ECS_LIMIT];
   ECS_Sprite_Component       sprite[ECS_LIMIT];
   ECS_Physics_Body_Component physics_body[ECS_LIMIT];
-};
+} *gECS;
 
 void
 ecs_init();
