@@ -1,4 +1,7 @@
 #pragma once
 
-#include "en_player.hpp"
-#include "en_background.hpp"
+must_use ECS_Entity_ID
+spawn_background();
+
+must_use ECS_Entity_ID
+spawn_player();

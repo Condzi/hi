@@ -30,7 +30,7 @@
 ## Entities & Systems
 
     [ ] List of systems to update. Maybe sort by priority?
-    [ ] Game state machine
+    [ ] Game state machine. This is just a list of systems to run.
       - pause
       - game
       - menu
@@ -67,6 +67,7 @@
 ## GFX
 
   [ ] Refactor plz
+    - easier debugging pls
     - why the fuck do we silently fail when layer is not specified??
     - The code is full of repetitions and not robust. Also, fix poor resource handling, or actually lack of it.
     - Perhaps render graph nodes can be dealt with similarly to how UI_Widget is being constructed -
