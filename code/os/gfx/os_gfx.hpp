@@ -35,6 +35,9 @@ os_gfx_surface_width();
 must_use u32
 os_gfx_surface_height();
 
+must_use fvec2
+os_gfx_mouse_pos();
+
 must_use f32
 os_gfx_refresh_rate();
 

@@ -58,7 +58,7 @@ loop(f32 dt) {
 
   gfx_renderer_begin_frame();
   gfx_set_camera_for_batches(gGameMaster.camera);
-  
+
   ui_begin(dt);
   ui_rect("background"_s8,
           0,

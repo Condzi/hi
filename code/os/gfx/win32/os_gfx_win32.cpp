@@ -121,6 +121,15 @@ os_gfx_surface_height() {
   return h;
 }
 
+must_use fvec2
+os_gfx_mouse_pos() {
+  ::POINT pos;
+  ::GetCursorPos(&pos);
+  ::ScreenToClient(w32_hwnd, &pos);
+
+  return {.x = (f32)pos.x, .y = (f32)os_gfx_surface_height() - (f32)pos.y};
+}
+
 must_use f32
 os_gfx_refresh_rate() {
   return w32_refresh_rate;
