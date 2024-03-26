@@ -4,6 +4,15 @@
 //
 u64 read_only global ECS_LIMIT = 2'000;
 
+enum Sys_Type {
+  Sys_Type_Physics,
+  Sys_Type_Rendering,
+
+  Sys_Type_PlayerControl,
+
+  Sys_Type__count,
+};
+
 // Common Types
 //
 
@@ -40,12 +49,14 @@ struct ECS_World {
   //
   Bit_Array *alive;
   Bit_Array *to_remove;
+  Bit_Array *systems[Sys_Type__count];
 
   // Components
   //
 #define X(type, name) type name[ECS_LIMIT];
 #include "ecs_components.inl"
 #undef X
+
 } global *gECS;
 
 void

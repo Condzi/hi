@@ -6,12 +6,19 @@ ecs_init() {
   Arena     *arena     = make_arena(false);
   Bit_Array *alive     = make_bit_array(arena, ECS_LIMIT);
   Bit_Array *to_remove = make_bit_array(arena, ECS_LIMIT);
+  Bit_Array *systems[Sys_Type__count] = {};
+  for (int i = 0; i < Sys_Type__count; i++) {
+    systems[i] = make_bit_array(arena, ECS_LIMIT);
+  }
+
   gECS                 = arena_alloc<ECS_World>(arena);
   *gECS                = {
                      .arena     = arena,
                      .alive     = alive,
                      .to_remove = to_remove,
   };
+
+  MemoryCopy(gECS->systems, systems, sizeof(systems));
 }
 
 must_use ECS_Entity_ID
@@ -40,6 +47,7 @@ ecs_kill(ECS_Entity_ID id) {
   ErrorIf(!ECS_ID_EQUALS(id, gECS->id[id.idx]), "IDs do not match");
 
   ba_set(gECS->to_remove, id.idx);
+  gECS->id[id.idx].revision++;
 }
 
 void

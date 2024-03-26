@@ -1,12 +1,5 @@
 #pragma once
 
-enum Sys_Type {
-  Sys_Type_Physics,
-  Sys_Type_Rendering,
-
-  Sys_Type__count,
-};
-
 using Sys_init_proc     = void (*)(ECS_World *);
 using Sys_shutdown_proc = void (*)(ECS_World *);
 using Sys_update_proc   = void (*)(ECS_World *, f32);
