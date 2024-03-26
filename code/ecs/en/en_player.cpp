@@ -4,7 +4,6 @@ spawn_player() {
   u16 const     idx       = player_id.idx;
 
   gECS->transform[idx] = {
-      .relative_to_psx_body = true,
       .scale                = {.x = 3, .y = 3},
   };
 

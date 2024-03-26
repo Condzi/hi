@@ -27,7 +27,6 @@ struct ECS_Entity_ID {
   (!ECS_IS_NULL(a) && !ECS_IS_NULL(b) && ((a).idx == (b).idx) && ((a).revision == (b).revision))
 
 struct ECS_Transform_Component {
-  bool  relative_to_psx_body;
   fvec2 pos;
   f32   rot = 0;
   fvec2 scale;
