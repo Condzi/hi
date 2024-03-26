@@ -66,36 +66,23 @@ loop(f32 dt) {
   OS_Window_Event *events = os_gfx_event_pump(gContext.frame_arena);
   kb_update(events);
 
-  if (kb_state(KB_Debug1).pressed) {
-    gDbgConsole.is_open = !gDbgConsole.is_open;
-  }
-
-  if (kb_state(KB_Debug2).pressed) {
-    gDbgMemoryConsumption.is_open = !gDbgMemoryConsumption.is_open;
-  }
-
-  if (kb_state(KB_Debug3).pressed) {
-    gfx_set_vsync(!gfx_is_vsync_enabled());
-  }
-
-
   gfx_renderer_begin_frame();
   gfx_set_camera_for_batches(gGameMaster.camera);
-
-  player_control_system().update(dt);
-  physics_system().update(dt);
-  rendering_system().update(dt);
-
+  
   ui_begin(dt);
   ui_rect("background"_s8,
           0,
           {.kind = UI_SizeKind_Pixels, .value = (f32)os_gfx_surface_width(), .strictness = 1},
           {.kind = UI_SizeKind_Pixels, .value = (f32)os_gfx_surface_height(), .strictness = 1});
-
   tools_update();
 
-  ui_end();
+  player_control_system().update(dt);
+  physics_system().update(dt);
+  rendering_system().update(dt);
 
+
+
+  ui_end();
   gfx_renderer_end_frame();
 
   // State cleanup
