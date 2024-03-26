@@ -38,15 +38,27 @@ startup() {
 
   kb_set_key_bindings(make_key_bindings(gContext.misc_arena));
 
+  gGameMaster.psx_world = psx_make_world(64);
+
+  // @Assets
+  gGameMaster.characters = d3d_load_png("W:/hi/run_tree/tex/characters.png"_s8);
+  gGameMaster.bg         = gfx_checkerboard_image(64, 16, 16);
+
+  GFX_Image font_img = d3d_load_png("W:/hi/run_tree/tex/pixel_font_basic_latin_ascii.png"_s8);
+  gGameMaster.font   = gfx_make_font(font_img, 7, 9);
+  gUI.font           = &(gGameMaster.font);
+
+  gGameMaster.camera = {
+      .center = {200, 200},
+      .zoom   = 0.8f,
+  };
+
   return true;
 }
 
 f32 psx_acc;
 bool
 loop(f32 dt) {
-  gfx_renderer_begin_frame();
-
-  ui_begin(dt);
 
   // Event handling
   //
@@ -78,6 +90,10 @@ loop(f32 dt) {
     psx_acc = 0;
   }
 
+  gfx_renderer_begin_frame();
+  gfx_set_camera_for_batches(gGameMaster.camera);
+
+  ui_begin(dt);
   ui_rect("background"_s8,
           0,
           {.kind = UI_SizeKind_Pixels, .value = (f32)os_gfx_surface_width(), .strictness = 1},
