@@ -14,8 +14,8 @@ rendering_update(f32 dt) {
   Unused(dt);
 
   Bit_Array *system = gECS->systems[Sys_Type_Rendering];
-  u64        idx    = ba_find_first_set_from(system, 0);
-  for (; idx != MAX_U32; idx = ba_find_first_set_from(system, idx + 1)) {
+  u64        idx    = ba_find_first_set(system);
+  for (; idx != MAX_U64;) {
     ECS_Sprite_Component const    &sprite_component    = gECS->sprite[idx];
     ECS_Transform_Component const &transform_component = gECS->transform[idx];
     GFX_Sprite_Opts const          sprite              = {
@@ -29,6 +29,7 @@ rendering_update(f32 dt) {
     };
 
     gfx_draw_sprite(sprite);
+    idx = ba_find_first_set_from(system, idx + 1);
   }
 }
 

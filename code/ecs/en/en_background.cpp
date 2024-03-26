@@ -10,6 +10,7 @@ spawn_background() {
 
   gECS->transform[idx] = {
       .pos   = {-bg_sz.x / 2, bg_sz.y / 2},
+      .scale = {1, 1},
   };
 
   gECS->sprite[idx] = {

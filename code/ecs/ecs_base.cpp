@@ -11,11 +11,11 @@ ecs_init() {
     systems[i] = make_bit_array(arena, ECS_LIMIT);
   }
 
-  gECS                 = arena_alloc<ECS_World>(arena);
-  *gECS                = {
-                     .arena     = arena,
-                     .alive     = alive,
-                     .to_remove = to_remove,
+  gECS  = arena_alloc<ECS_World>(arena);
+  *gECS = {
+      .arena     = arena,
+      .alive     = alive,
+      .to_remove = to_remove,
   };
 
   MemoryCopy(gECS->systems, systems, sizeof(systems));
@@ -30,6 +30,9 @@ ecs_spawn() {
   u16 const idx = (u16)ba_find_first_unset(gECS->alive);
   ba_set(gECS->alive, idx);
   gECS->id[idx].revision++;
+  gECS->id[idx].idx    = idx;
+  gECS->id[idx].is_set = 1;
+
   return gECS->id[idx];
 }
 

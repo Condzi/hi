@@ -80,6 +80,15 @@ gfx_renderer_end_frame() {
     u64 const   objects_sz = gRen.game_objects_in_frame.sz;
     ErrorContext("game_objects_count=%zu", objects_sz);
 
+    for (u64 i = 0; i < objects_sz; i++) {
+      GFX_Material const& mat = objects[i].material;
+                if (mat.sprite.tex.v[0] == gGameMaster.bg.v[0]) {
+            LogEng_Info("tex=bg");
+          } else if (mat.sprite.tex.v[0] == gGameMaster.characters.v[0]) {
+            LogEng_Info("tex=characters");
+          }
+    }
+
     if (objects && objects_sz) {
       // @Performance Bubble sort the objects by layer.
       //
@@ -87,10 +96,10 @@ gfx_renderer_end_frame() {
         bool swapped = false;
         for (u64 i = 0; i < objects_sz - 1; i++) {
           swapped = false;
-          for (u64 j = objects_sz - 1; j > i; j--) {
+          for (u64 j = 0; j < objects_sz - i - 1; j++) {
             GFX_Object &obj_j   = objects[j];
             GFX_Object &obj_j_1 = objects[j + 1];
-            if (obj_j.layer.v < obj_j_1.layer.v) {
+            if (obj_j.layer.v > obj_j_1.layer.v) {
               Swap(obj_j, obj_j_1);
               swapped = true;
             }
@@ -98,15 +107,6 @@ gfx_renderer_end_frame() {
           if (!swapped) {
             break;
           }
-        }
-      }
-
-      for (u64 i = 0; i < objects_sz; i++) {
-        GFX_Material const &mat = objects[i].material;
-        if (mat.sprite.tex.v[0] == gGameMaster.bg.v[0]) {
-          LogEng_Info("tex=bg, object_sz=%zu", objects_sz);
-        } else if (mat.sprite.tex.v[0] == gGameMaster.characters.v[0]) {
-          LogEng_Info("tex=characters, object_sz=%zu", objects_sz);
         }
       }
 
