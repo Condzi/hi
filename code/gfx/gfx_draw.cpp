@@ -80,15 +80,6 @@ gfx_renderer_end_frame() {
     u64 const   objects_sz = gRen.game_objects_in_frame.sz;
     ErrorContext("game_objects_count=%zu", objects_sz);
 
-    for (u64 i = 0; i < objects_sz; i++) {
-      GFX_Material const& mat = objects[i].material;
-                if (mat.sprite.tex.v[0] == gGameMaster.bg.v[0]) {
-            LogEng_Info("tex=bg");
-          } else if (mat.sprite.tex.v[0] == gGameMaster.characters.v[0]) {
-            LogEng_Info("tex=characters");
-          }
-    }
-
     if (objects && objects_sz) {
       // @Performance Bubble sort the objects by layer.
       //
