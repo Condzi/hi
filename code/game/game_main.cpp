@@ -33,6 +33,7 @@ startup() {
   ecs_init();
   physics_system().init();
   rendering_system().init();
+  player_control_system().init();
 
   ui_init(gContext.misc_arena, 512);
   tools_init();
@@ -81,6 +82,7 @@ loop(f32 dt) {
   gfx_renderer_begin_frame();
   gfx_set_camera_for_batches(gGameMaster.camera);
 
+  player_control_system().update(dt);
   physics_system().update(dt);
   rendering_system().update(dt);
 

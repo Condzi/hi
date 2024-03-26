@@ -32,7 +32,7 @@ physics_update(f32 dt) {
     ECS_Physics_Body_Component const &physics_component   = gECS->physics_body[idx];
     PSX_Body_ID const                 body_id             = physics_component.body;
 
-    transform_component.pos = psx_body_get_position(world_id, body_id);
+    transform_component.pos = psx_body_get_position(world_id, body_id) * PSX_SCALE;
     transform_component.rot = psx_body_get_rotation(world_id, body_id);
     idx                     = ba_find_first_set_from(system, idx + 1);
   }
