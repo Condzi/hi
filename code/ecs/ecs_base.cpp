@@ -58,6 +58,9 @@ ecs_kill_pass() {
 #define X(unused_, name) gECS->name[idx] = {};
 #include "ecs_components.inl"
 #undef X
+    for (int i = 0; i < Sys_Type__count; i++) {
+      ba_unset(gECS->systems[i], idx);
+    }
     idx++;
   }
 
