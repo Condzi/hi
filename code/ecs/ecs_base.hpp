@@ -17,13 +17,14 @@ struct ECS_Entity_ID {
 #define ECS_ID_EQUALS(a, b)                                                                        \
   (!ECS_IS_NULL(a) && !ECS_IS_NULL(b) && ((a).idx == (b).idx) && ((a).revision == (b).revision))
 
-struct ECS_Sprite_Component {
-  // Relative to physics body
-  //
+struct ECS_Transform_Component {
+  bool  relative_to_psx_body;
   fvec2 pos;
   f32   rot = 0;
+  fvec2 scale;
+};
 
-  fvec2        scale;
+struct ECS_Sprite_Component {
   GFX_Image    tex;
   GFX_Tex_Rect tex_rect;
   GFX_Layer    layer;
@@ -42,13 +43,19 @@ struct ECS_World {
 
   // Components
   //
-  ECS_Entity_ID              id[ECS_LIMIT];
-  ECS_Sprite_Component       sprite[ECS_LIMIT];
-  ECS_Physics_Body_Component physics_body[ECS_LIMIT];
-} *gECS;
+#define X(type, name) type name[ECS_LIMIT];
+#include "ecs_components.inl"
+#undef X
+} global *gECS;
 
 void
 ecs_init();
 
-ECS_Entity_ID
+must_use ECS_Entity_ID
 ecs_spawn();
+
+void
+ecs_kill(ECS_Entity_ID id);
+
+void
+ecs_kill_pass();
