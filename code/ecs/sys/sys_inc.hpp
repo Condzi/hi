@@ -1,5 +1,10 @@
 #pragma once
 
-#include "sys_physics.hpp"
-#include "sys_rendering.hpp"
-#include "sys_player_control.hpp"
+must_use Sys_Logic
+physics_system();
+
+must_use Sys_Logic
+rendering_system();
+
+must_use Sys_Logic
+player_control_system();

@@ -137,5 +137,8 @@ psx_body_add_force(PSX_World_ID world, PSX_Body_ID id, fvec2 force);
 must_use fvec2
 psx_body_get_position(PSX_World_ID world, PSX_Body_ID body);
 
+must_use f32
+psx_body_get_rotation(PSX_World_ID world, PSX_Body_ID body);
+
 void
 psx_body_add_box_shape(PSX_World_ID world, PSX_Body_ID body, fvec2 pos, fvec2 sz);

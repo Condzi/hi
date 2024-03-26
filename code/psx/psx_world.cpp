@@ -174,3 +174,11 @@ psx_body_get_position(PSX_World_ID world, PSX_Body_ID body) {
   PSX_Body  &b = psx_body_from_id(w, body);
   return b.pos;
 }
+
+must_use f32
+psx_body_get_rotation(PSX_World_ID world, PSX_Body_ID body) {
+  ErrorContext("idx=%u, world=%u, revision=%u", body.idx, body.world, body.revision);
+  PSX_World &w = psx_world_from_id(world);
+  PSX_Body  &b = psx_body_from_id(w, body);
+  return b.rot;
+}

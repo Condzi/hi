@@ -29,13 +29,11 @@ startup() {
       .vp_height = os_gfx_surface_height(),
       .vsync     = true,
   });
-  gfx_renderer_init();
 
   ui_init(gContext.misc_arena, 512);
   tools_init();
 
   kb_set_key_bindings(make_key_bindings(gContext.misc_arena));
-
 
   // @Assets
   gGameMaster.characters = d3d_load_png("W:/hi/run_tree/tex/characters.png"_s8);

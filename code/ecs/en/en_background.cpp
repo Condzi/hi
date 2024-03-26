@@ -15,7 +15,7 @@ spawn_background() {
   gECS->sprite[idx] = {
       .tex      = gGameMaster.bg,
       .tex_rect = {.x = 0, .y = 0, .w = (u16)bg_sz.x, .h = (u16)bg_sz.y},
-      .layer    = {.category = GFX_Layer_Foreground},
+      .layer    = {.category = GFX_Layer_Background},
   };
 
   ba_set(gECS->systems[Sys_Type_Rendering], idx);
