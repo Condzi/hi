@@ -2,18 +2,8 @@
 
 #include "game_main.hpp"
 
-Scratch_Buffer error_context_scratch;
-
 bool
 startup() {
-  gContext.frame_arena = make_arena(false);
-  gContext.misc_arena  = make_arena(true);
-  gContext.log         = make_log(make_arena(false));
-
-  Arena *error_context_arena = make_arena(false);
-  gContext.error_context     = error_context_init(error_context_arena);
-  // Error context is put into scratch buffer, cleared every frame.
-  error_context_scratch = scratch_begin(error_context_arena);
   os_init();
   os_gfx_init();
 
@@ -82,13 +72,6 @@ loop(f32 dt) {
 
   ui_end();
   gfx_renderer_end_frame();
-
-  // State cleanup
-  //
-
-  arena_clear(gContext.frame_arena);
-  scratch_end(&error_context_scratch);
-  gContext.error_context->first = gContext.error_context->last = 0;
 
   return os_gfx_window_mode() != OS_WindowMode_Closed;
 }
