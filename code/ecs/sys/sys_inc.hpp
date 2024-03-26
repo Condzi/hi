@@ -8,3 +8,6 @@ rendering_system();
 
 must_use Sys_Logic
 player_control_system();
+
+must_use Sys_Logic
+tools_system();

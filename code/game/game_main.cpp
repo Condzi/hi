@@ -34,9 +34,9 @@ startup() {
   physics_system().init();
   rendering_system().init();
   player_control_system().init();
+  tools_system().init();
 
   ui_init(gContext.misc_arena, 512);
-  tools_init();
 
   kb_set_key_bindings(make_key_bindings(gContext.misc_arena));
 
@@ -74,13 +74,11 @@ loop(f32 dt) {
           0,
           {.kind = UI_SizeKind_Pixels, .value = (f32)os_gfx_surface_width(), .strictness = 1},
           {.kind = UI_SizeKind_Pixels, .value = (f32)os_gfx_surface_height(), .strictness = 1});
-  tools_update();
 
   player_control_system().update(dt);
   physics_system().update(dt);
+  tools_system().update(dt);
   rendering_system().update(dt);
-
-
 
   ui_end();
   gfx_renderer_end_frame();

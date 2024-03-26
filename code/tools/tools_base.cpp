@@ -1,18 +1,6 @@
 
 void
 tools_update() {
-  if (kb_state(KB_Debug1).pressed) {
-    gDbgConsole.is_open = !gDbgConsole.is_open;
-  }
-
-  if (kb_state(KB_Debug2).pressed) {
-    gDbgMemoryConsumption.is_open = !gDbgMemoryConsumption.is_open;
-  }
-
-  if (kb_state(KB_Debug3).pressed) {
-    gfx_set_vsync(!gfx_is_vsync_enabled());
-  }
-
   if (!gDbgConsole.is_open && !gDbgMemoryConsumption.is_open) {
     return;
   }

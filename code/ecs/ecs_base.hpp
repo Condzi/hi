@@ -9,6 +9,7 @@ enum Sys_Type {
   Sys_Type_Rendering,
 
   Sys_Type_PlayerControl,
+  Sys_Type_Tools,
 
   Sys_Type__count,
 };
