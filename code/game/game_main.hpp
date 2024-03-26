@@ -20,4 +20,6 @@ struct Game_Master {
   GFX_Font  font;
   GFX_Image bg;
   GFX_Image characters;
+
+  f32 psx_accumulator;
 } global gGameMaster;

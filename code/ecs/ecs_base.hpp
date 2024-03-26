@@ -58,7 +58,6 @@ struct Sys_Logic {
   Sys_update_proc   update;
 };
 
-
 struct ECS_World {
   Arena* arena;
   // Status

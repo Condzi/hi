@@ -31,14 +31,11 @@ startup() {
   });
   gfx_renderer_init();
 
-  psx_init();
-
   ui_init(gContext.misc_arena, 512);
   tools_init();
 
   kb_set_key_bindings(make_key_bindings(gContext.misc_arena));
 
-  gGameMaster.psx_world = psx_make_world(64);
 
   // @Assets
   gGameMaster.characters = d3d_load_png("W:/hi/run_tree/tex/characters.png"_s8);
@@ -56,10 +53,8 @@ startup() {
   return true;
 }
 
-f32 psx_acc;
 bool
 loop(f32 dt) {
-
   // Event handling
   //
   OS_Window_Event *events = os_gfx_event_pump(gContext.frame_arena);
@@ -77,18 +72,6 @@ loop(f32 dt) {
     gfx_set_vsync(!gfx_is_vsync_enabled());
   }
 
-  // Simulation update
-  //
-
-  psx_acc += dt;
-  if (psx_acc >= PSX_STEP) {
-    while (psx_acc > PSX_STEP) {
-      // psx_world_simulate(world, PSX_STEP);
-      psx_acc -= PSX_STEP;
-    }
-    // psx_world_simulate(world, psx_acc);
-    psx_acc = 0;
-  }
 
   gfx_renderer_begin_frame();
   gfx_set_camera_for_batches(gGameMaster.camera);
