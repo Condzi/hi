@@ -25,15 +25,15 @@ physics_update(f32 dt) {
   }
 
   PSX_World_ID const world_id = gGameMaster.psx_world;
-  Bit_Array         *system   = gECS.systems[Sys_Type_Physics];
+  Bit_Array         *system   = gECS->systems[Sys_Type_Physics];
   u64                idx      = ba_find_first_set_from(system, 0);
   for (; idx != MAX_U32; idx = ba_find_first_set_from(system, idx + 1)) {
-    ECS_Transform_Component     &transform_component = gECS.transform[idx];
-    ECS_Physics_Component const &physics_component   = gECS.physics[idx];
-    PSX_Body_ID const            body_id             = physics_component.id;
+    ECS_Transform_Component          &transform_component = gECS->transform[idx];
+    ECS_Physics_Body_Component const &physics_component   = gECS->physics_body[idx];
+    PSX_Body_ID const                 body_id             = physics_component.body;
 
-    transfom_component.pos = psx_body_get_position(world_id, body_id);
-    transfom_component.rot = psx_body_get_rotation(world_id, body_id);
+    transform_component.pos = psx_body_get_position(world_id, body_id);
+    transform_component.rot = psx_body_get_rotation(world_id, body_id);
   }
 }
 

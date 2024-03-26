@@ -13,11 +13,11 @@ internal void
 rendering_update(f32 dt) {
   Unused(dt);
 
-  Bit_Array *system = gECS.systems[Sys_Type_Rendering];
+  Bit_Array *system = gECS->systems[Sys_Type_Rendering];
   u64        idx    = ba_find_first_set_from(system, 0);
   for (; idx != MAX_U32; idx = ba_find_first_set_from(system, idx + 1)) {
-    ECS_Sprite_Component const    &sprite_component    = gECS.sprite[idx];
-    ECS_Transform_Component const &transform_component = gECS.transform[idx];
+    ECS_Sprite_Component const    &sprite_component    = gECS->sprite[idx];
+    ECS_Transform_Component const &transform_component = gECS->transform[idx];
     GFX_Sprite_Opts const          sprite              = {
                               .pos      = transform_component.pos,
                               .sz       = {.x = (f32)sprite_component.tex_rect.w * transform_component.scale.x,

@@ -30,6 +30,10 @@ startup() {
       .vsync     = true,
   });
 
+  ecs_init();
+  physics_system().init();
+  rendering_system().init();
+
   ui_init(gContext.misc_arena, 512);
   tools_init();
 
@@ -47,6 +51,9 @@ startup() {
       .center = {200, 200},
       .zoom   = 0.8f,
   };
+
+  Unused(spawn_player());
+  Unused(spawn_background());
 
   return true;
 }
@@ -73,6 +80,9 @@ loop(f32 dt) {
 
   gfx_renderer_begin_frame();
   gfx_set_camera_for_batches(gGameMaster.camera);
+
+  physics_system().update(dt);
+  rendering_system().update(dt);
 
   ui_begin(dt);
   ui_rect("background"_s8,

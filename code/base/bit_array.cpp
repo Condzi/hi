@@ -65,7 +65,13 @@ ba_is_any_unset(Bit_Array *array) {
 
 must_use u64
 ba_find_first_set(Bit_Array *array) {
-  return ba_find_first_set_from(array, 0);
+  for (u64 i = 0; i < (array->sz + 63) / 64; ++i) {
+    if (array->v[i]) {
+      int bit_idx = __builtin_ctzll(array->v[i]);
+      return i * 64 + bit_idx;
+    }
+  }
+  return MAX_U64;
 }
 
 must_use u64
@@ -80,7 +86,14 @@ for (u64 i = beg; i < array->sz; i++) {
 
 must_use u64
 ba_find_first_unset(Bit_Array *array) {
-  return ba_find_first_unset_from(array, 0);
+  for (u64 i = 0; i < (array->sz + 63) / 64; ++i) {
+    if (array->v[i] != ~0ULL) {
+      u64 negated = ~(array->v[i]);
+      int bit_idx = __builtin_ctzll(negated);
+      return i * 64 + bit_idx;
+    }
+  }
+  return MAX_U64;
 }
 
 must_use u64

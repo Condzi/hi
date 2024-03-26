@@ -112,9 +112,9 @@ struct Defer_Maker final {
 
 #define Swap(a, b)                                                                                 \
   do {                                                                                             \
-    decltype(a) t__ = (a);                                                                         \
-    (a)             = (b);                                                                         \
-    (b)             = t__;                                                                         \
+    auto t__ = (a);                                                                                \
+    (a)      = (b);                                                                                \
+    (b)      = t__;                                                                                \
   } while (0)
 
 // Conversion macros
