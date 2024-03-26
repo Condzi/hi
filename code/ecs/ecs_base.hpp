@@ -85,3 +85,6 @@ ecs_kill(ECS_Entity_ID id);
 
 void
 ecs_kill_pass();
+
+void
+ecs_opt_in(Sys_Type system, ECS_Entity_ID id);

@@ -28,9 +28,9 @@ spawn_player() {
   psx_body_add_box_shape(
       gGameMaster.psx_world, gECS->physics_body[idx].body, {0, 0}, sz * PSX_SCALE_INV);
 
-  ba_set(gECS->systems[Sys_Type_Physics], idx);
-  ba_set(gECS->systems[Sys_Type_Rendering], idx);
-  ba_set(gECS->systems[Sys_Type_PlayerControl], idx);
+  ecs_opt_in(Sys_Type_Physics, player_id);
+  ecs_opt_in(Sys_Type_Rendering, player_id);
+  ecs_opt_in(Sys_Type_PlayerControl, player_id);
 
   return player_id;
 }

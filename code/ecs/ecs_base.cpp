@@ -68,3 +68,25 @@ ecs_kill_pass() {
 
   ba_unset_all(gECS->to_remove);
 }
+
+void
+ecs_opt_in(Sys_Type system, ECS_Entity_ID id) {
+  ErrorContext("system=%d, idx=%d, is_set=%d, revision=%d, alive=%zu/%zu, to_remove=%zu",
+               (int)system,
+               (int)id.idx,
+               (int)id.is_set,
+               (int)id.revision,
+               gECS->alive->num_set,
+               ECS_LIMIT,
+               gECS->to_remove->num_set);
+  ErrorIf(ECS_IS_NULL(id), "Invalid ID");
+  ErrorIf(!ECS_ID_EQUALS(id, gECS->id[id.idx]), "IDs do not match");
+
+  if (ba_test(gECS->systems[(int)system], id.idx)) {
+    LogEng_Warn(
+        "[ecs] entity already added to the system. idx=%d, system=%d", (int)id.idx, (int)system);
+    return;
+  }
+
+  ba_set(gECS->systems[(int)system], id.idx);
+}

@@ -19,7 +19,7 @@ spawn_background() {
       .layer    = {.category = GFX_Layer_Background},
   };
 
-  ba_set(gECS->systems[Sys_Type_Rendering], idx);
+  ecs_opt_in(Sys_Type_Rendering, bg_id);
 
   return bg_id;
 }
