@@ -1,7 +1,10 @@
 #pragma once
 
-must_use ECS_Entity_ID
+ECS_Entity_ID
 spawn_background();
 
-must_use ECS_Entity_ID
+ECS_Entity_ID
 spawn_player();
+
+ECS_Entity_ID
+spawn_zombie();

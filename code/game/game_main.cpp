@@ -43,8 +43,9 @@ startup() {
       .zoom   = 0.8f,
   };
 
-  Unused(spawn_player());
-  Unused(spawn_background());
+  spawn_background();
+  spawn_player();
+  spawn_zombie();
 
   return true;
 }

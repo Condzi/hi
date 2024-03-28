@@ -1,4 +1,4 @@
-must_use ECS_Entity_ID
+ECS_Entity_ID
 spawn_background() {
   ECS_Entity_ID bg_id = ecs_spawn();
   u16 const     idx   = bg_id.idx;
