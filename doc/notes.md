@@ -10,7 +10,8 @@
 
 ## Assets
 
-    List of textures and audio files...
+    Fonts, textures, texture atlases (XML data?), audio files, level files, config files, save files...
+
     [ ] list of resources that can be accessed with their IDs / handles?
 
 ## Base
@@ -29,6 +30,7 @@
 
 ## Entities & Systems
 
+    [ ] A* -- used for AI in pathfinding and GOAP!
     [ ] List of systems to update. Maybe sort by priority?
     [ ] Game state machine. This is just a list of systems to run.
       - pause
@@ -80,6 +82,7 @@
 
   [ ] Make it easier to select if we render a UI object or game object.
 
+  [ ] Borderless fullscreen should work on either monitor, not only the main one
   [ ] Figure out common viewport sizes that we can render
     Common aspect ratios and their resolutions (via Steam HW Survey):
     - 16:9  (85% of users)  1920x1080  (60% of users)
@@ -115,7 +118,7 @@
 ## OS Core
 
   [ ] OS layer callbacks (init/loop/shutdown)
-  [ ] Filesystem 
+  [ ] Filesystem  
   [ ] Threads
   [ ] Mutexes
   [ ] File Watch (notify when file updates) / Hot Reload
@@ -123,7 +126,7 @@
     [ ] Determine what exceptions to catch
     [ ] write minidump
     [ ] write log and error context to the crash info
-  [ ] OS Information, 
+  [ ] OS Information  
     [X] Memory (RAM)
     [ ] CPU family, cache, frequency
     [ ] SIMD detection

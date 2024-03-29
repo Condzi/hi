@@ -59,7 +59,7 @@ ecs_kill_pass() {
   for (; idx != MAX_U64; idx = ba_find_first_set_from(gECS->to_remove, idx + 1)) {
     ba_unset(gECS->alive, idx);
 #define X(unused_, name) gECS->name[idx] = {};
-#include "ecs_components.inl"
+#include "ecs_components_x.inl"
 #undef X
     for (int i = 0; i < Sys_Type__count; i++) {
       ba_unset(gECS->systems[i], idx);
