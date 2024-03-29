@@ -14,7 +14,7 @@ Rewarding gameplay.
 No overthinking -- money from zombies. Buy traps and guns using money. It
 does not need to be realistic in order to be fun!
 
-## Zombie AI
+## AI
 
 Based on behavior trees and state machines.  
 Zombies may have following states:  

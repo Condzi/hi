@@ -545,20 +545,15 @@ translate2(fvec2 o) {
 
 must_use fmat4
 ortho_proj(f32 width, f32 height) {
-  f32 const W = width;
-  f32 const H = height;
-  f32 const A = -width;
-  f32 const B = -height;
-
   fmat4 Result = {};
   auto &R      = Result.v;
 
-  R[0][0] = 2 / W;
-  R[1][1] = 2 / H;
-  R[2][2] = -1;
-  R[3][0] = A / W;
-  R[3][1] = B / H;
+  R[0][0] = 2 / width;
+  R[1][1] = 2 / height;
   R[3][3] = 1;
+
+  R[3][0] = -1;
+  R[3][1] = -1;
 
   return Result;
 }
