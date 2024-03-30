@@ -14,37 +14,31 @@ if "%1"=="--help" goto show_help
 
 for %%a in (%*) do set "%%a=1"
 
+set clang=1
 if "%clang%"=="1"   echo [clang++]
 if "%debug%"=="1"   set release=0 && echo [debug]
 if "%release%"=="1" set debug=0   && echo [release]
 
-if "%asan%"=="1" (   
-  echo [asan]
-) else ( 
-  echo [asan  -- disabled]
-)
-
-if "%ubsan%"=="1" (   
-  echo [ubsan]
-) else ( 
-  echo [ubsan -- disabled]
-)
+if "%asan%"=="1"  (echo [asan])  else (echo [asan  -- disabled])
+if "%ubsan%"=="1" (echo [ubsan]) else (echo [ubsan -- disabled])
 
 :: --- Configure Sanitizers  --------------------------------------------------
 set clang_sanitizer=
 if "%asan%"=="1"      set clang_sanitizer=-fsanitize=address -fno-omit-frame-pointer
 if "%ubsan%"=="1"     set clang_sanitizer=-fsanitize=undefined -fno-omit-frame-pointer
-if "%asan%"=="1" (
-  if "%ubsan%"=="1"   set clang_sanitizer=-fsanitize=address,undefined -fno-omit-frame-pointer
+if "%asan%"=="1" if "%ubsan%"=="1" (
+  set clang_sanitizer=-fsanitize=address,undefined -fno-omit-frame-pointer
 )
 
 :: --- clang++ Compile/Link Line Definitions -------------------------------------
 set clang_disabled_warnings= -Wno-format -Wno-pragma-once-outside-header -Wno-gcc-compat ^
-                             -Wno-missing-field-initializers -Wno-missing-braces -Wno-unused-function
+                             -Wno-missing-field-initializers -Wno-missing-braces ^
+                             -Wno-unused-function
 
 set clang_defines=    -DWIN32 -D_WINDOWS -D_HAS_EXCEPTIONS=0 -D_CRT_SECURE_NO_WARNING
 set clang_misc=       -fno-exceptions -fno-rtti -ferror-limit=0 -Wall -Wextra -Werror
-set clang_common=     -I..\code\ -I..\code\3rdparty -I..\code\3rdparty\box2c\include %clang_defines% %clang_misc% %clang_disabled_warnings% 
+set clang_common=     -I..\code\ -I..\code\3rdparty -I..\code\3rdparty\box2c\include ^
+                      %clang_defines% %clang_misc% %clang_disabled_warnings% 
 set clang_debug=      -g -O0 %clang_common% %clang_sanitizer%
 set clang_release=    -Ofast -DNDEBUG %clang_common%
 set clang_out=        -o 
@@ -72,31 +66,55 @@ for /f %%i in ('call git describe --always --dirty') do set compile=%compile% -D
 
 :: --- Prep Directories -------------------------------------------------------
 if not exist build mkdir build
+pushd build
+if not exist box2c mkdir box2c
 if exist game.exe del game.exe >nul
+if exist box2c.lib del box2c.lib >nul
+
 
 :: --- Build Everything (@build_targets) --------------------------------------
-pushd build
-
 :: --- Build Box2c as static library ------------------------------------------
-echo [compiling -- box2c]
-if not exist box2c mkdir box2c
-set box2c_warnings=-Wno-ignored-qualifiers -Wno-unused-parameter -Wno-unused-variable
-for /F "tokens=*" %%F in ('dir ..\code\3rdparty\box2c\src\*.c /b /s') do (
-    clang -c %compile% %%F -o box2c/%%~nF.o %compile_commands% -std=c17 -I..\code\3rdparty\box2c\extern\simde %box2c_warnings%
+:: We only do that if we don't have a .lib already built to save time.
+set box2c_warnings=-Wno-ignored-qualifiers -Wno-unused-parameter -Wno-unused-variable ^
+                   -Wno-nan-infinity-disabled
+
+set box2c_target=box2c
+if "%debug%"=="1"     set box2c_target=%box2c_target%_debug
+if "%release%"=="1"   set box2c_target=%box2c_target%_release
+if "%asan%"=="1"      set box2c_target=%box2c_target%_asan
+if "%ubsan%"=="1"     set box2c_target=%box2c_target%_ubsan
+set box2c_target=%box2c_target%.lib
+
+if not exist "%box2c_target%" (
+  echo [compiling -- %box2c_target%]
+  for /F "tokens=*" %%F in ('dir ..\code\3rdparty\box2c\src\*.c /b /s') do (
+      clang -c %compile% %%F -o box2c/%%~nF.o %compile_commands% -std=c17 ^
+            -I..\code\3rdparty\box2c\extern\simde %box2c_warnings%
+  )
+
+  if %ERRORLEVEL% neq 0 (
+    echo [%box2c_target% -- compiling failed]
+    del %box2c_target%
+    goto :end
+  )
+
+  llvm-lib /OUT:%box2c_target% box2c/*.o
+  echo [%box2c_target% -- compiling done]
+) else (
+  echo [%box2c_target% -- using cached]
 )
-llvm-lib /OUT:box2c.lib box2c/*.o
-echo [compiling done -- box2c]
 
 :: --- Build Game and link Box2c ----------------------------------------------
 echo [compiling -- game]
-clang++ %compile% box2c.lib ..\code\game\game_main.cpp  %compile_link% %out%game.exe %compile_commands% -std=c++20
+clang++ %compile% %box2c_target% ..\code\game\game_main.cpp  %compile_link% %out%game.exe ^
+        %compile_commands% -std=c++20
 popd
 
 if %ERRORLEVEL% neq 0 (
-  echo [compiling failed -- game]
+  echo [game -- compiling failed]
   goto :end
 )
-echo [compiling done -- game]
+echo [game -- compiling done]
 
 :: --- Compile Commands Madness  ----------------------------------------------
 :: Clang generates the compile_commands.json, but the tools don't like it because:
