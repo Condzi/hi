@@ -15,7 +15,6 @@ if "%1"=="--help" goto show_help
 for %%a in (%*) do set "%%a=1"
 
 if "%clang%"=="1"   echo [clang++]
-if "%msvc%"=="1"    echo [cl]
 if "%debug%"=="1"   set release=0 && echo [debug]
 if "%release%"=="1" set debug=0   && echo [release]
 
@@ -32,47 +31,12 @@ if "%ubsan%"=="1" (
 )
 
 :: --- Configure Sanitizers  --------------------------------------------------
-set msvc_sanitizer=
 set clang_sanitizer=
-if "%asan%"=="1"      set msvc_sanitizer= -fsanitize=address 
 if "%asan%"=="1"      set clang_sanitizer=-fsanitize=address -fno-omit-frame-pointer
-
-if "%ubsan%"=="1"     set msvc_sanitizer= -fsanitize=undefined
 if "%ubsan%"=="1"     set clang_sanitizer=-fsanitize=undefined -fno-omit-frame-pointer
-
 if "%asan%"=="1" (
   if "%ubsan%"=="1"   set clang_sanitizer=-fsanitize=address,undefined -fno-omit-frame-pointer
 )
-
-
-:: --- MSVC  -----------------------------------------------------------
-::  1. Set Windows Defines (no unicode!)
-::  2. Disable Exceptions and RTTI
-::  3. Disable warnings about insecure C functions (maybe remove that later?)
-::  4. Enable all warnings and treat them as errors. Do not analyze external libraries.
-::     (which are specified by angle brackets <> in include directives)
-::  5. Check for buffer oveflow (/GS) and additional security checks
-::  6. Disable warnings: 
-::     - unused functions,
-::     - spectre, 
-::     - noexcept, 
-::     - additional padding, 
-::     - nonstandard nameless struct and unions
-::     - initialization of subobjects in nameless unions should be wrapped in braces
-::     - automatic inline expansion
-::     - function not inlined
-::     - enumerator not explicitely handled in a switch label
-set msvc_defines=           /DWIN32 /D_WINDOWS /D_HAS_EXCEPTIONS=0 /D_CRT_SECURE_NO_WARNINGS
-set msvc_disabled_warnings= /wd4505 /wd5045 /wd4577 /wd4820 /wd4201 /wd5246 /wd4710 /wd4711 /wd4061
-set msvc_misc=              /GR- /Wall /WX /external:anglebrackets /external:W0 /GS /sdl /utf-8
-set msvc_all=               %msvc_sanitizer% %msvc_defines% %msvc_disabled_warnings% %msvc_misc%
-
-:: --- MSVC Compile/Link Line Definitions -------------------------------------
-set cl_common=        /I..\code /I..\code\3rdparty  /I..\code\3rdparty\box2c\include /nologo /FC /Z7 /std:c++20
-set cl_debug=         /Od %cl_common% %mscv_all%
-set cl_release=       /O2 /DNDEBUG %cl_common% %mscv_all%
-set cl_link=          /link /MANIFEST:EMBED /INCREMENTAL:NO
-set cl_out=           /out:
 
 :: --- clang++ Compile/Link Line Definitions -------------------------------------
 set clang_disabled_warnings= -Wno-format -Wno-pragma-once-outside-header -Wno-gcc-compat ^
@@ -92,11 +56,6 @@ if "%ubsan%"=="1"      set clang_link=%clang_link% ^
                       "C:\Program Files\LLVM\lib\clang\18\lib\windows\clang_rt.ubsan_standalone_cxx-x86_64.lib"
 
 :: --- Choose Compile/Link Lines ----------------------------------------------
-if "%msvc%"=="1"      set compile_debug=   %cl_debug%
-if "%msvc%"=="1"      set compile_release= %cl_release%
-if "%msvc%"=="1"      set compile_link=    %cl_link%
-if "%msvc%"=="1"      set out=             %cl_out%
-
 if "%clang%"=="1"     set compile_debug=     %clang_debug% 
 if "%clang%"=="1"     set compile_release=   %clang_release%
 if "%clang%"=="1"     set compile_link=      %clang_link%
@@ -104,7 +63,6 @@ if "%clang%"=="1"     set out=               %clang_out%
 
 set compile_commands=
 if "%clang%"=="1"     set compile_commands=  -MJ ../compile_commands.json
-
 
 if "%debug%"=="1"     set compile=%compile_debug%
 if "%release%"=="1"   set compile=%compile_release%
@@ -191,11 +149,7 @@ set game=
 set compile=
 set compile_link=
 set out=
-set msvc=
 set debug=
-set msvc_disabled_warnings=
-set msvc_defines=
-set msvc_misc=
 
 if %ERRORLEVEL% neq 0 (
     exit /b 1
@@ -203,10 +157,10 @@ if %ERRORLEVEL% neq 0 (
 exit /b
 
 :show_help
-echo Usage: build [-h^|--help] [clang^|msvc] [release^|debug] [asan^|ubsan]
+echo Usage: build [-h^|--help] [release^|debug] [asan^|ubsan]
 echo.
 echo Script used for building the game. When using clang, it generates `compile_commands.json`.
-echo It is assuming that `clang++` (or `cl` for MSVC) is present in the program PATH.
+echo It is assuming that `clang++` is present in the program PATH.
 echo Example usage:
 echo.
 echo      build clang release
