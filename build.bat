@@ -68,9 +68,9 @@ set msvc_misc=              /GR- /Wall /WX /external:anglebrackets /external:W0 
 set msvc_all=               %msvc_sanitizer% %msvc_defines% %msvc_disabled_warnings% %msvc_misc%
 
 :: --- MSVC Compile/Link Line Definitions -------------------------------------
-set cl_common=        /I..\code\ /I..\code\3rdparty\ /nologo /FC /Z7 /std:c++20
-set cl_debug=         call cl /Od %cl_common% %mscv_all%
-set cl_release=       call cl /O2 /DNDEBUG %cl_common% %mscv_all%
+set cl_common=        /I..\code /I..\code\3rdparty  /I..\code\3rdparty\box2c\include /nologo /FC /Z7 /std:c++20
+set cl_debug=         /Od %cl_common% %mscv_all%
+set cl_release=       /O2 /DNDEBUG %cl_common% %mscv_all%
 set cl_link=          /link /MANIFEST:EMBED /INCREMENTAL:NO
 set cl_out=           /out:
 
@@ -79,10 +79,10 @@ set clang_disabled_warnings= -Wno-format -Wno-pragma-once-outside-header -Wno-gc
                              -Wno-missing-field-initializers -Wno-missing-braces -Wno-unused-function
 
 set clang_defines=    -DWIN32 -D_WINDOWS -D_HAS_EXCEPTIONS=0 -D_CRT_SECURE_NO_WARNING
-set clang_misc=       -fno-exceptions -fno-rtti -ferror-limit=0 -Wall -Wextra -Werror
-set clang_common=     -I..\code\ -I..\code\3rdparty -std=c++20 %clang_defines% %clang_misc% %clang_disabled_warnings%
-set clang_debug=      call clang++ -g -O0 %clang_common% %clang_sanitizer%
-set clang_release=    call clang++ -Ofast -DNDEBUG %clang_common%
+set clang_misc=       -fno-exceptions -fno-rtti -ferror-limit=0 -Wall -Wextra 
+set clang_common=     -I..\code\ -I..\code\3rdparty -I..\code\3rdparty\box2c\include %clang_defines% %clang_misc% %clang_disabled_warnings%
+set clang_debug=      -g -O0 %clang_common% %clang_sanitizer%
+set clang_release=    -Ofast -DNDEBUG %clang_common%
 set clang_out=        -o 
 set clang_link=       -fuse-ld=lld-link -Wl,/MANIFEST:EMBED,/INCREMENTAL:NO
 
@@ -119,7 +119,16 @@ if exist game.exe del game.exe >nul
 :: --- Build Everything (@build_targets) --------------------------------------
 pushd build
 
-%compile%  ..\code\game\game_main.cpp  %compile_link% %out%game.exe %compile_commands%
+if not exist box2c mkdir box2c
+
+for /F "tokens=*" %%F in ('dir ..\code\3rdparty\box2c\src\*.c /b /s') do (
+    clang -c %compile% -gcodeview %%F -o box2c/%%~nF.o %compile_commands% -std=c17 -I..\code\3rdparty\box2c\extern\simde -Wno-ignored-qualifiers -Wno-unused-parameter -Wno-unused-variable
+)
+
+
+llvm-lib /OUT:box2c.lib box2c/*.o
+
+clang++ %compile% box2c.lib ..\code\game\game_main.cpp  %compile_link% %out%game.exe %compile_commands% -std=c++20 -Werror
 popd
 
 if %ERRORLEVEL% neq 0 (

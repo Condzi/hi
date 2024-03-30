@@ -13,6 +13,9 @@
 #include "ecs/ecs_inc.hpp"
 #include "tools/tools_inc.hpp"
 
+#include "box2d/box2d.h"
+
+
 #include "game/game_main.hpp"
 
 // CPP
