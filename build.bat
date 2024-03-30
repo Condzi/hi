@@ -79,8 +79,8 @@ set clang_disabled_warnings= -Wno-format -Wno-pragma-once-outside-header -Wno-gc
                              -Wno-missing-field-initializers -Wno-missing-braces -Wno-unused-function
 
 set clang_defines=    -DWIN32 -D_WINDOWS -D_HAS_EXCEPTIONS=0 -D_CRT_SECURE_NO_WARNING
-set clang_misc=       -fno-exceptions -fno-rtti -ferror-limit=0 -Wall -Wextra 
-set clang_common=     -I..\code\ -I..\code\3rdparty -I..\code\3rdparty\box2c\include %clang_defines% %clang_misc% %clang_disabled_warnings%
+set clang_misc=       -fno-exceptions -fno-rtti -ferror-limit=0 -Wall -Wextra -Werror
+set clang_common=     -I..\code\ -I..\code\3rdparty -I..\code\3rdparty\box2c\include %clang_defines% %clang_misc% %clang_disabled_warnings% 
 set clang_debug=      -g -O0 %clang_common% %clang_sanitizer%
 set clang_release=    -Ofast -DNDEBUG %clang_common%
 set clang_out=        -o 
@@ -119,23 +119,26 @@ if exist game.exe del game.exe >nul
 :: --- Build Everything (@build_targets) --------------------------------------
 pushd build
 
+:: --- Build Box2c as static library ------------------------------------------
+echo [compiling -- box2c]
 if not exist box2c mkdir box2c
-
+set box2c_warnings=-Wno-ignored-qualifiers -Wno-unused-parameter -Wno-unused-variable
 for /F "tokens=*" %%F in ('dir ..\code\3rdparty\box2c\src\*.c /b /s') do (
-    clang -c %compile% -gcodeview %%F -o box2c/%%~nF.o %compile_commands% -std=c17 -I..\code\3rdparty\box2c\extern\simde -Wno-ignored-qualifiers -Wno-unused-parameter -Wno-unused-variable
+    clang -c %compile% %%F -o box2c/%%~nF.o %compile_commands% -std=c17 -I..\code\3rdparty\box2c\extern\simde %box2c_warnings%
 )
-
-
 llvm-lib /OUT:box2c.lib box2c/*.o
+echo [compiling done -- box2c]
 
-clang++ %compile% box2c.lib ..\code\game\game_main.cpp  %compile_link% %out%game.exe %compile_commands% -std=c++20 -Werror
+:: --- Build Game and link Box2c ----------------------------------------------
+echo [compiling -- game]
+clang++ %compile% box2c.lib ..\code\game\game_main.cpp  %compile_link% %out%game.exe %compile_commands% -std=c++20
 popd
 
 if %ERRORLEVEL% neq 0 (
-  echo [compilation failed]
+  echo [compiling failed -- game]
   goto :end
 )
-echo [compiled]
+echo [compiling done -- game]
 
 :: --- Compile Commands Madness  ----------------------------------------------
 :: Clang generates the compile_commands.json, but the tools don't like it because:
