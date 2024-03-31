@@ -8,6 +8,8 @@ spawn_background() {
 
   fvec2 const bg_sz = fvec2 {width, height} * 10.f;
 
+
+  gECS->name[idx] = "background"_s8;
   gECS->transform[idx] = {
       .pos   = {-bg_sz.x / 2, bg_sz.y / 2},
       .scale = {1, 1},

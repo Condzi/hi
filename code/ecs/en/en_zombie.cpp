@@ -3,6 +3,7 @@ spawn_zombie() {
   ECS_Entity_ID id  = ecs_spawn();
   u16 const     idx = id.idx;
 
+  gECS->name[idx] = "zombie"_s8;
   gECS->transform[idx] = {
       .scale = {.x = 3, .y = 3},
   };

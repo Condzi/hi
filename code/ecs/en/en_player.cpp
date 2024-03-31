@@ -3,12 +3,13 @@ spawn_player() {
   ECS_Entity_ID player_id = ecs_spawn();
   u16 const     idx       = player_id.idx;
 
+  gECS->name[idx] = "player"_s8;
   gECS->transform[idx] = {
       .scale                = {.x = 3, .y = 3},
   };
 
   fvec2 const sz = {.x = 49, .y = 43};
-
+  
   gECS->sprite[idx] = {
       .tex      = gGameMaster.characters,
       .tex_rect = {.x = 263, .y = 132, .w = (u16)sz.x, .h = (u16)sz.y},
