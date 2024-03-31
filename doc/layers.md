@@ -69,6 +69,7 @@
 ## GFX
 
   [ ] Refactor plz
+    - ability to draw not only rects but triangle batches too
     - easier debugging pls
     - why the fuck do we silently fail when layer is not specified??
     - The code is full of repetitions and not robust. Also, fix poor resource handling, or actually lack of it.
@@ -136,41 +137,6 @@
     [ ] Monitor enumeration
 
 ## Physics
-
-- basic collision resolution (no overleap)
-- force-field based explosions
-- traps that move the zombies around (like catapult, for example)
-- BVH and static object to improve performance
-  - we can take the result from BVH and distribute it among threads to calculate narrow phase manifolds, since we know which objects can collide with which. Then resolve the collisions in one thread again.
-
-  [ ] v1
-    [X] Fixed timestep loop
-    [X] Intergrate velocities and impulses...
-    [X] Detect collisions using SAT
-    [ ] Raycasting (for shooting, unless we wanna have physical bullets?)
-
-  [ ] v2
-    [ ] Collision resolution using impulses
-      Figure out the logic behind it because I don't really get the idea of calculating incident faces etc.
-
-    [ ] Broad phase with AABB
-      [ ] Generate BVH every frame for all objects?
-
-  [ ] v3
-    [ ] Static (immovable) objects / Dynamic objects distinction
-      [ ] Generate separate BVH for them
-    [ ] Dynamic BVH
-    [ ] 'Fat' AABBs?
-    [ ] Cleanup
-
-### Resources
-
-  Islands (multithreading!): <https://box2d.org/posts/2023/10/simulation-islands/>
-  Erin's Solver2D: <https://box2d.org/posts/2024/02/solver2d/>
-
-  Box2D 3.0 uses Temporal Gauss-Seidel (TGS) solver. We can do sub-stepping without updating the broad-phase or recomputing the contact points.
-
-  Smaller steps are more effective than more iterations.
 
 ## **new** Serialization
 

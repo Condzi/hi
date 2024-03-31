@@ -38,12 +38,18 @@ psx_world_add(PSX_World_ID world, PSX_Body_Opts const &opts) {
 
 void
 psx_world_remove(PSX_Body_ID id) {
-  b2DestroyBody(id);
+  b2DestroyBodyAndJoints(id);
 }
 
 void
 psx_body_add_force(PSX_Body_ID id, fvec2 force) {
   b2Body_ApplyForceToCenter(id, {.x = force.x, .y = force.y}, true);
+}
+
+void
+psx_body_set_position(PSX_Body_ID id, fvec2 pos) {
+  f32 angle = b2Body_GetAngle(id);
+  b2Body_SetTransform(id, {pos.x, pos.y}, angle);
 }
 
 must_use fvec2
@@ -69,4 +75,30 @@ psx_body_add_box_shape(PSX_Body_ID body, PSX_Shape_Opts const &opts, fvec2 sz) {
   def.enableSensorEvents  = opts.enable_sensor_events;
   def.enableContactEvents = opts.enable_contact_events;
   b2CreatePolygonShape(body, &def, &box);
+}
+
+must_use PSX_Joint_ID
+psx_make_motor_joint(PSX_World_ID w, PSX_Motor_Joint_Opts const &opts) {
+  b2MotorJointDef def  = b2DefaultMotorJointDef();
+  def.bodyIdA          = opts.body_a;
+  def.bodyIdB          = opts.body_b;
+  def.collideConnected = opts.collide_connected;
+  def.linearOffset     = {.x = opts.linear_offset.x, .y = opts.linear_offset.y};
+  def.angularOffset    = opts.angular_offset;
+  def.maxForce         = opts.max_force;
+  def.maxTorque        = opts.max_torque;
+  def.correctionFactor = opts.correction_factor;
+  return b2CreateMotorJoint(w, &def);
+}
+
+must_use PSX_Joint_ID
+psx_make_wheel_joint(PSX_World_ID w, PSX_Wheel_Joint_Opts const &opts) {
+  b2WheelJointDef def  = b2DefaultWheelJointDef();
+  def.bodyIdA          = opts.body_a;
+  def.bodyIdB          = opts.body_b;
+  def.collideConnected = opts.collide_connected;
+  def.enableMotor      = opts.enable_motor;
+  def.maxMotorTorque   = opts.max_motor_torque;
+  def.motorSpeed       = opts.motor_speed;
+  return b2CreateWheelJoint(w, &def);
 }

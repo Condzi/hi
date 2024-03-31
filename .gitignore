@@ -1,4 +1,5 @@
 .cache
 .codechecker
+.vscode-ctags
 /build/
 compile_commands.json

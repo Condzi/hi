@@ -14,6 +14,7 @@ f32 read_only global PSX_SCALE_INV = 1 / PSX_SCALE;
 using PSX_World_ID = b2WorldId;
 using PSX_Body_ID  = b2BodyId;
 using PSX_Shape_ID = b2ShapeId;
+using PSX_Joint_ID = b2JointId;
 
 #define PSX_IS_NULL(id)     B2_IS_NULL(id)
 #define PSX_NON_NULL(id)    B2_IS_NON_NULL(id)
@@ -56,6 +57,26 @@ struct PSX_Shape_Opts {
   bool       enable_contact_events; // if is_sensor==false
 };
 
+struct PSX_Motor_Joint_Opts {
+  PSX_Body_ID body_a;
+  PSX_Body_ID body_b;
+  bool        collide_connected;
+  fvec2       linear_offset;
+  f32         angular_offset;
+  f32         max_force;
+  f32         max_torque;
+  f32         correction_factor;
+};
+
+struct PSX_Wheel_Joint_Opts {
+  PSX_Body_ID body_a;
+  PSX_Body_ID body_b;
+  bool        collide_connected;
+  bool        enable_motor;
+  f32         max_motor_torque;
+  f32         motor_speed;
+};
+
 // Functions
 //
 
@@ -77,6 +98,9 @@ psx_world_remove(PSX_Body_ID id);
 void
 psx_body_add_force(PSX_Body_ID id, fvec2 force);
 
+void
+psx_body_set_position(PSX_Body_ID id, fvec2 pos);
+
 must_use fvec2
 psx_body_get_position(PSX_Body_ID body);
 
@@ -85,3 +109,9 @@ psx_body_get_rotation(PSX_Body_ID body);
 
 void
 psx_body_add_box_shape(PSX_Body_ID body, PSX_Shape_Opts const &opts, fvec2 sz);
+
+must_use PSX_Joint_ID
+psx_make_motor_joint(PSX_World_ID w, PSX_Motor_Joint_Opts const &opts);
+
+must_use PSX_Joint_ID
+psx_make_wheel_joint(PSX_World_ID w, PSX_Wheel_Joint_Opts const &opts);
