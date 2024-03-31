@@ -33,7 +33,7 @@ player_control_update(f32 dt) {
   for (; idx != MAX_U64;) {
     ECS_Physics_Body_Component const &physics_body_component = gECS->physics_body[idx];
 
-    psx_body_add_force(gGameMaster.psx_world, physics_body_component.body, force);
+    psx_body_add_force(physics_body_component.body, force);
 
     idx = ba_find_first_set_from(system, idx + 1);
   }

@@ -11,111 +11,54 @@ f32 read_only global PSX_SCALE_INV = 1 / PSX_SCALE;
 // Common types
 //
 
-struct PSX_World_ID {
-  u16 idx;
-  u16 is_set   : 1;
-  u16 revision : 15;
- };
+using PSX_World_ID = b2WorldId;
+using PSX_Body_ID  = b2BodyId;
+using PSX_Shape_ID = b2ShapeId;
 
-struct PSX_Body_ID {
-  u16 idx;
-  u16 world;
-  u16 is_set   : 1;
-  u16 revision : 15;
-};
-
-struct PSX_Shape_ID {
-  u16 idx;
-  u16 world;
-  u16 is_set   : 1;
-  u16 revision : 15;
-};
-
-#define PSX_IS_NULL(id)  ((id).is_set == 0)
-#define PSX_NON_NULL(id) ((id).is_set != 0)
-#define PSX_ID_EQUALS(a, b)                                                                        \
-  (((a).idx == (b).idx) && ((a).world == (b).world) && ((a).revision == (b).revision))
-
-#define PSX_ID_NOT_EQUALS(a, b)                                                                    \
-  (((a).idx != (b).idx) || ((a).world != (b).world) || ((a).revision != (b).revision))
+#define PSX_IS_NULL(id)     B2_IS_NULL(id)
+#define PSX_NON_NULL(id)    B2_IS_NON_NULL(id)
+#define PSX_ID_EQUALS(a, b) B2_ID_EQUALS(a, b)
 
 enum PSX_Shape_Type : u8 {
   PSX_ShapeType_Polygon,
 };
 
-// @ToDo: currently, we have a hard limit on the vertices count
-// because I don't wanna deal with memory allocation - we only have
-// memory arenas at the moment. When we do a new allocator (BlockAllocator?)
-// we will need to revisit this and other places.
-//
-global read_only u64 PSX_POLYGON_MAX_VERTICES = 8;
-struct PSX_Polygon_Shape {
-  fvec2 v[PSX_POLYGON_MAX_VERTICES];
-  u64   sz;
-};
-
-struct PSX_Shape {
-  PSX_Shape_ID   id   = {};
-  PSX_Shape_ID   next = {};
-  PSX_Shape_Type type = PSX_ShapeType_Polygon;
-  union {
-    PSX_Polygon_Shape polygon = {};
-  };
-};
-
-struct PSX_Shape_Array {
-  PSX_Shape *v;
-  u64        sz;
-};
-
-struct PSX_Body {
-  PSX_Body_ID  id = {};
-  fvec2        pos;
-  fvec2        center_of_mass; // 0,0 is top left. The object will rotate about this point.
-  fvec2        vel;
-  fvec2        force;
-  f32          rot            = 0;
-  f32          mass_inv       = 0;
-  f32          linear_damping = 0;
-  PSX_Shape_ID shapes         = {};
-};
-
-struct PSX_Body_Array {
-  PSX_Body *v;
-  u64       sz;
+enum PSX_Body_Type : u8 {
+  PSX_BodyType_Static    = b2_staticBody,
+  PSX_BodyType_Kinematic = b2_kinematicBody,
+  PSX_BodyType_Dynamic   = b2_dynamicBody,
+  PSX_BodyType__count    = b2_bodyTypeCount,
 };
 
 struct PSX_Body_Opts {
-  fvec2 pos;
-  fvec2 center_of_mass;
-  f32   mass           = 0;
-  f32   rot            = 0;
-  f32   linear_damping = 0;
+  PSX_Body_Type type            = {};
+  fvec2         pos             = {};
+  f32           rot             = 0;
+  fvec2         linear_vel      = {};
+  f32           angular_vel     = {};
+  bool          fixed_rot       = false;
+  f32           damping_linear  = 0;
+  f32           damping_angular = 0;
 };
 
-struct PSX_World {
-  PSX_World_ID   id;
-  Bit_Array     *bodies_status_lookup;
-  PSX_Body_Array bodies;
-
-  Bit_Array      *shapes_status_lookup;
-  PSX_Shape_Array shapes;
-
-  // Body removal is deferred to allow removing/adding of objects during collision callbacks
-  // in physics steps.
-  //
-  Bit_Array *bodies_to_remove;
-  PSX_World *next;
+struct PSX_Filter {
+  u32 category; // Usually just set one.
+  u32 mask;     // What shapes does this shape accept for collision?
 };
 
-Arena *psx_arena;
+struct PSX_Shape_Opts {
+  PSX_Filter filter;
+  f32        friction;
+  f32        restitution;
+  f32        density;
+  bool       is_sensor;
+  bool       enable_sensor_events;  // If is_sensor==false
+  bool       enable_contact_events; // if is_sensor==false
+};
 
 // Functions
 //
 
-// Arena allocator, maybe space for some kind of performance counters...?
-// Later -- multithreading or some job system setup.
-//
 void
 psx_init();
 
@@ -129,16 +72,16 @@ must_use PSX_Body_ID
 psx_world_add(PSX_World_ID world, PSX_Body_Opts const &opts);
 
 void
-psx_world_remove(PSX_World_ID world, PSX_Body_ID id);
+psx_world_remove(PSX_Body_ID id);
 
 void
-psx_body_add_force(PSX_World_ID world, PSX_Body_ID id, fvec2 force);
+psx_body_add_force(PSX_Body_ID id, fvec2 force);
 
 must_use fvec2
-psx_body_get_position(PSX_World_ID world, PSX_Body_ID body);
+psx_body_get_position(PSX_Body_ID body);
 
 must_use f32
-psx_body_get_rotation(PSX_World_ID world, PSX_Body_ID body);
+psx_body_get_rotation(PSX_Body_ID body);
 
 void
-psx_body_add_box_shape(PSX_World_ID world, PSX_Body_ID body, fvec2 pos, fvec2 sz);
+psx_body_add_box_shape(PSX_Body_ID body, PSX_Shape_Opts const &opts, fvec2 sz);

@@ -47,11 +47,6 @@ startup() {
   spawn_player();
   spawn_zombie();
 
-  b2Vec2     gravity  = {0.0f, -10.0f};
-  b2WorldDef worldDef = b2DefaultWorldDef();
-  worldDef.gravity    = gravity;
-  b2WorldId worldId   = b2CreateWorld(&worldDef);
-  Unused(worldId);
 
   return true;
 }

@@ -15,18 +15,24 @@ spawn_zombie() {
       .layer    = {.category = GFX_Layer_Foreground},
   };
 
-  gECS->physics_body[idx] = {
-      .body = psx_world_add(gGameMaster.psx_world,
-                            {
-                                .pos            = {2, 2},
-                                .center_of_mass = fvec2 {-sz.x, sz.y} * 0.5f * PSX_SCALE_INV,
-                                .mass           = 10,
-                                .linear_damping = 1.0f,
-                            }),
-  };
+  PSX_Body_ID psx_body = psx_world_add(gGameMaster.psx_world,
+                                       {
+                                           .type           = PSX_BodyType_Dynamic,
+                                           .pos            = {2, 2},
+                                           .damping_linear = 1.0f,
+                                       });
 
-  psx_body_add_box_shape(
-      gGameMaster.psx_world, gECS->physics_body[idx].body, {0, 0}, sz * PSX_SCALE_INV);
+  psx_body_add_box_shape(psx_body,
+                         {
+                             .filter                = {.category = 1, .mask = 1},
+                             .friction              = 1.0,
+                             .density               = 10,
+                             .enable_sensor_events  = true,
+                             .enable_contact_events = true,
+                         },
+                         sz * PSX_SCALE_INV * 3);
+
+  gECS->physics_body[idx].body = psx_body;
 
   ecs_opt_in(Sys_Type_Physics, id);
   ecs_opt_in(Sys_Type_Rendering, id);

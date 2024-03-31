@@ -1,5 +1,7 @@
 #pragma once
 
+#include "box2d/box2d.h"
+
 // HPP
 //
 #include "base/base_inc.hpp"
@@ -12,9 +14,6 @@
 #include "ui/ui_inc.hpp"
 #include "ecs/ecs_inc.hpp"
 #include "tools/tools_inc.hpp"
-
-#include "box2d/box2d.h"
-
 
 #include "game/game_main.hpp"
 
