@@ -109,11 +109,12 @@ gfx_draw_rect_color(GFX_Rect_Opts const &opts, GFX_Color color);
 void
 gfx_draw_rect_color_ui(GFX_Rect_Opts const &opts, GFX_Color color);
 
-struct GFX_Camera {
-  fvec2 center;
-  f32 rot;
-  f32 zoom;
-};
 
 void
-gfx_set_camera_for_batches(GFX_Camera cam);
+gfx_set_camera_for_batches(GFX_Camera const& cam);
+
+must_use fmat4 
+gfx_calc_camera_matrix(GFX_Camera const& cam);
+
+must_use fmat4 
+gfx_calc_inv_camera_matrix(GFX_Camera const& cam);

@@ -993,17 +993,7 @@ gfx_rg_execute_operations(GFX_RG_Operation *operations, u32 count) {
       } break;
 
       case GFX_RG_OpType_SetCamera: {
-        fvec2 const center = op.input.camera.center * -1.f;
-        f32 const   rot    = op.input.camera.rotation;
-        f32 const   zoom   = op.input.camera.zoom;
-        ErrorContext("center={%g,%g}, rot=%g, zoom=%g", center.x, center.y, rot, zoom);
-        ErrorIf(zoom < 0.05f, "Tiny zoom, probably an error.");
-
-        fvec2 const half_out_sz           = gfx_image_size(*op.out) * 0.5f;
-        fmat4 const T                     = translate2(center);
-        fmat4 const R                     = combine(rot_z(rot), translate2(half_out_sz));
-        fmat4 const S                     = scale2({.x = zoom, .y = zoom});
-        gD3d.common_constants.data.camera = combine(T, combine(S, R));
+        gD3d.common_constants.data.camera = gfx_calc_camera_matrix(op.input.camera);
 
         // Update common constants
         //

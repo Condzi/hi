@@ -57,6 +57,8 @@ void
 ecs_kill_pass() {
   u64 idx = ba_find_first_set_from(gECS->to_remove, 0);
   for (; idx != MAX_U64; idx = ba_find_first_set_from(gECS->to_remove, idx + 1)) {
+    psx_world_remove(gECS->physics_body[idx].body);
+
     ba_unset(gECS->alive, idx);
 #define X(unused_, name) gECS->name[idx] = {};
 #include "ecs_components_x.inl"

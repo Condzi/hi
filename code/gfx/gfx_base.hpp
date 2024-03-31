@@ -2,6 +2,12 @@
 
 global Arena *gfx_arena;
 
+struct GFX_Camera {
+  fvec2 center;
+  f32 rot;
+  f32 zoom;
+};
+
 // Helper types
 //
 

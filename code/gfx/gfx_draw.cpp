@@ -515,9 +515,9 @@ gfx_renderer_init_render_graph() {
           {
               .camera =
                   {
-                      .center   = {.x = 0, .y = 0},
-                      .rotation = 0,
-                      .zoom     = 1,
+                      .center = {.x = 0, .y = 0},
+                      .rot    = 0,
+                      .zoom   = 1,
                   },
           },
       .out = gRen.batch_render_target,
@@ -571,9 +571,9 @@ gfx_renderer_init_render_graph() {
           {
               .camera =
                   {
-                      .center   = {os_gfx_surface_width() / 2.f, -(os_gfx_surface_height() / 2.f)},
-                      .rotation = 0,
-                      .zoom     = 1,
+                      .center = {os_gfx_surface_width() / 2.f, -(os_gfx_surface_height() / 2.f)},
+                      .rot    = 0,
+                      .zoom   = 1,
                   },
           },
       .out = vignette_target,
@@ -664,10 +664,38 @@ gfx_renderer_request_node() {
 }
 
 void
-gfx_set_camera_for_batches(GFX_Camera cam) {
-  gRen.batch_camera->op.input.camera = {
-      .center   = cam.center,
-      .rotation = cam.rot,
-      .zoom     = cam.zoom,
-  };
+gfx_set_camera_for_batches(GFX_Camera const &cam) {
+  gRen.batch_camera->op.input.camera = cam;
+}
+
+must_use fmat4
+gfx_calc_camera_matrix(GFX_Camera const &cam) {
+  fvec2 const center = cam.center * -1.f;
+  f32 const   rot    = cam.rot;
+  f32 const   zoom   = cam.zoom;
+  ErrorContext("center={%g,%g}, rot=%g, zoom=%g", center.x, center.y, rot, zoom);
+  ErrorIf(zoom < 0.05f, "Tiny zoom, probably an error.");
+
+  fvec2 const half_out_sz = {(f32)os_gfx_surface_width() / 2, (f32)os_gfx_surface_height() / 2};
+  fmat4 const T           = translate2(center);
+  fmat4 const R           = combine(rot_z(rot), translate2(half_out_sz));
+  fmat4 const S           = scale2({.x = zoom, .y = zoom});
+  fmat4       result      = combine(T, combine(S, R));
+  return result;
+}
+
+must_use fmat4
+gfx_calc_inv_camera_matrix(GFX_Camera const &cam) {
+  fvec2 const center = cam.center * -1.f;
+  f32 const   rot    = cam.rot;
+  f32 const   zoom   = cam.zoom;
+  ErrorContext("center={%g,%g}, rot=%g, zoom=%g", center.x, center.y, rot, zoom);
+  ErrorIf(zoom < 0.05f, "Tiny zoom, probably an error.");
+
+  fvec2 const half_out_sz = {(f32)os_gfx_surface_width() / 2, (f32)os_gfx_surface_height() / 2};
+  fmat4 const T           = translate2(center * (-1.f));
+  fmat4 const R           = combine(translate2(half_out_sz), rot_z(-rot));
+  fmat4 const S           = scale2({.x = 1 / zoom, .y = 1 / zoom});
+  fmat4       result      = combine(R, combine(S, T));
+  return result;
 }

@@ -28,11 +28,7 @@ enum GFX_RG_Op_Type {
 struct GFX_RG_Operation {
   GFX_RG_Op_Type type = GFX_RG_OpType_None;
   union {
-    struct {
-      fvec2 center;
-      f32   rotation;
-      f32   zoom;
-    } camera = {};
+    GFX_Camera camera = {};
 
     struct {
       GFX_Image *targets[GFX_RG_MAX_RENDER_TARGETS_TO_CLEAR];
