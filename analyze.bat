@@ -26,7 +26,7 @@ set cc_report_dir=       %cc_dir%/report/
 set cc_http_dir=         %cc_dir%/report_http/
 set cc_analyze=          call CodeChecker analyze --config codechecker.yml
 set cc_parse=            call CodeChecker parse
-set cc_compile_cmds=     compile_commands.json
+set cc_compile_cmds=     build/compile_commands.json
 set cc_analyzers=        --analyzers clangsa clang-tidy
 set cc_analyzer_config=  --analyzer-config 'clang-tidy:take-config-from-directory=true' --analyzer-config clangsa:AllEnable=true
 

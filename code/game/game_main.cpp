@@ -1,6 +1,5 @@
 #include "all_inc.hpp"
-
-#include "game_main.hpp"
+#include "all_inc.cpp"
 
 bool
 startup() {

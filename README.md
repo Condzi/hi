@@ -20,8 +20,8 @@ My current ideas are written in [game notes](doc/game.md). Basically, I want a H
 
 ## Building
 
-You need `clang++` (my default) or `cl` (I used it before clang, but not sure if still works).  
-Run `build.bat`, probably the simplest is just `build clang debug`. See `build --help` for other options.
+You need `clang++`.  
+Run `build.bat`, probably the simplest is just `build debug`. See `build --help` for other options.
 
 ## Screens
 

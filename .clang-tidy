@@ -56,3 +56,5 @@ Checks:
 HeaderFileExtensions:         ['', 'hpp','hxx']
 ImplementationFileExtensions: ['cpp','cxx']
 FormatStyle: none
+SortIncludes: false
+

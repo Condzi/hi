@@ -56,7 +56,7 @@ if "%clang%"=="1"     set compile_link=      %clang_link%
 if "%clang%"=="1"     set out=               %clang_out%
 
 set compile_commands=
-if "%clang%"=="1"     set compile_commands=  -MJ ../compile_commands.json
+if "%clang%"=="1"     set compile_commands=  -MJ compile_commands.json
 
 if "%debug%"=="1"     set compile=%compile_debug%
 if "%release%"=="1"   set compile=%compile_release%
@@ -123,12 +123,16 @@ echo [game -- compiling done]
 :: This script simply removes the comma and adds [] around the file contents, so tools
 :: don't complain.
 
+:: Skip for now because we don't use it most of the time.
+goto :end
+
 
 if not "%clang%"=="1" (
     echo [compile_commands.json not available]
     goto :end
 )
 
+pushd build
 set "file=compile_commands.json"
 set "tempFile=temp_%RANDOM%.txt"
 
@@ -159,6 +163,7 @@ echo ]>>"%tempFile%"
 :: Replace the original file with the new temp file
 move /Y "%tempFile%" "%file%" >nul
 echo [compile_commands.json generated]
+popd
 
 :: --- Unset ------------------------------------------------------------------
 :end

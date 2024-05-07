@@ -28,5 +28,9 @@
   "C_Cpp.errorSquiggles": "disabled",
   "cSpell.enabled": false,
   "C_Cpp.intelliSenseEngineFallback": "disabled",
-  "debug.onTaskErrors": "abort"
+  "debug.onTaskErrors": "abort",
+  "clangd.checkUpdates": true,
+  "clangd.arguments": [
+    "--compile-commands-dir=W:\\"
+  ],
 }
