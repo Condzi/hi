@@ -3,10 +3,6 @@
 List of bugs assigned to associated modules.  
 Severity: Low/Medium/High.
 
-## UI
-
-- [**High**] UI does not scale when we change window size.
-
 ## GFX
 
 - [**Low**] Small memory leak when resizing the window. Looks like we don't free something?

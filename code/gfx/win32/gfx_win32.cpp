@@ -605,6 +605,12 @@ gfx_resize(u32 new_width, u32 new_height) {
   new_height = Clamp(1, new_height, 16384);
 
   HRESULT hr = 0;
+
+  // Resize the UI camera so the top-left stays in place
+  //
+  gRen.node_before_ui->op.input.camera.center = {os_gfx_surface_width() / 2.f,
+                                                 -(os_gfx_surface_height() / 2.f)};
+
   // Release all references to back buffers.
   //
   {

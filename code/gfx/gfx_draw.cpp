@@ -562,9 +562,6 @@ gfx_renderer_init_render_graph() {
   gRen.node_before_ui = ui_obj_root;
   gRen.node_after_ui  = 0;
 
-  // @ToDo: this needs to be updated on window resize to keep the upper-left corner in correct
-  // place.
-  //
   ui_obj_root->op = {
       .type = GFX_RG_OpType_SetCamera,
       .input =
