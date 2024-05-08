@@ -106,9 +106,9 @@ struct Defer_Maker final {
 #define GB(n) (((u64)(n)) << 30)
 #define TB(n) (((u64)(n)) << 40)
 
-#define Thousand(n) ((n) * 1'000)
-#define Million(n)  ((n) * 1'000'000)
-#define Billion(n)  ((n) * 1'000'000'000)
+#define Thousand(n) ((n) * 1'000ULL)
+#define Million(n)  ((n) * 1'000'000ULL)
+#define Billion(n)  ((n) * 1'000'000'000ULL)
 
 #define Swap(a, b)                                                                                 \
   do {                                                                                             \

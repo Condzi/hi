@@ -59,7 +59,7 @@ os_now_us() {
   u64           res = 0;
   LARGE_INTEGER large_int_counter;
   if (QueryPerformanceCounter(&large_int_counter)) {
-    res = (large_int_counter.QuadPart * (s64)Million(1)) / w32_us_res;
+    res = ((u64)large_int_counter.QuadPart * Million(1)) / w32_us_res;
   }
   return res;
 }
