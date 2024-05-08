@@ -1,3 +1,4 @@
+#include "psx/psx_base.hpp"
 ECS_Entity_ID
 spawn_player() {
   ECS_Entity_ID player_id = ecs_spawn();
@@ -33,6 +34,8 @@ spawn_player() {
                              .enable_contact_events = true,
                          },
                          sz * PSX_SCALE_INV * 3.f);
+
+  psx_body_fix_rotation(psx_body);
 
   gECS->physics_body[idx].body = psx_body;
 

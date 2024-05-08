@@ -57,4 +57,7 @@ HeaderFileExtensions:         ['', 'hpp','hxx']
 ImplementationFileExtensions: ['cpp','cxx']
 FormatStyle: none
 SortIncludes: false
+HeaderInsertion: Never
+InlayHints:
+  AddInclude: Never
 

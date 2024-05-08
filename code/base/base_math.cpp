@@ -573,7 +573,7 @@ calc_transform_matrix(Transform const &t) {
 must_use fmat4
 calc_transform_matrix_inv(Transform const &t) {
   fmat4 const T      = translate2(t.translation * (-1.f));
-  fmat4 const R      = combine(translate2(t.rot_center), rot_z(-t.rot));
+  fmat4 const R      = combine(translate2(t.rot_center * (-1.f)), transpose(rot_z(t.rot)));
   fmat4 const S      = scale2({.x = 1 / t.scale.x, .y = 1 / t.scale.y});
   fmat4 const result = combine(R, combine(S, T));
   return result;

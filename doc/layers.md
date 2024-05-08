@@ -49,6 +49,7 @@
     - trap building system (tightly coupled with player interaction I think?)
     - trap logic system (what should happen if triggered etc)
     - player interaction system (handling input?)
+      - https://gamedev.stackexchange.com/a/72459
     - enemy interaction system (should it exist? wouldn't AI cover everything?)
     - entity management stuff (killing / spawning entities logic)
     - animation system (just simple sprite sheet for now? later bones)

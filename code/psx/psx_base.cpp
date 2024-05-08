@@ -1,3 +1,4 @@
+#include "box2d/box2d.h"
 internal int
 box2d_assert_callback(const char *condition, const char *file_name, int line) {
   LogEng_Err("[box2d] %s:%d: %s", file_name, line, condition);
@@ -56,6 +57,17 @@ must_use fvec2
 psx_body_get_position(PSX_Body_ID body) {
   b2Vec2 pos = b2Body_GetPosition(body);
   return {pos.x, pos.y};
+}
+
+void
+psx_body_fix_rotation(PSX_Body_ID body) {
+  b2Body_SetFixedRotation(body, true);
+}
+
+void
+psx_body_set_rotation(PSX_Body_ID body, f32 rot) {
+  b2Vec2 pos = b2Body_GetPosition(body);
+  b2Body_SetTransform(body, pos, rot);
 }
 
 must_use f32

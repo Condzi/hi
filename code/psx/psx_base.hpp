@@ -104,6 +104,12 @@ psx_body_set_position(PSX_Body_ID id, fvec2 pos);
 must_use fvec2
 psx_body_get_position(PSX_Body_ID body);
 
+void
+psx_body_fix_rotation(PSX_Body_ID body);
+
+void
+psx_body_set_rotation(PSX_Body_ID body, f32 rot);
+
 must_use f32
 psx_body_get_rotation(PSX_Body_ID body);
 
