@@ -557,3 +557,24 @@ ortho_proj(f32 width, f32 height) {
 
   return Result;
 }
+
+// Transform
+//
+
+must_use fmat4
+calc_transform_matrix(Transform const &t) {
+  fmat4 const T      = translate2(t.translation);
+  fmat4 const R      = combine(rot_z(t.rot), translate2(t.rot_center));
+  fmat4 const S      = scale2(t.scale);
+  fmat4 const result = combine(T, combine(S, R));
+  return result;
+}
+
+must_use fmat4
+calc_transform_matrix_inv(Transform const &t) {
+  fmat4 const T      = translate2(t.translation * (-1.f));
+  fmat4 const R      = combine(translate2(t.rot_center), rot_z(-t.rot));
+  fmat4 const S      = scale2({.x = 1 / t.scale.x, .y = 1 / t.scale.y});
+  fmat4 const result = combine(R, combine(S, T));
+  return result;
+}

@@ -195,3 +195,19 @@ translate2(fvec2 o);
 
 must_use fmat4
 ortho_proj(f32 width, f32 height);
+
+// Transform
+//
+
+struct Transform {
+  fvec2 translation;
+  f32   rot; // radians
+  fvec2 rot_center;
+  fvec2 scale;
+};
+
+must_use fmat4
+calc_transform_matrix(Transform const &t);
+
+must_use fmat4
+calc_transform_matrix_inv(Transform const &t);

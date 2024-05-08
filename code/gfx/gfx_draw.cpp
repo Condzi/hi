@@ -673,11 +673,20 @@ gfx_calc_camera_matrix(GFX_Camera const &cam) {
   ErrorContext("center={%g,%g}, rot=%g, zoom=%g", center.x, center.y, rot, zoom);
   ErrorIf(zoom < 0.05f, "Tiny zoom, probably an error.");
 
+  // @Todo: half_out_sz should be calculated using current image size, not the gfx surface size.
+  //
   fvec2 const half_out_sz = {(f32)os_gfx_surface_width() / 2, (f32)os_gfx_surface_height() / 2};
-  fmat4 const T           = translate2(center);
-  fmat4 const R           = combine(rot_z(rot), translate2(half_out_sz));
-  fmat4 const S           = scale2({.x = zoom, .y = zoom});
-  fmat4       result      = combine(T, combine(S, R));
+  fmat4 const result      = calc_transform_matrix({
+           .translation = center,
+           .rot         = rot,
+           .rot_center  = half_out_sz,
+           .scale =
+          {
+                   .x = zoom,
+                   .y = zoom,
+          },
+  });
+
   return result;
 }
 
@@ -689,10 +698,19 @@ gfx_calc_inv_camera_matrix(GFX_Camera const &cam) {
   ErrorContext("center={%g,%g}, rot=%g, zoom=%g", center.x, center.y, rot, zoom);
   ErrorIf(zoom < 0.05f, "Tiny zoom, probably an error.");
 
+  // @Todo: @Copypasta: half_out_sz should be calculated using current image size, not the gfx
+  // surface size.
+  //
   fvec2 const half_out_sz = {(f32)os_gfx_surface_width() / 2, (f32)os_gfx_surface_height() / 2};
-  fmat4 const T           = translate2(center * (-1.f));
-  fmat4 const R           = combine(translate2(half_out_sz), rot_z(-rot));
-  fmat4 const S           = scale2({.x = 1 / zoom, .y = 1 / zoom});
-  fmat4       result      = combine(R, combine(S, T));
+  fmat4 const result      = calc_transform_matrix_inv({
+           .translation = center,
+           .rot         = rot,
+           .rot_center  = half_out_sz,
+           .scale =
+          {
+                   .x = zoom,
+                   .y = zoom,
+          },
+  });
   return result;
 }

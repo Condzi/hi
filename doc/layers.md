@@ -18,6 +18,10 @@
 
     [ ] Rand (perlin noise, random range)
     [ ] Pool allocator -- it should work like the cache of reusable objects
+    [ ] Use complex numbers for rotation
+      [ ] Complex type, conversion from/to radians
+      [ ] Implement in graphics
+      [ ] Implement in physics
 
 ## Debug Tools
 
