@@ -1,4 +1,3 @@
-#include "psx/psx_base.hpp"
 ECS_Entity_ID
 spawn_player() {
   ECS_Entity_ID player_id = ecs_spawn();
@@ -23,6 +22,7 @@ spawn_player() {
                                            .pos            = {},
                                            .fixed_rot      = true,
                                            .damping_linear = 5.0f,
+                                           .user_data      = U64ToPtr(player_id.v),
                                        });
 
   psx_body_add_box_shape(psx_body,

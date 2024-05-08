@@ -5,6 +5,8 @@ enum KB_Type {
   KB_MoveDown,
   KB_MoveLeft,
   KB_MoveRight,
+  
+  KB_PrimaryWeapon,
 
   KB_MenuBack,
   KB_MenuEnter,

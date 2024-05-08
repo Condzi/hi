@@ -1,4 +1,3 @@
-#include "box2d/box2d.h"
 internal int
 box2d_assert_callback(const char *condition, const char *file_name, int line) {
   LogEng_Err("[box2d] %s:%d: %s", file_name, line, condition);
@@ -34,12 +33,23 @@ psx_world_add(PSX_World_ID world, PSX_Body_Opts const &opts) {
   def.linearDamping   = opts.damping_linear;
   def.angularDamping  = opts.damping_angular;
   def.fixedRotation   = opts.fixed_rot;
+  def.userData        = opts.user_data;
   return b2CreateBody(world, &def);
 }
 
 void
 psx_world_remove(PSX_Body_ID id) {
   b2DestroyBodyAndJoints(id);
+}
+
+must_use PSX_Body_ID
+psx_shape_id_to_body_id(PSX_Shape_ID id) {
+  return b2Shape_GetBody(id);
+}
+
+must_use void *
+psx_body_get_user_data(PSX_Body_ID id) {
+  return b2Body_GetUserData(id);
 }
 
 void
@@ -113,4 +123,12 @@ psx_make_wheel_joint(PSX_World_ID w, PSX_Wheel_Joint_Opts const &opts) {
   def.maxMotorTorque   = opts.max_motor_torque;
   def.motorSpeed       = opts.motor_speed;
   return b2CreateWheelJoint(w, &def);
+}
+
+must_use PSX_Shape_ID
+psx_raycast_nearest(PSX_World_ID w, fvec2 origin, fvec2 target, PSX_Filter filter) {
+  b2Vec2 const        origin_     = {.x = origin.x, .y = origin.y};
+  b2Vec2 const        translation = {.x = target.x, .y = target.y};
+  b2QueryFilter const filter_     = {.categoryBits = filter.category, .maskBits = filter.mask};
+  return b2World_RayCastClosest(w, origin_, translation, filter_).shapeId;
 }

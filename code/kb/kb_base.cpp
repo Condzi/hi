@@ -11,6 +11,9 @@ make_key_bindings(Arena *arena) {
   b[KB_MoveDown].primary = b[KB_MoveDown].def = GameInput_LetterS;
   b[KB_MoveLeft].primary = b[KB_MoveLeft].def = GameInput_LetterA;
   b[KB_MoveRight].primary = b[KB_MoveRight].def = GameInput_LetterD;
+
+  b[KB_PrimaryWeapon].primary = b[KB_PrimaryWeapon].def = GameInput_MouseLeft;
+
   b[KB_MenuBack].primary = b[KB_MenuBack].def = GameInput_Escape;
   b[KB_MenuEnter].primary = b[KB_MenuEnter].def = GameInput_Enter;
 

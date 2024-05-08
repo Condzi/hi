@@ -71,6 +71,8 @@ loop(f32 dt) {
   tools_system().update(dt);
   rendering_system().update(dt);
 
+  ecs_kill_pass();
+
   ui_end();
   gfx_renderer_end_frame();
 

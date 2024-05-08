@@ -40,6 +40,7 @@ struct PSX_Body_Opts {
   bool          fixed_rot       = false;
   f32           damping_linear  = 0;
   f32           damping_angular = 0;
+  void         *user_data       = 0;
 };
 
 struct PSX_Filter {
@@ -95,6 +96,12 @@ psx_world_add(PSX_World_ID world, PSX_Body_Opts const &opts);
 void
 psx_world_remove(PSX_Body_ID id);
 
+must_use PSX_Body_ID
+psx_shape_id_to_body_id(PSX_Shape_ID id);
+
+must_use void*
+psx_body_get_user_data(PSX_Body_ID id);
+
 void
 psx_body_add_force(PSX_Body_ID id, fvec2 force);
 
@@ -121,3 +128,6 @@ psx_make_motor_joint(PSX_World_ID w, PSX_Motor_Joint_Opts const &opts);
 
 must_use PSX_Joint_ID
 psx_make_wheel_joint(PSX_World_ID w, PSX_Wheel_Joint_Opts const &opts);
+
+must_use PSX_Shape_ID
+psx_raycast_nearest(PSX_World_ID w, fvec2 origin, fvec2 target, PSX_Filter filter);

@@ -1,4 +1,3 @@
-#include "ecs/ecs_base.hpp"
 ECS_Entity_ID
 spawn_zombie() {
   ECS_Entity_ID id  = ecs_spawn();
@@ -22,6 +21,7 @@ spawn_zombie() {
                                            .type           = PSX_BodyType_Dynamic,
                                            .pos            = {2, 2},
                                            .damping_linear = 1.0f,
+                                           .user_data      = U64ToPtr(id.v),
                                        });
 
   psx_body_add_box_shape(

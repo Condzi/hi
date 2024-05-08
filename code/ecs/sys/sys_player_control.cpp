@@ -1,7 +1,3 @@
-#include "base/base_math.hpp"
-#include "ecs/ecs_components.hpp"
-#include "gfx/gfx_draw.hpp"
-#include "psx/psx_base.hpp"
 internal void
 player_control_init() {
   LogEng_Debug("player_control_init");
@@ -30,6 +26,8 @@ player_control_update(f32 dt) {
     mov_dir.x += 1;
   }
 
+  bool const shoot = kb_state(KB_PrimaryWeapon).pressed;
+
   fvec2 const force = mov_dir * 100.f;
   fvec2 const cursor_pos = gfx_get_mouse_pos_in_world();
 
@@ -45,6 +43,19 @@ player_control_update(f32 dt) {
     fvec2 const dir    = normalized(cursor_pos - en_pos);
     f32 const   rot    = fatan2(dir.y, dir.x);
     psx_body_set_rotation(body, rot);
+
+    if (shoot) {
+      PSX_Shape_ID res = psx_raycast_nearest(gGameMaster.psx_world,
+                                             en_pos * PSX_SCALE_INV,
+                                             dir * 100.f,
+                                             {.category = En_Type_Player, .mask = En_Type_Zombie});
+      if (PSX_NON_NULL(res)) {
+        LogGame_Info("Zombie hit!");
+        PSX_Body_ID   res_body = psx_shape_id_to_body_id(res);
+        ECS_Entity_ID en_id {.v = PtrToU64(psx_body_get_user_data(res_body))};
+        ecs_kill(en_id);
+      }
+    }
 
     idx = ba_find_first_set_from(system, idx + 1);
   }

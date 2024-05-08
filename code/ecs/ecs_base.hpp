@@ -22,10 +22,13 @@ enum Sys_Type {
 // Common Types
 //
 
-struct ECS_Entity_ID {
-  u16 idx;
-  u16 is_set   : 1;
-  u16 revision : 15;
+union ECS_Entity_ID {
+  struct {
+    u16 idx;
+    u16 is_set   : 1;
+    u16 revision : 15;
+  };
+  u64 v;
 };
 
 #define ECS_IS_NULL(id) ((id).is_set == 0)
