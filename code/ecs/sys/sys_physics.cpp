@@ -24,8 +24,8 @@ physics_update(f32 dt) {
     psx_acc = 0;
   }
 
-  Bit_Array         *system   = gECS->systems[Sys_Type_Physics];
-  u64                idx      = ba_find_first_set(system);
+  Bit_Array *system = gECS->systems[Sys_Type_Physics];
+  u64        idx    = ba_find_first_set(system);
   for (; idx != MAX_U64;) {
     ECS_Transform_Component          &transform_component = gECS->transform[idx];
     ECS_Physics_Body_Component const &physics_component   = gECS->physics_body[idx];

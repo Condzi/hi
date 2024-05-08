@@ -4,6 +4,11 @@
 //
 u64 read_only global ECS_LIMIT = 2'000;
 
+enum En_Type {
+  En_Type_Player = Bit(0),
+  En_Type_Zombie = Bit(1),
+};
+
 enum Sys_Type {
   Sys_Type_Physics,
   Sys_Type_Rendering,

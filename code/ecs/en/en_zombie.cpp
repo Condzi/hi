@@ -1,3 +1,4 @@
+#include "ecs/ecs_base.hpp"
 ECS_Entity_ID
 spawn_zombie() {
   ECS_Entity_ID id  = ecs_spawn();
@@ -23,15 +24,16 @@ spawn_zombie() {
                                            .damping_linear = 1.0f,
                                        });
 
-  psx_body_add_box_shape(psx_body,
-                         {
-                             .filter                = {.category = 1, .mask = 1},
-                             .friction              = 1.0,
-                             .density               = 10,
-                             .enable_sensor_events  = true,
-                             .enable_contact_events = true,
-                         },
-                         sz * PSX_SCALE_INV * 3);
+  psx_body_add_box_shape(
+      psx_body,
+      {
+          .filter   = {.category = En_Type_Zombie, .mask = En_Type_Player | En_Type_Zombie},
+          .friction = 1.0,
+          .density  = 10,
+          .enable_sensor_events  = true,
+          .enable_contact_events = true,
+      },
+      sz * PSX_SCALE_INV * 3);
 
   gECS->physics_body[idx].body = psx_body;
 

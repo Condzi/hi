@@ -27,7 +27,7 @@ spawn_player() {
 
   psx_body_add_box_shape(psx_body,
                          {
-                             .filter                = {.category = 1, .mask = 1},
+                             .filter                = {.category = En_Type_Player, .mask = En_Type_Zombie},
                              .friction              = 1.0,
                              .density               = 10,
                              .enable_sensor_events  = true,

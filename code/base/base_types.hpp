@@ -93,6 +93,8 @@ struct Defer_Maker final {
 #define ClampBot(X, B) Max(X, B)
 #define Clamp(A, X, B) (((X) < (A)) ? (A) : ((X) > (B)) ? (B) : (X))
 
+#define Bit(x) (1ULL << x)
+
 #define Compose64Bit(a, b)  ((((U64)(a)) << 32) | ((U64)(b)));
 #define AlignPow2(x, b)     (((x) + (b)-1) & (~((b)-1)))
 #define AlignDownPow2(x, b) ((x) & (~((b)-1)))
