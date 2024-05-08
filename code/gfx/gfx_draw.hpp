@@ -37,6 +37,7 @@ struct {
   GFX_RG_Node *node_after_ui  = 0;
 
   GFX_RG_Node* batch_camera = 0;
+  fmat4 camera_mtx_inv;
 } global gRen;
 
 void
@@ -118,3 +119,7 @@ gfx_calc_camera_matrix(GFX_Camera const& cam);
 
 must_use fmat4 
 gfx_calc_inv_camera_matrix(GFX_Camera const& cam);
+
+
+must_use fvec2
+gfx_get_mouse_pos_in_world();

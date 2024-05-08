@@ -2,6 +2,8 @@
 // Internal declarations
 //
 
+#include "gfx/gfx_draw.hpp"
+#include "base/base_math.hpp"
 internal void
 gfx_renderer_init_reuseable_resources();
 
@@ -663,6 +665,7 @@ gfx_renderer_request_node() {
 void
 gfx_set_camera_for_batches(GFX_Camera const &cam) {
   gRen.batch_camera->op.input.camera = cam;
+  gRen.camera_mtx_inv                = gfx_calc_inv_camera_matrix(cam);
 }
 
 must_use fmat4
@@ -713,4 +716,11 @@ gfx_calc_inv_camera_matrix(GFX_Camera const &cam) {
           },
   });
   return result;
+}
+
+must_use fvec2
+gfx_get_mouse_pos_in_world() {
+  fvec2 pos = os_gfx_mouse_pos();
+  transform_point(pos, gRen.camera_mtx_inv);
+  return pos;
 }
