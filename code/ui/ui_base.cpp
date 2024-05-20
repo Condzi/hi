@@ -151,9 +151,9 @@ ui_pop_stack() {
 void
 check_widget_input_state(UI_Widget *widget) {
   f32 const min_x = widget->pos_final.x;
-  f32 const min_y = widget->pos_final.y;
+  f32 const max_y = widget->pos_final.y;
   f32 const max_x = widget->pos_final.x + widget->sz_final.x;
-  f32 const max_y = widget->pos_final.y + widget->sz_final.y;
+  f32 const min_y = widget->pos_final.y - widget->sz_final.y;
   f32 const x = gUI.mouse_pos.x;
   f32 const y = gUI.mouse_pos.y;
 
