@@ -34,3 +34,9 @@ ui_rect(Str8 key, u32 flags, UI_Size size_x, UI_Size size_y) {
   UI_Widget *result = ui_push_widget(opts);
   return {.widget = result, .clicked = gUI.active == result};
 }
+
+template <typename... TArgs>
+UI_Comm
+ui_button(Str8 key, u32 flags, char const *text, TArgs... args) {
+  return ui_textf(key, flags | UI_WidgetFlag_DrawBackground, text, args...);
+}

@@ -24,7 +24,7 @@ render(UI_Widget *widget) {
                     .priority = 1,
                 },
         },
-        {.v = 0x00'00'00'55});
+        {.v = 0x00'00'00'80});
   }
 
   if (flags & UI_WidgetFlag_DrawText) {
@@ -70,7 +70,7 @@ ui_init(Arena *arena, u64 widgets_cap) {
     DLL_insert_at_front(gUI.free_widgets, &(widgets[i]));
   }
 
-  gUI.anim_speed = 10.f; // HZ
+  gUI.anim_speed = 1.f; // HZ
 
   GFX_Image font_img = d3d_load_png("W:/hi/run_tree/tex/pixel_font_basic_latin_ascii.png"_s8);
   GFX_Font  font     = gfx_make_font(font_img, 7, 9);
@@ -112,6 +112,7 @@ ui_push_widget(UI_Widget_Opts const &opts) {
       gUI.free_widgets->prev = 0;
     }
     ht_insert(gUI.widgets_hash_table, key.hash, widget);
+    widget->hot_anim = 0;
   }
 
   *widget = {
