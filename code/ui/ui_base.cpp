@@ -88,6 +88,10 @@ ui_begin(f32 dt) {
   gUI.widget_stack = 0;
   gUI.frame_id++;
   gUI.frame_dt = dt;
+
+  gUI.mouse_pos   = os_gfx_mouse_pos();
+  gUI.mouse_pos.y -= (f32)os_gfx_surface_height() ;
+  gUI.clicked     = kb_state(KB_MenuEnter).pressed;
 }
 
 must_use UI_Widget *
@@ -145,6 +149,25 @@ ui_pop_stack() {
 }
 
 void
+check_widget_input_state(UI_Widget *widget) {
+  f32 const min_x = widget->pos_final.x;
+  f32 const min_y = widget->pos_final.y;
+  f32 const max_x = widget->pos_final.x + widget->sz_final.x;
+  f32 const max_y = widget->pos_final.y + widget->sz_final.y;
+  f32 const x = gUI.mouse_pos.x;
+  f32 const y = gUI.mouse_pos.y;
+
+  bool const is_hovered = (x >= min_x && x <= max_x) &&
+                          (y >= min_y && y <= max_y);
+
+  if (is_hovered && gUI.clicked) {
+    gUI.active = widget;
+  } else if (is_hovered) {
+    gUI.hot = widget;
+  }
+}
+
+void
 ui_end() {
   /**
   1. (Any order)  Calculate standalone sizes.
@@ -163,6 +186,9 @@ ui_end() {
   Tree_pre_order(gUI.widgets, solve_size_violations);
   Tree_pre_order(gUI.widgets, calculate_relative_positions);
   Tree_pre_order(gUI.widgets, calculate_final_positions);
+
+  gUI.active = gUI.hot = 0;
+  Tree_pre_order(gUI.widgets, check_widget_input_state);
 
   // Render, back-to-front.
   //
@@ -203,3 +229,4 @@ ui_end() {
     DLL_insert_at_front(gUI.free_widgets, widgets_to_free[i]);
   }
 }
+

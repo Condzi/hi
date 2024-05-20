@@ -1,4 +1,3 @@
-
 void
 calculate_standalone_size(UI_Widget *widget) {
   UI_Size const &sz_x    = widget->semantic_size[Axis2_X];

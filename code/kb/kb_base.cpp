@@ -16,6 +16,7 @@ make_key_bindings(Arena *arena) {
 
   b[KB_MenuBack].primary = b[KB_MenuBack].def = GameInput_Escape;
   b[KB_MenuEnter].primary = b[KB_MenuEnter].def = GameInput_Enter;
+  b[KB_MenuEnter].secondary = GameInput_MouseLeft;
 
   b[KB_Debug1].primary = b[KB_Debug1].def = GameInput_F1;
   b[KB_Debug2].primary = b[KB_Debug2].def = GameInput_F2;

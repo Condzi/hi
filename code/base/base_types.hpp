@@ -18,6 +18,7 @@
 #define no_return     [[noreturn]]
 #define fallthrough   [[fallthrough]]
 #define word_aligned  alignas(8)
+#define cache_aligned alignas(64)
 
 // Language layer -- memory operations
 //

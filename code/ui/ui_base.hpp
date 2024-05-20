@@ -94,6 +94,13 @@ struct UI_Context {
   //
   f32 anim_speed;
   f32 frame_dt;
+
+  // Input
+  //
+  fvec2 mouse_pos;
+  bool  clicked;
+  UI_Widget* active;
+  UI_Widget* hot;
 } internal gUI;
 
 // Just hashes the string.

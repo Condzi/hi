@@ -13,7 +13,7 @@ ui_text(Str8 key, u32 flags, Str8 text) {
   };
 
   UI_Widget *result = ui_push_widget(opts);
-  return {.widget = result};
+  return {.widget = result, .clicked = gUI.active == result};
 }
 
 template <typename... TArgs>
@@ -32,5 +32,5 @@ ui_rect(Str8 key, u32 flags, UI_Size size_x, UI_Size size_y) {
   };
 
   UI_Widget *result = ui_push_widget(opts);
-  return {.widget = result};
+  return {.widget = result, .clicked = gUI.active == result};
 }

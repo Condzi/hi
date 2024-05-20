@@ -45,7 +45,9 @@ tools_update() {
       }
       Str8 const widget_key = str8_sprintf(gContext.frame_arena, "log_entry_%zu", i);
       f32 const  timestamp  = log_timestamp_to_seconds(headers[i].timestamp);
-      ui_textf(widget_key, 0, "^%c%.2f^| %S", severity, timestamp, messages[i]);
+      if (ui_textf(widget_key, 0, "^%c%.2f^| %S", severity, timestamp, messages[i]).clicked) {
+        LogGame_Debug("clicked %S", widget_key);
+      }
     }
   }
 }
