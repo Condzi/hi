@@ -38,11 +38,14 @@ player_control_update(f32 dt) {
     ECS_Transform_Component const    &transform_component    = gECS->transform[idx];
     PSX_Body_ID const                 body                   = physics_body_component.body;
 
-    psx_body_add_force(body, force);
     fvec2 const en_pos = transform_component.pos;
     fvec2 const dir    = normalized(cursor_pos - en_pos);
     f32 const   rot    = fatan2(dir.y, dir.x);
     psx_body_set_rotation(body, rot);
+
+    // @Todo(kkubacki): set linear velocity instead of applying force.
+    //
+    psx_body_add_force(body, force);
 
     if (shoot) {
       PSX_Shape_ID res = psx_raycast_nearest(gGameMaster.psx_world,

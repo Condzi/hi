@@ -42,6 +42,7 @@ spawn_player() {
   ecs_opt_in(Sys_Type_Physics, player_id);
   ecs_opt_in(Sys_Type_Rendering, player_id);
   ecs_opt_in(Sys_Type_PlayerControl, player_id);
+  ecs_opt_in(Sys_Type_Camera, player_id);
 
   return player_id;
 }

@@ -24,6 +24,7 @@ startup() {
   rendering_system().init();
   player_control_system().init();
   tools_system().init();
+  camera_system().init();
 
   ui_init(gContext.misc_arena, 512);
 
@@ -69,6 +70,7 @@ loop(f32 dt) {
   player_control_system().update(dt);
   physics_system().update(dt);
   tools_system().update(dt);
+  camera_system().update(dt);
   rendering_system().update(dt);
 
   ecs_kill_pass();

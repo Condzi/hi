@@ -1,4 +1,3 @@
-
 void
 tools_update() {
   if (!gDbgConsole.is_open && !gDbgMemoryConsumption.is_open) {
@@ -6,21 +5,21 @@ tools_update() {
   }
 
   UI_Comm bg = ui_rect("debug_console_bg"_s8,
-                       UI_WidgetFlag_DrawBackground | UI_WidgetFlag_AnimateVertical,
+                       UI_WidgetFlag_DrawBackground,
                        {.kind = UI_SizeKind_PercentOfParent, .value = 1, .strictness = 1},
-                       {.kind = UI_SizeKind_ChildrenSum, .strictness = 1});
+                       {.kind = UI_SizeKind_ChildrenSum, .value = 1, .strictness = 1});
 
   ui_push_to_stack(bg.widget);
   Defer { ui_pop_stack(); };
 
 
   ui_textf("button_"_s8, 0, "this is a button -> ");
-  if (ui_button("button"_s8, UI_WidgetFlag_HorizontalLayout, "button").clicked) {
+  if (ui_button("button"_s8, UI_WidgetFlag_HorizontalLayout | UI_WidgetFlag_AnimateHorizontal, "button").clicked) {
     LogGame_Debug("button clicked");
   }
 
   ui_textf("console_header"_s8,
-           UI_WidgetFlag_AnimateVertical | UI_WidgetFlag_AnimateHorizontal,
+           0,
            "%.3fs | dt=todo | dt_min=todo | dt_max=todo",
            os_seconds_since_startup());
 
@@ -28,7 +27,7 @@ tools_update() {
     OS_Memory_Stats const stats = os_get_memory_stats();
 
     ui_textf("memory_header"_s8,
-             UI_WidgetFlag_HorizontalLayout | UI_WidgetFlag_AnimateVertical | UI_WidgetFlag_AnimateHorizontal,
+             UI_WidgetFlag_HorizontalLayout | UI_WidgetFlag_AnimateVertical,
              " Memory reserved: %_$$$.3zu | Commited: %_$$$.3zu",
              stats.reserved,
              stats.commited);
@@ -51,7 +50,7 @@ tools_update() {
       }
       Str8 const widget_key = str8_sprintf(gContext.frame_arena, "log_entry_%zu", i);
       f32 const  timestamp  = log_timestamp_to_seconds(headers[i].timestamp);
-      if (ui_textf(widget_key, UI_WidgetFlag_AnimateVertical | UI_WidgetFlag_AnimateHorizontal, "^%c%.2f^| %S", severity, timestamp, messages[i]).clicked) {
+      if (ui_textf(widget_key, UI_WidgetFlag_AnimateVertical, "^%c%.2f^| %S", severity, timestamp, messages[i]).clicked) {
         LogGame_Debug("clicked %S", widget_key);
       }
     }

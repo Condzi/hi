@@ -70,7 +70,7 @@ ui_init(Arena *arena, u64 widgets_cap) {
     DLL_insert_at_front(gUI.free_widgets, &(widgets[i]));
   }
 
-  gUI.anim_speed = 1.f; // HZ
+  gUI.anim_speed = 5.f; // HZ
 
   GFX_Image font_img = d3d_load_png("W:/hi/run_tree/tex/pixel_font_basic_latin_ascii.png"_s8);
   GFX_Font  font     = gfx_make_font(font_img, 7, 9);

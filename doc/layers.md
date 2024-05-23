@@ -31,7 +31,6 @@
 
 ## Entities & Systems
 
-    [ ] Gameplay camera system -- one place to control camera (moving it around, zooming etc), layer over renderer
     [ ] A* -- used for AI in pathfinding and GOAP!
     [ ] List of systems to update. Maybe sort by priority?
     [ ] Game state machine. This is just a list of systems to run.

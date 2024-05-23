@@ -1,3 +1,9 @@
+must_use internal f32
+anim_curve(f32 t) {
+  f32 const ttt = (1 - t) * (1 - t) * (1 - t);
+  return 1 - ttt;
+}
+
 void
 calculate_standalone_size(UI_Widget *widget) {
   UI_Size const &sz_x    = widget->semantic_size[Axis2_X];
@@ -17,6 +23,13 @@ calculate_standalone_size(UI_Widget *widget) {
   } else if (sz_y.kind == UI_SizeKind_TextContent) {
     f32 const h = ui_size_text(widget->string).y;
     sz_px_y     = h;
+  }
+
+  if (widget->flags & UI_WidgetFlag_AnimateHorizontal) {
+    sz_px_x *= anim_curve(widget->hot_anim);
+  }
+  if (widget->flags & UI_WidgetFlag_AnimateVertical) {
+    sz_px_y *= anim_curve(widget->hot_anim);
   }
 }
 
@@ -76,22 +89,9 @@ calculate_downward_depend_size(UI_Widget *widget) {
   }
 }
 
-must_use internal f32
-anim_curve(f32 t) {
-  f32 const ttt = (1 - t) * (1 - t) * (1 - t);
-  return 1 - ttt;
-}
-
 void
 solve_size_violations(UI_Widget *widget) {
   widget->sz_final = widget->sz_px;
-  if (widget->flags & UI_WidgetFlag_AnimateHorizontal) {
-    widget->sz_final.x *= anim_curve(widget->hot_anim);
-  }
-  if (widget->flags & UI_WidgetFlag_AnimateVertical) {
-    widget->sz_final.y *= anim_curve(widget->hot_anim);
-  }
-
   if (!widget->parent) {
     // It's the root node.
     return;
@@ -165,7 +165,14 @@ calculate_final_positions(UI_Widget *widget) {
   // @Note: We need to remember that we're using Cartesian coordinate system (X-> Y^) in renderer,
   // but X-> Y\/ in UI.
   fvec2 const parent_pos = widget->parent->pos_final;
-  fvec2 const rel_pos    = widget->pos_rel;
+  fvec2       rel_pos    = widget->pos_rel;
+  if (widget->flags & UI_WidgetFlag_AnimateHorizontal) {
+    rel_pos.x *= anim_curve(widget->hot_anim);
+  }
+  if (widget->flags & UI_WidgetFlag_AnimateVertical) {
+    rel_pos.y *= anim_curve(widget->hot_anim);
+  }
+
   fvec2       final_pos  = {};
   final_pos.x            = parent_pos.x + rel_pos.x;
   final_pos.y            = parent_pos.y - rel_pos.y;

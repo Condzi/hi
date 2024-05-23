@@ -11,3 +11,6 @@ player_control_system();
 
 must_use Sys_Logic
 tools_system();
+
+must_use Sys_Logic
+camera_system();
