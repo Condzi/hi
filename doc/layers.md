@@ -2,6 +2,14 @@
   
   ![Game Layers](game_layers_1.png)
 
+## **new** AI
+
+    [ ] A*
+
+- pathfinding
+- state machines
+- different behaviors for different zombies
+
 ## Audio
 
     [ ] Enumerate available audio devices
@@ -26,41 +34,38 @@
     [ ] Frame Time Graph
     [ ] Menu with toggable flags, for example for debug view of physics system
     [ ] Debug text rendering (at least maybe boxes around text?)
-    [ ] Render graph visualsation
+    [ ] Render graph visualization
     [ ] Menu with Entity information...?
 
 ## Entities & Systems
 
-    [ ] A* -- used for AI in pathfinding and GOAP!
     [ ] List of systems to update. Maybe sort by priority?
     [ ] Game state machine. This is just a list of systems to run.
+        Maybe this should be part of `game`, not `ecs`?
+      
+      - game master system (is it a system?) for managing scenes (menu -> game, saving, loading new levels). maybe it should be higher, above the systems?
+
       - pause
       - game
       - menu
+      - editor
+
+    [ ] Animation system 
+      - spritesheet / animation component 
+      - how big the frame is, how many frames there are, is looping and how fast to replay it.
 
     Rough system ideas:
     - physics system
-    - pathfinding system (coupled to physics system? just needs to know about static geometry and dangers, right?)
-    - rendering system? that gathers all entities and their states and determines what should be rendered? (so, clipping?)
-    - ai system
-    - trap building system (tightly coupled with player interaction I think?)
+    - trap placing system
     - trap logic system (what should happen if triggered etc)
-    - player interaction system (handling input?)
-      - https://gamedev.stackexchange.com/a/72459
-    - enemy interaction system (should it exist? wouldn't AI cover everything?)
-    - entity management stuff (killing / spawning entities logic)
-    - animation system (just simple sprite sheet for now? later bones)
-    - sound system?
+    - wave logic system (what to spawn, where)
     - gun system (reloading animations, recoil...?)
     - playback system? maybe?
-    - wave logic system (what to spawn, where) / level management system?
-    - game master system (is it a system?) for managing scenes (menu -> game, saving, loading new levels). maybe it should be higher, above the systems?
+    - sound system?
     
     - shop system
     - money system..?
     - pick ups system
-
-    - all kind of debug subsystems? for some diagrams, drawing, debug UI
 
     - Level of detail handling
 
@@ -76,12 +81,13 @@
     - why the fuck do we silently fail when layer is not specified??
     - The code is full of repetitions and not robust. Also, fix poor resource handling, or actually lack of it.
     - Perhaps render graph nodes can be dealt with similarly to how UI_Widget is being constructed -
-      instaed of doing tagged union maybe we could have a `Graph_Node_Flag` or something?
+      instead of doing tagged union maybe we could have a `Graph_Node_Flag` or something?
   [ ] Common shapes rendering, mostly for debugging support.
     [ ] Arrow
     [ ] Filled arrow
     [ ] Circle
     [ ] Filled circle
+    [ ] Line list, Points (for graphs), although can be replaced with circles and rectangles...?
 
   [ ] Make it easier to select if we render a UI object or game object.
 
@@ -114,14 +120,14 @@
 
 ## Key Bindings
 
-  [ ] Basic array that maps key id to button ID and updates the state of the bindings depending on
+  [X] Basic array that maps key id to button ID and updates the state of the bindings depending on
   the OS events.
-  [ ] Support for default, primary and secondary bindings and rebinding logic
+  [X] Support for default, primary and secondary bindings and rebinding logic
 
 ## OS Core
 
   [ ] OS layer callbacks (init/loop/shutdown)
-  [ ] Filesystem  
+  [ ] Filesystem
   [ ] Threads
   [ ] Mutexes
   [ ] File Watch (notify when file updates) / Hot Reload
@@ -184,9 +190,9 @@
 
 ## UI
 
-  [ ] Figure out why UI does not react when window size changes (projection/camera issue?)
-  [ ] Input handling
   [ ] Checkbox Widget flags
+  [ ] Input field
+  [ ] Graphs
 
 ### UI Implementation notes
 

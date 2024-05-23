@@ -41,6 +41,9 @@ player_control_update(f32 dt) {
     fvec2 const en_pos = transform_component.pos;
     fvec2 const dir    = normalized(cursor_pos - en_pos);
     f32 const   rot    = fatan2(dir.y, dir.x);
+    // @ToDo(kkubacki): replace with https://gamedev.stackexchange.com/a/72459
+    //
+
     psx_body_set_rotation(body, rot);
 
     // @Todo(kkubacki): set linear velocity instead of applying force.
